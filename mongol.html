@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Javanese to Hudum Mongol Bichig</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @font-face {
+            font-family: 'MongolianScript';
+            /* Fallback to system fonts that might support Unicode Mongolian */
+            src: local('Mongolian Baiti'), local('Microsoft Yi Baiti'), local('Noto Sans Mongolian');
+        }
+
+        .mongol-vertical {
+            font-family: 'MongolianScript', serif;
+            writing-mode: vertical-lr;
+            text-orientation: mixed;
+            -webkit-writing-mode: vertical-lr;
+            direction: ltr;
+            font-size: 2.5rem;
+            line-height: 1.5;
+            min-height: 300px;
+            padding: 20px;
+            background: #fdfbf7;
+            border: 1px solid #e5e7eb;
+            border-radius: 0.5rem;
+            white-space: pre;
+            overflow-x: auto;
+        }
+
+        /* Responsive adjustments for mobile */
+        @media (max-width: 640px) {
+            .mongol-vertical {
+                font-size: 1.8rem;
+                min-height: 200px;
+            }
+        }
+    </style>
+</head>
+<body class="bg-gray-50 min-h-screen font-sans text-gray-900">
+
+    <div class="max-w-4xl mx-auto px-4 py-8">
+        <header class="text-center mb-8">
+            <h1 class="text-3xl font-bold text-gray-800">Hudum Mongol x Javanese</h1>
+            <p class="text-gray-600 mt-2">Transliterate Latin Javanese to Traditional Mongol Script</p>
+        </header>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <!-- Input Section -->
+            <div class="space-y-4">
+                <div class="flex justify-between items-center">
+                    <label class="font-semibold text-sm uppercase tracking-wider text-gray-500">Latin Input (Javanese)</label>
+                    <button id="clearBtn" class="text-xs text-red-500 hover:text-red-700 font-medium">CLEAR</button>
+                </div>
+                <textarea 
+                    id="latinInput" 
+                    class="w-full h-64 p-4 border border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all"
+                    placeholder="Type here (e.g., Sego Pecel, Thole, Dhahar, Ngombe...)"
+                ></textarea>
+                
+                <div class="bg-blue-50 p-4 rounded-lg border border-blue-100 text-sm text-blue-800">
+                    <strong>Support:</strong> 
+                    <ul class="list-disc ml-5 mt-1 space-y-1">
+                        <li>Javanese: <b>th, dh, ng, ny, é, è, o</b></li>
+                        <li>Loanwords: <b>f, v, z, kh, sy</b></li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- Output Section -->
+            <div class="space-y-4">
+                <div class="flex justify-between items-center">
+                    <label class="font-semibold text-sm uppercase tracking-wider text-gray-500">Mongol Script (Vertical)</label>
+                    <button id="copyBtn" class="bg-blue-600 hover:bg-blue-700 text-white px-3 py-1 rounded text-xs font-bold transition-colors">
+                        COPY RESULT
+                    </button>
+                </div>
+                <div id="mongolOutput" class="mongol-vertical shadow-inner"></div>
+            </div>
+        </div>
+
+        <footer class="mt-12 pt-8 border-t border-gray-200 text-center text-gray-400 text-xs">
+            <p>Traditional Mongolian script reads top-to-bottom, left-to-right columns.</p>
+        </footer>
+    </div>
+
+    <!-- Notification Toast -->
+    <div id="toast" class="fixed bottom-5 right-5 bg-gray-800 text-white px-4 py-2 rounded-lg shadow-lg transform translate-y-20 opacity-0 transition-all duration-300">
+        Copied to clipboard!
+    </div>
+
+    <script>
+        const latinInput = document.getElementById('latinInput');
+        const mongolOutput = document.getElementById('mongolOutput');
+        const copyBtn = document.getElementById('copyBtn');
+        const clearBtn = document.getElementById('clearBtn');
+        const toast = document.getElementById('toast');
+
+        /**
+         * Mapping Table
+         * Note: Mongolian Unicode is complex with medial/final forms.
+         * For a basic "visual" transliteration tool, we map standard phonemes to Unicode Mongol characters.
+         * Actual font rendering handles the cursive connections.
+         */
+        const map = {
+            // Vowels
+            'a': '\u1820', 'e': '\u1821', 'i': '\u1822', 'o': '\u1823', 'u': '\u1824',
+            'é': '\u1821', 'è': '\u1821', 'ö': '\u1825', 'ü': '\u1826',
+
+            // Multi-char Consonants (Javanese/Special)
+            'ng': '\u182D', 
+            'ny': '\u1831',
+            'th': '\u1832', // Using Taga for retroflex-like feel
+            'dh': '\u1833', // Using Daga for retroflex-like feel
+            'kh': '\u182C', 
+            'sy': '\u1830',
+
+            // Standard Consonants
+            'n': '\u1828',
+            'b': '\u182A',
+            'p': '\u182A', // Mongol often uses same for B/P or 182B for P
+            'q': '\u182C',
+            'r': '\u1837',
+            's': '\u182F',
+            't': '\u1832',
+            'd': '\u1833',
+            'l': '\u182E',
+            'm': '\u182E', // 182E is L, 1829 is M
+            'm': '\u1829',
+            'j': '\u1835',
+            'y': '\u1836',
+            'k': '\u182C',
+            'g': '\u182D',
+            'f': '\u1838',
+            'v': '\u1839',
+            'z': '\u183B', // Galik letter Za
+            'h': '\u182C', // Often H is represented by K/Q variant
+            'w': '\u1834',
+            'c': '\u1834', // Using the Tsadi/Tsha variant
+        };
+
+        function transliterate(text) {
+            if (!text) return "";
+            
+            let result = "";
+            let i = 0;
+            let lowerText = text.toLowerCase();
+
+            while (i < lowerText.length) {
+                let char = lowerText[i];
+                let nextChar = lowerText[i + 1];
+                let combined = char + nextChar;
+
+                // Check for digraphs first (ng, ny, th, dh, kh, sy)
+                if (['ng', 'ny', 'th', 'dh', 'kh', 'sy'].includes(combined)) {
+                    result += map[combined] || combined;
+                    i += 2;
+                } 
+                // Check single chars
+                else if (map[char]) {
+                    result += map[char];
+                    i++;
+                } 
+                // Pass through spaces and newlines
+                else if (char === ' ' || char === '\n') {
+                    result += char;
+                    i++;
+                }
+                // Default fallback
+                else {
+                    result += char;
+                    i++;
+                }
+            }
+            return result;
+        }
+
+        // Event Listeners
+        latinInput.addEventListener('input', () => {
+            mongolOutput.textContent = transliterate(latinInput.value);
+        });
+
+        clearBtn.addEventListener('click', () => {
+            latinInput.value = "";
+            mongolOutput.textContent = "";
+        });
+
+        copyBtn.addEventListener('click', () => {
+            const text = mongolOutput.textContent;
+            if (!text) return;
+
+            const textArea = document.createElement("textarea");
+            textArea.value = text;
+            document.body.appendChild(textArea);
+            textArea.select();
+            try {
+                document.execCommand('copy');
+                showToast();
+            } catch (err) {
+                console.error('Fallback copy failed', err);
+            }
+            document.body.removeChild(textArea);
+        });
+
+        function showToast() {
+            toast.classList.remove('translate-y-20', 'opacity-0');
+            setTimeout(() => {
+                toast.classList.add('translate-y-20', 'opacity-0');
+            }, 2000);
+        }
+
+        // Initial placeholder conversion
+        window.onload = () => {
+            latinInput.value = "Mangan sego pecel énak banget";
+            mongolOutput.textContent = transliterate(latinInput.value);
+        };
+    </script>
+</body>
+</html>
