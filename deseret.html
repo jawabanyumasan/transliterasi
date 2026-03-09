@@ -1,0 +1,234 @@
+import React, { useState, useEffect, useCallback } from 'react';
+import { Copy, ArrowLeftRight, Trash2, Info, CheckCircle2 } from 'lucide-react';
+
+/**
+ * PHONETIC MAPPING LOGIC
+ * Optimized for Javanese phonology including loanword support (f, v, z, kh, sy)
+ */
+const latinToDeseretMap = {
+  // Digraphs (Processed first to prevent partial matching)
+  'ng': '𐐥',
+  'ny': '𐐤𐐧', 
+  'th': '𐐓', 
+  'dh': '𐐔', 
+  'kh': '𐐗𐐐', // K + H approximation
+  'sy': '𐐟',   // Esh (sh sound)
+  
+  // Consonants
+  'p': '𐐑',
+  'b': '𐐒',
+  't': '𐐓',
+  'd': '𐐔',
+  'c': '𐐕',
+  'j': '𐐖',
+  'k': '𐐗',
+  'g': '𐐘',
+  's': '𐐝',
+  'w': '𐐦',
+  'l': '𐐢',
+  'r': '𐐡',
+  'm': '𐐣',
+  'n': '𐐤',
+  'h': '𐐐',
+  'y': '𐐧',
+  'f': '𐐙', // Ef
+  'v': '𐐚', // Vee
+  'z': '𐐞', // Zee
+  
+  // Vowels
+  'a': '𐐂', // Ah (Javanese 'a' as in 'mangan')
+  'i': '𐐆', // Ih
+  'u': '𐐋', // Short oo
+  'é': '𐐇', // Eh (e-taling)
+  'è': '𐐇', // Eh
+  'o': '𐐄', // Oh
+  'e': '𐐊', // Uh (pepet / schwa)
+};
+
+// Inverse Map Generation
+const deseretToLatinMap = {
+  '𐐥': 'ng',
+  '𐐤𐐧': 'ny',
+  '𐐟': 'sy',
+  '𐐗𐐐': 'kh',
+  '𐐑': 'p',
+  '𐐒': 'b',
+  '𐐓': 't',
+  '𐐔': 'd',
+  '𐐕': 'c',
+  '𐐖': 'j',
+  '𐐗': 'k',
+  '𐐘': 'g',
+  '𐐝': 's',
+  '𐐦': 'w',
+  '𐐢': 'l',
+  '𐐡': 'r',
+  '𐐣': 'm',
+  '𐐤': 'n',
+  '𐐐': 'h',
+  '𐐧': 'y',
+  '𐐙': 'f',
+  '𐐚': 'v',
+  '𐐞': 'z',
+  '𐐂': 'a',
+  '𐐆': 'i',
+  '𐐋': 'u',
+  '𐐇': 'é',
+  '𐐄': 'o',
+  '𐐊': 'e',
+};
+
+const App = () => {
+  const [latin, setLatin] = useState('');
+  const [deseret, setDeseret] = useState('');
+  const [lastEdited, setLastEdited] = useState('latin');
+  const [copied, setCopied] = useState(false);
+  const [showGuide, setShowGuide] = useState(false);
+
+  const convertToDeseret = useCallback((text) => {
+    let result = text.toLowerCase();
+    const keys = Object.keys(latinToDeseretMap).sort((a, b) => b.length - a.length);
+    
+    // Replace using placeholders to avoid double-translation
+    const placeholders = [];
+    keys.forEach((key) => {
+      const regex = new RegExp(key, 'g');
+      result = result.replace(regex, () => {
+        placeholders.push(latinToDeseretMap[key]);
+        return `__PH_${placeholders.length - 1}__`;
+      });
+    });
+
+    placeholders.forEach((val, index) => {
+      result = result.replace(`__PH_${index}__`, val);
+    });
+
+    return result;
+  }, []);
+
+  const convertToLatin = useCallback((text) => {
+    let result = text;
+    
+    // Priority multi-char deseret sequences
+    const complexKeys = ['𐐤𐐧', '𐐗𐐐'];
+    complexKeys.forEach(key => {
+        const regex = new RegExp(key, 'g');
+        result = result.replace(regex, deseretToLatinMap[key]);
+    });
+
+    const chars = Array.from(result);
+    return chars.map(char => {
+        if (deseretToLatinMap[char]) return deseretToLatinMap[char];
+        return char;
+    }).join('');
+  }, []);
+
+  useEffect(() => {
+    if (lastEdited === 'latin') {
+      setDeseret(convertToDeseret(latin));
+    }
+  }, [latin, lastEdited, convertToDeseret]);
+
+  useEffect(() => {
+    if (lastEdited === 'deseret') {
+      setLatin(convertToLatin(deseret));
+    }
+  }, [deseret, lastEdited, convertToLatin]);
+
+  const copyToClipboard = (text) => {
+    const el = document.createElement('textarea');
+    el.value = text;
+    document.body.appendChild(el);
+    el.select();
+    document.execCommand('copy');
+    document.body.removeChild(el);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
+  };
+
+  return (
+    <div className="min-h-screen bg-neutral-100 text-slate-900 p-4 md:p-10 font-sans">
+      <div className="max-w-4xl mx-auto">
+        <header className="mb-8 text-center">
+          <h1 className="text-4xl font-black text-indigo-900 mb-2">Javanese Deseret</h1>
+          <p className="text-slate-600">Convert Javanese Latin to Deseret Script with Extended Phonetics</p>
+        </header>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 items-start">
+          {/* Latin Side */}
+          <div className="bg-white p-6 rounded-3xl shadow-sm border border-slate-200">
+            <div className="flex justify-between items-center mb-4">
+              <span className="text-xs font-bold uppercase tracking-widest text-slate-400">Latin Input</span>
+              <button 
+                onClick={() => setLatin('')}
+                className="text-slate-300 hover:text-red-500 transition-colors"
+              >
+                <Trash2 size={18} />
+              </button>
+            </div>
+            <textarea
+              className="w-full h-64 p-4 text-xl bg-slate-50 border-none rounded-2xl focus:ring-2 focus:ring-indigo-500 transition-all resize-none"
+              placeholder="Ketik Jawi (conto: fajar, zakat, syariat...)"
+              value={latin}
+              onChange={(e) => {
+                setLastEdited('latin');
+                setLatin(e.target.value);
+              }}
+            />
+          </div>
+
+          {/* Deseret Side */}
+          <div className="bg-white p-6 rounded-3xl shadow-sm border border-slate-200">
+            <div className="flex justify-between items-center mb-4">
+              <span className="text-xs font-bold uppercase tracking-widest text-slate-400">Deseret Output</span>
+              <button 
+                onClick={() => copyToClipboard(deseret)}
+                className={`flex items-center gap-1 text-xs font-bold px-3 py-1 rounded-full transition-all ${copied ? 'bg-green-100 text-green-700' : 'bg-indigo-100 text-indigo-700'}`}
+              >
+                {copied ? <CheckCircle2 size={14} /> : <Copy size={14} />}
+                {copied ? 'COPIED' : 'COPY'}
+              </button>
+            </div>
+            <textarea
+              className="w-full h-64 p-4 text-3xl bg-indigo-50/50 border-none rounded-2xl focus:ring-2 focus:ring-indigo-500 transition-all resize-none text-indigo-900"
+              placeholder="Hasil aksara..."
+              value={deseret}
+              onChange={(e) => {
+                setLastEdited('deseret');
+                setDeseret(e.target.value);
+              }}
+            />
+          </div>
+        </div>
+
+        {/* Legend / Info Toggle */}
+        <div className="mt-8">
+            <button 
+                onClick={() => setShowGuide(!showGuide)}
+                className="flex items-center gap-2 mx-auto px-6 py-3 bg-white border border-slate-200 rounded-full text-slate-600 hover:bg-indigo-50 hover:text-indigo-700 transition-all font-medium"
+            >
+                <Info size={20} />
+                {showGuide ? "Hide Phonetic Table" : "Show Phonetic Table"}
+            </button>
+        </div>
+
+        {showGuide && (
+          <div className="mt-6 bg-white p-8 rounded-3xl border border-slate-200 shadow-inner grid grid-cols-2 sm:grid-cols-4 md:grid-cols-6 gap-4 animate-in fade-in zoom-in duration-200">
+            {Object.entries(latinToDeseretMap).map(([lat, des]) => (
+              <div key={lat} className="flex flex-col items-center p-3 rounded-xl border border-slate-50 bg-slate-50/50">
+                <span className="text-3xl text-indigo-600 mb-1">{des}</span>
+                <span className="text-xs font-bold text-slate-400">{lat}</span>
+              </div>
+            ))}
+          </div>
+        )}
+
+        <footer className="mt-12 text-center text-slate-400 text-sm">
+          <p>Designed for Javanese linguistics. Support for <strong>é</strong> (e-taling) and <strong>e</strong> (pepet) is included.</p>
+        </footer>
+      </div>
+    </div>
+  );
+};
+
+export default App;
