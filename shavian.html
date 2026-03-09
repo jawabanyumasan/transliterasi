@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Konverter Shavian Indonesia/Jawa v2</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;800&display=swap');
+        
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            background-color: #f8fafc;
+        }
+
+        .shavian-text {
+            font-family: 'Segoe UI Historic', 'Noto Sans Shavian', sans-serif;
+            line-height: 1.5;
+        }
+
+        .custom-shadow {
+            box-shadow: 0 20px 50px -12px rgba(0, 0, 0, 0.1);
+        }
+    </style>
+</head>
+<body class="min-h-screen p-4 md:p-10 flex items-center justify-center">
+
+    <div class="w-full max-w-4xl bg-white rounded-[2.5rem] overflow-hidden custom-shadow border border-slate-100">
+        <!-- Header -->
+        <div class="bg-indigo-600 p-8 text-white text-center">
+            <h1 class="text-3xl font-extrabold mb-2 tracking-tight">Shavian ⇄ Latin</h1>
+            <p class="text-indigo-100 opacity-90 text-sm font-medium">Versi Perbaikan: Dukungan Digraf th/dh & Fonetik Indonesia-Jawa</p>
+        </div>
+
+        <div class="p-6 md:p-10 space-y-8">
+            <!-- Mode Switcher -->
+            <div class="flex p-1.5 bg-slate-100 rounded-2xl max-w-md mx-auto">
+                <button id="toShavianBtn" class="flex-1 py-3 rounded-xl font-bold transition-all bg-white shadow-sm text-indigo-600">
+                    Latin ke Shavian
+                </button>
+                <button id="toLatinBtn" class="flex-1 py-3 rounded-xl font-bold transition-all text-slate-500 hover:bg-white/50">
+                    Shavian ke Latin
+                </button>
+            </div>
+
+            <!-- Main Interface -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                <!-- Input Section -->
+                <div class="flex flex-col space-y-3">
+                    <label class="text-xs font-extrabold text-slate-400 uppercase tracking-widest ml-1" id="inputLabel">Input Latin</label>
+                    <textarea 
+                        id="inputArea" 
+                        placeholder="Ketik di sini... (Contoh: karbol klinsol arpus orosés panas)"
+                        class="w-full h-64 p-6 rounded-3xl border-2 border-slate-100 focus:border-indigo-400 focus:ring-0 transition-all resize-none text-xl outline-none bg-slate-50/30"
+                    ></textarea>
+                </div>
+
+                <!-- Output Section -->
+                <div class="flex flex-col space-y-3">
+                    <div class="flex justify-between items-center ml-1">
+                        <label class="text-xs font-extrabold text-slate-400 uppercase tracking-widest" id="outputLabel">Hasil Shavian</label>
+                        <button onclick="copyOutput()" class="group flex items-center gap-2 text-xs font-bold text-indigo-600 hover:text-indigo-700">
+                            <span>SALIN</span>
+                            <div class="p-1.5 bg-indigo-50 rounded-lg group-hover:bg-indigo-100 transition-colors">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7v8a2 2 0 002 2h6M8 7V5a2 2 0 012-2h4.586a1 1 0 01.707.293l4.414 4.414a1 1 0 01.293.707V15a2 2 0 01-2 2h-2M8 7H6a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2v-2" />
+                                </svg>
+                            </div>
+                        </button>
+                    </div>
+                    <div 
+                        id="outputArea" 
+                        class="w-full h-64 p-6 rounded-3xl bg-indigo-50/30 border-2 border-indigo-100 text-2xl shavian-text break-words overflow-y-auto"
+                    ></div>
+                </div>
+            </div>
+
+            <!-- Legend/Table -->
+            <div class="pt-6 border-t border-slate-100">
+                <div class="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-6 gap-4">
+                    <div class="bg-white p-3 rounded-xl border border-slate-100 shadow-sm flex flex-col items-center">
+                        <span class="text-[10px] text-slate-400 font-bold uppercase mb-1">T+H</span>
+                        <span class="text-xl shavian-text">𐑑𐑣</span>
+                    </div>
+                    <div class="bg-white p-3 rounded-xl border border-slate-100 shadow-sm flex flex-col items-center">
+                        <span class="text-[10px] text-slate-400 font-bold uppercase mb-1">D+H</span>
+                        <span class="text-xl shavian-text">𐑛𐑣</span>
+                    </div>
+                    <div class="bg-white p-3 rounded-xl border border-slate-100 shadow-sm flex flex-col items-center">
+                        <span class="text-[10px] text-slate-400 font-bold uppercase mb-1">É (Taling)</span>
+                        <span class="text-xl shavian-text">𐑱</span>
+                    </div>
+                    <div class="bg-white p-3 rounded-xl border border-slate-100 shadow-sm flex flex-col items-center">
+                        <span class="text-[10px] text-slate-400 font-bold uppercase mb-1">E (Pepet)</span>
+                        <span class="text-xl shavian-text">𐑩</span>
+                    </div>
+                    <div class="bg-white p-3 rounded-xl border border-slate-100 shadow-sm flex flex-col items-center">
+                        <span class="text-[10px] text-slate-400 font-bold uppercase mb-1">NG</span>
+                        <span class="text-xl shavian-text">𐑙</span>
+                    </div>
+                    <div class="bg-white p-3 rounded-xl border border-slate-100 shadow-sm flex flex-col items-center">
+                        <span class="text-[10px] text-slate-400 font-bold uppercase mb-1">NY</span>
+                        <span class="text-xl shavian-text">𐑿</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Feedback Toast -->
+    <div id="toast" class="fixed bottom-10 left-1/2 -translate-x-1/2 bg-slate-900 text-white px-8 py-3 rounded-2xl text-sm font-bold opacity-0 transition-all duration-300 shadow-2xl pointer-events-none">
+        Disalin ke papan klip!
+    </div>
+
+    <script>
+        // Mapping System
+        const latinToShavian = [
+            // Digraphs (khusus ng/ny karena satu karakter)
+            { l: 'ng', s: '𐑙' },
+            { l: 'ny', s: '𐑿' },
+            { l: 'sy', s: '𐑖' },
+            { l: 'kh', s: '𐑣' },
+
+            // Vowels
+            { l: 'ai', s: '𐑲' },
+            { l: 'au', s: '𐑬' },
+            { l: 'oi', s: '𐑶' },
+            { l: 'é', s: '𐑱' }, // Taling
+            { l: 'e', s: '𐑩' }, // Pepet
+            { l: 'a', s: '𐑭' },
+            { l: 'i', s: '𐑰' },
+            { l: 'u', s: '𐑵' },
+            { l: 'o', s: '𐑴' },
+
+            // Consonants (th dan dh akan otomatis terbuat dari t+h dan d+h)
+            { l: 'p', s: '𐑐' },
+            { l: 'b', s: '𐑚' },
+            { l: 't', s: '𐑑' },
+            { l: 'd', s: '𐑛' },
+            { l: 'k', s: '𐑒' },
+            { l: 'g', s: '𐑜' },
+            { l: 'c', s: '𐑗' },
+            { l: 'j', s: '𐑡' },
+            { l: 'f', s: '𐑓' },
+            { l: 'v', s: '𐑝' },
+            { l: 's', s: '𐑕' },
+            { l: 'z', s: '𐑟' },
+            { l: 'm', s: '𐑥' },
+            { l: 'n', s: '𐑯' },
+            { l: 'h', s: '𐑣' },
+            { l: 'l', s: '𐑤' },
+            { l: 'r', s: '𐑮' },
+            { l: 'w', s: '𐑢' },
+            { l: 'y', s: '𐑘' }
+        ];
+
+        // Untuk Shavian ke Latin, kita urutkan berdasarkan panjang simbol atau logika spesifik
+        // Namun karena permintaan user th=𐑑𐑣 dan t=𐑑, urutan pemetaan normal 
+        // yang memetakan karakter Shavian tunggal ke Latin tunggal sudah cukup.
+        const shavianToLatin = [...latinToShavian].reverse();
+
+        let mode = 'toShavian';
+        const inputArea = document.getElementById('inputArea');
+        const outputArea = document.getElementById('outputArea');
+        const toShavianBtn = document.getElementById('toShavianBtn');
+        const toLatinBtn = document.getElementById('toLatinBtn');
+        const inputLabel = document.getElementById('inputLabel');
+        const outputLabel = document.getElementById('outputLabel');
+
+        function updateMode(newMode) {
+            mode = newMode;
+            if (mode === 'toShavian') {
+                toShavianBtn.className = "flex-1 py-3 rounded-xl font-bold transition-all bg-white shadow-sm text-indigo-600";
+                toLatinBtn.className = "flex-1 py-3 rounded-xl font-bold transition-all text-slate-500 hover:bg-white/50";
+                inputLabel.innerText = "Input Latin";
+                outputLabel.innerText = "Hasil Shavian";
+            } else {
+                toLatinBtn.className = "flex-1 py-3 rounded-xl font-bold transition-all bg-white shadow-sm text-indigo-600";
+                toShavianBtn.className = "flex-1 py-3 rounded-xl font-bold transition-all text-slate-500 hover:bg-white/50";
+                inputLabel.innerText = "Input Shavian";
+                outputLabel.innerText = "Hasil Latin";
+            }
+            convert();
+        }
+
+        function convert() {
+            let text = inputArea.value.toLowerCase();
+            let result = text;
+
+            if (mode === 'toShavian') {
+                // Proses digraf spesial dulu (ng, ny)
+                // th dan dh tidak perlu digraf spesial karena akan terbentuk dari t + h
+                latinToShavian.forEach(m => {
+                    const regex = new RegExp(m.l, 'g');
+                    result = result.replace(regex, m.s);
+                });
+            } else {
+                // Shavian ke Latin
+                // Di sini kita pastikan 𐑑 menjadi t dan 𐑣 menjadi h
+                // Maka secara otomatis 𐑑𐑣 akan menjadi th
+                const mapSorted = [...latinToShavian].sort((a, b) => b.s.length - a.s.length);
+                mapSorted.forEach(m => {
+                    const regex = new RegExp(m.s, 'g');
+                    result = result.replace(regex, m.l);
+                });
+            }
+
+            outputArea.innerText = result;
+        }
+
+        function copyOutput() {
+            const text = outputArea.innerText;
+            if (!text) return;
+            
+            const el = document.createElement('textarea');
+            el.value = text;
+            document.body.appendChild(el);
+            el.select();
+            document.execCommand('copy');
+            document.body.removeChild(el);
+
+            const toast = document.getElementById('toast');
+            toast.style.opacity = '1';
+            setTimeout(() => toast.style.opacity = '0', 2000);
+        }
+
+        toShavianBtn.onclick = () => updateMode('toShavian');
+        toLatinBtn.onclick = () => updateMode('toLatin');
+        inputArea.oninput = convert;
+
+        // Initialize
+        updateMode('toShavian');
+    </script>
+</body>
+</html>
