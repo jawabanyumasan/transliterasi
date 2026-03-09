@@ -1,0 +1,261 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pegon Script Pro - Latin & Pegon Transliteration</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&family=Plus+Jakarta+Sans:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            background-color: #f1f5f9;
+        }
+        .pegon-font {
+            font-family: 'Amiri', serif;
+            line-height: 1.8;
+        }
+        .custom-shadow {
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.05), 0 8px 10px -6px rgba(0, 0, 0, 0.05);
+        }
+        textarea::placeholder {
+            color: #94a3b8;
+        }
+    </style>
+</head>
+<body class="min-h-screen py-6 px-4 md:py-12">
+    <div class="max-w-3xl mx-auto">
+        <!-- Header -->
+        <div class="text-center mb-10">
+            <h1 class="text-3xl font-extrabold text-slate-900 tracking-tight">Pegon Script Pro</h1>
+            <p class="text-slate-500 mt-2">Advanced Latin to Pegon (Arab-Jawa) Converter</p>
+        </div>
+
+        <!-- Main Converter Tool -->
+        <div class="bg-white rounded-3xl custom-shadow border border-slate-200 overflow-hidden">
+            <!-- Mode Toggle -->
+            <div class="flex p-2 bg-slate-50 border-b border-slate-200">
+                <button id="btnL2P" onclick="setMode('L2P')" class="flex-1 py-3 px-4 rounded-2xl text-sm font-bold transition-all duration-200 bg-white shadow-sm text-slate-900 border border-slate-200">
+                    LATIN → PEGON
+                </button>
+                <button id="btnP2L" onclick="setMode('P2L')" class="flex-1 py-3 px-4 rounded-2xl text-sm font-bold transition-all duration-200 text-slate-400 hover:text-slate-600">
+                    PEGON → LATIN
+                </button>
+            </div>
+
+            <div class="p-6 space-y-6">
+                <!-- Input Section -->
+                <div class="relative">
+                    <div class="flex justify-between items-center mb-2">
+                        <span id="labelInput" class="text-[10px] font-black uppercase tracking-widest text-slate-400">Input Text</span>
+                        <button onclick="clearText()" class="text-[10px] font-bold text-red-400 hover:text-red-600 uppercase tracking-widest">Clear</button>
+                    </div>
+                    <textarea id="inputText" class="w-full h-40 p-5 bg-slate-50 rounded-2xl border border-transparent focus:border-indigo-500 focus:bg-white focus:ring-4 focus:ring-indigo-500/10 transition-all outline-none text-slate-700 resize-none" placeholder="Type here..."></textarea>
+                </div>
+
+                <!-- Divider -->
+                <div class="flex items-center justify-center gap-4">
+                    <div class="h-px flex-1 bg-slate-100"></div>
+                    <div class="w-8 h-8 rounded-full bg-indigo-50 flex items-center justify-center text-indigo-500">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                            <path fill-rule="evenodd" d="M14.707 10.293a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 111.414-1.414L9 12.586V5a1 1 0 112 0v7.586l2.293-2.293a1 1 0 011.414 0z" clip-rule="evenodd" />
+                        </svg>
+                    </div>
+                    <div class="h-px flex-1 bg-slate-100"></div>
+                </div>
+
+                <!-- Output Section -->
+                <div>
+                    <div class="flex justify-between items-center mb-2">
+                        <span id="labelOutput" class="text-[10px] font-black uppercase tracking-widest text-slate-400">Output Result</span>
+                        <button onclick="copyResult()" class="flex items-center gap-1.5 text-[10px] font-black uppercase tracking-widest text-indigo-600 hover:text-indigo-800 transition-colors bg-indigo-50 px-3 py-1.5 rounded-full">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3" viewBox="0 0 20 20" fill="currentColor">
+                                <path d="M8 3a1 1 0 011-1h2a1 1 0 110 2H9a1 1 0 01-1-1z" />
+                                <path d="M6 3a2 2 0 00-2 2v11a2 2 0 002 2h8a2 2 0 002-2V5a2 2 0 00-2-2 3 3 0 01-3 3H9a3 3 0 01-3-3z" />
+                            </svg>
+                            Copy Result
+                        </button>
+                    </div>
+                    <div id="outputText" class="w-full min-h-[160px] p-5 bg-white border-2 border-slate-100 rounded-2xl text-slate-800 whitespace-pre-wrap selection:bg-indigo-100"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Legend/Help -->
+        <div class="mt-8 grid grid-cols-2 md:grid-cols-4 gap-4">
+            <div class="bg-white p-3 rounded-xl border border-slate-200 text-center">
+                <div class="text-indigo-500 font-bold">é / è</div>
+                <div class="text-[10px] text-slate-400 uppercase tracking-tighter">Taling (ي)</div>
+            </div>
+            <div class="bg-white p-3 rounded-xl border border-slate-200 text-center">
+                <div class="text-indigo-500 font-bold">"..."</div>
+                <div class="text-[10px] text-slate-400 uppercase tracking-tighter">Quotes (« »)</div>
+            </div>
+            <div class="bg-white p-3 rounded-xl border border-slate-200 text-center">
+                <div class="text-indigo-500 font-bold">1 2 3</div>
+                <div class="text-[10px] text-slate-400 uppercase tracking-tighter">Arabic (١ ٢ ٣)</div>
+            </div>
+            <div class="bg-white p-3 rounded-xl border border-slate-200 text-center">
+                <div class="text-indigo-500 font-bold">ng / ny</div>
+                <div class="text-[10px] text-slate-400 uppercase tracking-tighter">Digraph (ڠ / ڽ)</div>
+            </div>
+        </div>
+
+        <!-- Toast -->
+        <div id="toast" class="fixed bottom-10 left-1/2 -translate-x-1/2 bg-slate-900 text-white px-6 py-3 rounded-full text-sm font-semibold opacity-0 transition-all duration-300 pointer-events-none transform translate-y-4">
+            Copied to clipboard!
+        </div>
+    </div>
+
+    <script>
+        // Comprehensive Mapping
+        const L2P_MAP = {
+            // Digraphs (Must be checked first)
+            'ng': 'ڠ', 'ny': 'ڽ', 'th': 'ط', 'dh': 'ڎ',
+            // Vowels
+            'a': 'ا', 'i': 'ي', 'u': 'و', 'e': '', 'é': 'ي', 'è': 'ي', 'o': 'و',
+            // Consonants
+            'b': 'ب', 'c': 'چ', 'd': 'د', 'f': 'ف', 'g': 'ڮ',
+            'h': 'ه', 'j': 'ج', 'k': 'ك', 'l': 'ل', 'm': 'م',
+            'n': 'ن', 'p': 'ڤ', 'q': 'ق', 'r': 'ر', 's': 'س',
+            't': 'ت', 'v': 'ڤ', 'w': 'و', 'x': 'كس', 'y': 'ي',
+            'z': 'ز',
+            // Numerals
+            '0': '٠', '1': '١', '2': '٢', '3': '٣', '4': '٤', '5': '٥', '6': '٦', '7': '٧', '8': '٨', '9': '٩',
+            // Punctuation
+            ',': '،', ';': '؛', '?': '؟', '.': '.', '"': '«', "'": '»'
+        };
+
+        // Create Reverse Map for Pegon to Latin
+        const P2L_MAP = {};
+        // Manual Priority for Digraphs in Reverse
+        P2L_MAP['ڠ'] = 'ng';
+        P2L_MAP['ڽ'] = 'ny';
+        P2L_MAP['ط'] = 'th';
+        P2L_MAP['ڎ'] = 'dh';
+        P2L_MAP['چ'] = 'c';
+        P2L_MAP['ڤ'] = 'p';
+        P2L_MAP['ڮ'] = 'g';
+        P2L_MAP['«'] = '"';
+        P2L_MAP['»'] = '"';
+        P2L_MAP['،'] = ',';
+        P2L_MAP['؛'] = ';';
+        P2L_MAP['؟'] = '?';
+        
+        // Populate others
+        Object.entries(L2P_MAP).forEach(([lat, peg]) => {
+            if (peg && !P2L_MAP[peg]) P2L_MAP[peg] = lat;
+        });
+        // Numbers reverse
+        const numRev = {'٠':'0', '١':'1', '٢':'2', '٣':'3', '٤':'4', '٥':'5', '٦':'6', '٧':'7', '٨':'8', '٩':'9'};
+        Object.assign(P2L_MAP, numRev);
+
+        let currentMode = 'L2P';
+        const inputArea = document.getElementById('inputText');
+        const outputArea = document.getElementById('outputText');
+
+        function setMode(mode) {
+            currentMode = mode;
+            const btnL = document.getElementById('btnL2P');
+            const btnP = document.getElementById('btnP2L');
+            const labelIn = document.getElementById('labelInput');
+            const labelOut = document.getElementById('labelOutput');
+
+            if (mode === 'L2P') {
+                btnL.className = "flex-1 py-3 px-4 rounded-2xl text-sm font-bold transition-all duration-200 bg-white shadow-sm text-slate-900 border border-slate-200";
+                btnP.className = "flex-1 py-3 px-4 rounded-2xl text-sm font-bold transition-all duration-200 text-slate-400 hover:text-slate-600";
+                labelIn.innerText = "Input Latin Text";
+                labelOut.innerText = "Pegon Script Result";
+                inputArea.dir = "ltr";
+                outputArea.dir = "rtl";
+                outputArea.className = "w-full min-h-[160px] p-5 bg-white border-2 border-slate-100 rounded-2xl text-slate-800 whitespace-pre-wrap selection:bg-indigo-100 pegon-font text-3xl";
+            } else {
+                btnP.className = "flex-1 py-3 px-4 rounded-2xl text-sm font-bold transition-all duration-200 bg-white shadow-sm text-slate-900 border border-slate-200";
+                btnL.className = "flex-1 py-3 px-4 rounded-2xl text-sm font-bold transition-all duration-200 text-slate-400 hover:text-slate-600";
+                labelIn.innerText = "Input Pegon Script";
+                labelOut.innerText = "Latin Result";
+                inputArea.dir = "rtl";
+                outputArea.dir = "ltr";
+                outputArea.className = "w-full min-h-[160px] p-5 bg-white border-2 border-slate-100 rounded-2xl text-slate-800 whitespace-pre-wrap selection:bg-indigo-100 text-lg font-medium";
+            }
+            inputArea.value = '';
+            outputArea.innerText = '';
+        }
+
+        function convert() {
+            const text = inputArea.value;
+            let result = '';
+
+            if (currentMode === 'L2P') {
+                const lowText = text.toLowerCase();
+                let i = 0;
+                let quoteCount = 0;
+
+                while (i < lowText.length) {
+                    const char2 = lowText.substr(i, 2);
+                    const char1 = lowText[i];
+
+                    // Special Handling for Quotation Marks (Alternate « and »)
+                    if (char1 === '"') {
+                        result += (quoteCount % 2 === 0) ? L2P_MAP['"'] : L2P_MAP["'"];
+                        quoteCount++;
+                        i++;
+                        continue;
+                    }
+
+                    if (L2P_MAP[char2] !== undefined && char2.length === 2) {
+                        result += L2P_MAP[char2];
+                        i += 2;
+                    } else if (L2P_MAP[char1] !== undefined) {
+                        result += L2P_MAP[char1];
+                        i++;
+                    } else {
+                        result += char1;
+                        i++;
+                    }
+                }
+            } else {
+                // Pegon to Latin
+                for (let char of text) {
+                    result += P2L_MAP[char] || char;
+                }
+            }
+            outputArea.innerText = result;
+        }
+
+        inputArea.addEventListener('input', convert);
+
+        function clearText() {
+            inputArea.value = '';
+            outputArea.innerText = '';
+            inputArea.focus();
+        }
+
+        function copyResult() {
+            const text = outputArea.innerText;
+            if (!text) return;
+
+            const el = document.createElement('textarea');
+            el.value = text;
+            document.body.appendChild(el);
+            el.select();
+            document.execCommand('copy');
+            document.body.removeChild(el);
+
+            const toast = document.getElementById('toast');
+            toast.style.opacity = '1';
+            toast.style.transform = 'translateX(-50%) translateY(0)';
+            
+            setTimeout(() => {
+                toast.style.opacity = '0';
+                toast.style.transform = 'translateX(-50%) translateY(1rem)';
+            }, 2000);
+        }
+
+        // Initialize default
+        setMode('L2P');
+    </script>
+</body>
+</html>
