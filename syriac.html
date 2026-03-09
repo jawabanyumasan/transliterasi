@@ -1,0 +1,308 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Syriac-Javanese Transliterant</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Syriac&family=Inter:wght@400;600&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f8fafc;
+        }
+        .syriac-text {
+            font-family: 'Noto Sans Syriac', serif;
+            direction: rtl;
+            font-size: 1.5rem;
+            line-height: 2rem;
+        }
+        .glass-card {
+            background: rgba(255, 255, 255, 0.9);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(226, 232, 240, 1);
+        }
+    </style>
+</head>
+<body class="min-h-screen py-6 px-4 md:py-12">
+    <div class="max-w-3xl mx-auto">
+        <!-- Header -->
+        <header class="text-center mb-10">
+            <h1 class="text-3xl font-bold text-slate-800 mb-2">Syriac-Javanese Transliterant</h1>
+            <p class="text-slate-600">Convert Javanese Latin script to Syriac (Serto) and back.</p>
+        </header>
+
+        <!-- Main Converter UI -->
+        <div class="glass-card rounded-2xl shadow-xl overflow-hidden">
+            <!-- Mode Toggle -->
+            <div class="flex border-b border-slate-200">
+                <button id="tab-l2s" class="flex-1 py-4 text-sm font-semibold transition-all bg-white border-b-2 border-indigo-600 text-indigo-600" onclick="setMode('latin-to-syriac')">
+                    Latin → Syriac
+                </button>
+                <button id="tab-s2l" class="flex-1 py-4 text-sm font-semibold transition-all bg-slate-50 text-slate-500 border-b-2 border-transparent" onclick="setMode('syriac-to-latin')">
+                    Syriac → Latin
+                </button>
+            </div>
+
+            <div class="p-6 space-y-6">
+                <!-- Input Section -->
+                <div class="space-y-2">
+                    <div class="flex justify-between items-center">
+                        <label id="input-label" class="text-xs font-bold uppercase tracking-wider text-slate-400">Latin Input</label>
+                        <button onclick="clearAll()" class="text-xs text-red-500 hover:text-red-600 font-medium">Clear</button>
+                    </div>
+                    <textarea id="input-text" 
+                        class="w-full h-32 p-4 rounded-xl border border-slate-200 focus:ring-2 focus:ring-indigo-500 focus:border-transparent outline-none transition-all resize-none text-slate-700"
+                        placeholder="Type here..."></textarea>
+                </div>
+
+                <!-- Result Section -->
+                <div class="space-y-2">
+                    <div class="flex justify-between items-center">
+                        <label id="output-label" class="text-xs font-bold uppercase tracking-wider text-slate-400">Syriac Result</label>
+                        <button onclick="copyResult()" class="flex items-center gap-1 text-xs text-indigo-600 hover:text-indigo-700 font-medium">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7v8a2 2 0 002 2h6M8 7V5a2 2 0 012-2h4.586a1 1 0 01.707.293l4.414 4.414a1 1 0 01.293.707V15a2 2 0 01-2 2h-2M8 7H6a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2v-2" />
+                            </svg>
+                            Copy Result
+                        </button>
+                    </div>
+                    <div id="output-text" 
+                        class="w-full min-h-[8rem] p-4 rounded-xl bg-slate-50 border border-slate-200 text-slate-800 transition-all overflow-auto syriac-text">
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Phonetic Guide -->
+        <div class="mt-8 p-6 bg-white rounded-2xl border border-slate-200 shadow-sm">
+            <h2 class="text-sm font-bold text-slate-800 mb-4 flex items-center gap-2">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-indigo-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+                Phonetic Guide
+            </h2>
+            <div class="grid grid-cols-2 sm:grid-cols-4 gap-4 text-xs">
+                <div>
+                    <p class="text-slate-400 mb-1">Javanese Specials</p>
+                    <ul class="space-y-1 font-mono">
+                        <li>th → ܛ (Teth)</li>
+                        <li>dh → ܕ݂ (Dalath+)</li>
+                        <li>ng → ܢܓ (Nun-Gomal)</li>
+                        <li>ny → ܢܝ (Nun-Yudh)</li>
+                    </ul>
+                </div>
+                <div>
+                    <p class="text-slate-400 mb-1">Vowels</p>
+                    <ul class="space-y-1 font-mono">
+                        <li>é/è → ܝ (Yudh)</li>
+                        <li>a → ܐ (Alaph)</li>
+                        <li>i → ܝ (Yudh)</li>
+                        <li>u/o → ܘ (Waw)</li>
+                    </ul>
+                </div>
+                <div>
+                    <p class="text-slate-400 mb-1">Loan Consonants</p>
+                    <ul class="space-y-1 font-mono">
+                        <li>f/p → ܦ (Pe)</li>
+                        <li>v → ܒ݂ (Beth+)</li>
+                        <li>z → ܙ (Zain)</li>
+                        <li>kh → ܟ݂ (Kaph+)</li>
+                    </ul>
+                </div>
+                <div>
+                    <p class="text-slate-400 mb-1">Other</p>
+                    <ul class="space-y-1 font-mono">
+                        <li>sy → ܫ (Shin)</li>
+                        <li>h (final) → ܗ</li>
+                        <li>r (final) → ܪ</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <div id="toast" class="fixed bottom-6 left-1/2 -translate-x-1/2 px-6 py-3 bg-slate-800 text-white text-sm rounded-full opacity-0 pointer-events-none transition-opacity duration-300 shadow-lg">
+            Result copied!
+        </div>
+    </div>
+
+    <script>
+        // Mapping Definition
+        // Syriac is RTL. We map Latin characters to Syriac Unicode.
+        // Special digraphs (ng, ny, th, dh) must be handled first.
+
+        const l2sMapping = {
+            'ng': '\u0722\u0713', // Nun + Gomal
+            'ny': '\u0722\u071D', // Nun + Yudh
+            'th': '\u071B',       // Teth (Retroflex T)
+            'dh': '\u0715\u0742', // Dalath with dot (Retroflex D)
+            'kh': '\u071F\u0742', // Kaph with dot
+            'sy': '\u072B',       // Shin
+            'a': '\u0710',        // Alaph
+            'b': '\u0712',        // Beth
+            'c': '\u0713',        // Gomal (closest match, Syriac lacks 'ch' natively)
+            'd': '\u0715',        // Dalath
+            'e': '',              // Pepet often ignored or handled via Alaph
+            'é': '\u071D',        // Yudh as vowel
+            'è': '\u071D',        // Yudh as vowel
+            'f': '\u0726',        // Pe
+            'g': '\u0713',        // Gomal
+            'h': '\u0717',        // He
+            'i': '\u071D',        // Yudh
+            'j': '\u0713',        // Gomal (Serto often uses Gomal for J)
+            'k': '\u071F',        // Kaph
+            'l': '\u0720',        // Lomadh
+            'm': '\u0721',        // Mim
+            'n': '\u0722',        // Nun
+            'o': '\u0718',        // Waw
+            'p': '\u0726',        // Pe
+            'q': '\u0729',        // Qoph
+            'r': '\u072A',        // Rish
+            's': '\u0723',        // Semkath
+            't': '\u072C',        // Taw
+            'u': '\u0718',        // Waw
+            'v': '\u0712\u0742', // Beth with dot
+            'w': '\u0718',        // Waw
+            'x': '\u071F\u0723', // Kaph + Semkath
+            'y': '\u071D',        // Yudh
+            'z': '\u0719',        // Zain
+            ' ': ' '
+        };
+
+        // For reverse mapping
+        const s2lMapping = {};
+        // Complex digraphs need to be checked in Syriac string first
+        const s2lComplex = [
+            { s: '\u0722\u0713', l: 'ng' },
+            { s: '\u0722\u071D', l: 'ny' },
+            { s: '\u0715\u0742', l: 'dh' },
+            { s: '\u071F\u0742', l: 'kh' },
+            { s: '\u0712\u0742', l: 'v' }
+        ];
+
+        // Fill basic reverse mapping
+        Object.entries(l2sMapping).forEach(([l, s]) => {
+            if (l.length === 1 && !s2lMapping[s]) {
+                s2lMapping[s] = l;
+            }
+        });
+        // Override some specifics for better back-transliteration
+        s2lMapping['\u071B'] = 'th';
+        s2lMapping['\u072B'] = 'sy';
+
+        let currentMode = 'latin-to-syriac';
+
+        const inputArea = document.getElementById('input-text');
+        const outputArea = document.getElementById('output-text');
+        const inputLabel = document.getElementById('input-label');
+        const outputLabel = document.getElementById('output-label');
+
+        function setMode(mode) {
+            currentMode = mode;
+            const tabL2S = document.getElementById('tab-l2s');
+            const tabS2L = document.getElementById('tab-s2l');
+
+            if (mode === 'latin-to-syriac') {
+                tabL2S.classList.add('bg-white', 'border-indigo-600', 'text-indigo-600');
+                tabL2S.classList.remove('bg-slate-50', 'text-slate-500', 'border-transparent');
+                tabS2L.classList.add('bg-slate-50', 'text-slate-500', 'border-transparent');
+                tabS2L.classList.remove('bg-white', 'border-indigo-600', 'text-indigo-600');
+                
+                inputLabel.innerText = "Latin Input";
+                outputLabel.innerText = "Syriac Result";
+                inputArea.dir = "ltr";
+                outputArea.dir = "rtl";
+                inputArea.classList.remove('syriac-text');
+                outputArea.classList.add('syriac-text');
+            } else {
+                tabS2L.classList.add('bg-white', 'border-indigo-600', 'text-indigo-600');
+                tabS2L.classList.remove('bg-slate-50', 'text-slate-500', 'border-transparent');
+                tabL2S.classList.add('bg-slate-50', 'text-slate-500', 'border-transparent');
+                tabL2S.classList.remove('bg-white', 'border-indigo-600', 'text-indigo-600');
+
+                inputLabel.innerText = "Syriac Input";
+                outputLabel.innerText = "Latin Result";
+                inputArea.dir = "rtl";
+                outputArea.dir = "ltr";
+                inputArea.classList.add('syriac-text');
+                outputArea.classList.remove('syriac-text');
+            }
+            clearAll();
+        }
+
+        function translate() {
+            const text = inputArea.value.toLowerCase();
+            let result = '';
+
+            if (currentMode === 'latin-to-syriac') {
+                let i = 0;
+                while (i < text.length) {
+                    // Check digraphs first
+                    let found = false;
+                    const digraph = text.substr(i, 2);
+                    if (l2sMapping[digraph]) {
+                        result += l2sMapping[digraph];
+                        i += 2;
+                        found = true;
+                    }
+
+                    if (!found) {
+                        const char = text[i];
+                        result += l2sMapping[char] !== undefined ? l2sMapping[char] : char;
+                        i++;
+                    }
+                }
+            } else {
+                // Syriac to Latin
+                let tempText = text;
+                // Handle complex Syriac clusters first
+                s2lComplex.forEach(pair => {
+                    tempText = tempText.split(pair.s).join(pair.l);
+                });
+                
+                // Map remaining chars
+                for (let char of tempText) {
+                    result += s2lMapping[char] !== undefined ? s2lMapping[char] : char;
+                }
+            }
+
+            outputArea.innerText = result;
+        }
+
+        function clearAll() {
+            inputArea.value = '';
+            outputArea.innerText = '';
+        }
+
+        function copyResult() {
+            const text = outputArea.innerText;
+            if (!text) return;
+
+            const textArea = document.createElement("textarea");
+            textArea.value = text;
+            document.body.appendChild(textArea);
+            textArea.select();
+            try {
+                document.execCommand('copy');
+                showToast();
+            } catch (err) {
+                console.error('Copy failed', err);
+            }
+            document.body.removeChild(textArea);
+        }
+
+        function showToast() {
+            const toast = document.getElementById('toast');
+            toast.style.opacity = '1';
+            setTimeout(() => {
+                toast.style.opacity = '0';
+            }, 2000);
+        }
+
+        inputArea.addEventListener('input', translate);
+
+        // Initial setup
+        setMode('latin-to-syriac');
+    </script>
+</body>
+</html>
