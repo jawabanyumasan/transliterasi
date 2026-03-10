@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Aksara Jawa Sunda - Kibor Utama</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            background-color: #f8fafc;
+            overflow-x: hidden;
+            touch-action: manipulation;
+        }
+        /* Ukuran font ultra-compact pikeun HP */
+        .aksara-font { font-size: 0.85rem; line-height: 1; }
+        .aksara-display { font-size: 1.6rem; line-height: 1.5; word-wrap: break-word; }
+        
+        /* Keyboard Fixed Positioning */
+        .keyboard-wrapper {
+            position: fixed; bottom: 0; left: 0; width: 100%;
+            background: #ffffff; box-shadow: 0 -8px 25px rgba(0, 0, 0, 0.1);
+            z-index: 50; border-top: 1px solid #e2e8f0; 
+            padding-bottom: env(safe-area-inset-bottom);
+        }
+        .keyboard-scroll {
+            overflow-x: auto; -webkit-overflow-scrolling: touch;
+            display: flex; padding: 6px 8px; gap: 10px; max-height: 420px;
+        }
+        .keyboard-column { flex: 0 0 auto; display: flex; flex-direction: column; gap: 4px; }
+        .col-rarangken { min-width: 130px; }
+        .col-main-script { min-width: 200px; }
+
+        /* Desain Tombol */
+        .key-btn {
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+            padding: 6px 1px; background: white; border: 1px solid #f1f5f9;
+            border-radius: 6px; min-width: 38px; transition: all 0.1s ease;
+            cursor: pointer; user-select: none;
+        }
+        .key-btn:active { background: #f1f5f9; transform: scale(0.92); border-color: #6366f1; }
+        .key-btn .sandangan-large { font-size: 1.2rem; color: #4338ca; font-weight: bold; }
+        .key-btn.rarangken { background: #f5f3ff; border-color: #ede9fe; }
+        .key-btn.swara { background: #f0fdf4; border-color: #dcfce7; }
+        .key-btn.punctuation { background: #fffbeb; border-color: #fef3c7; }
+        
+        /* Pamaeh Beureum Nyala */
+        .key-btn.pamaeh-striking { background: #ef4444; color: white; border-color: #b91c1c; }
+        .key-label { font-size: 6px; font-weight: 700; color: #94a3b8; text-transform: uppercase; margin-top: 1px; }
+        .key-btn.pamaeh-striking .key-label { color: #fee2e2; }
+
+        textarea { resize: none; }
+    </style>
+</head>
+<body class="pb-96">
+
+    <!-- Navigasi -->
+    <nav class="bg-white/90 backdrop-blur-md border-b border-slate-200 sticky top-0 z-40 px-4 py-3 flex justify-between items-center shadow-sm">
+        <div>
+            <h1 class="text-lg font-extrabold text-slate-800 leading-tight">Aksara <span class="text-indigo-600">Jawa Sunda</span></h1>
+            <p class="text-[8px] text-slate-400 font-bold uppercase tracking-widest">Kibor Aksara Utama</p>
+        </div>
+        <div>
+            <!-- Link Eksternal Mode Konverter -->
+            <a href="https://jawabanyumasan.github.io/transliterasi/janda.html" 
+               class="bg-indigo-50 text-indigo-600 px-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-wider border border-indigo-100 hover:bg-indigo-600 hover:text-white transition-all">
+                Mode Konverter
+            </a>
+        </div>
+    </nav>
+
+    <!-- Area Input Tunggal -->
+    <div id="keyboardUI" class="max-w-4xl mx-auto p-4 space-y-4">
+        <div class="relative">
+            <!-- inputmode="none" pikeun nyumputkeun keyboard HP -->
+            <textarea id="keyboardOutput" inputmode="none"
+                class="w-full p-6 bg-white border-2 border-slate-100 rounded-[2rem] shadow-sm aksara-display text-slate-900 min-h-[350px] md:min-h-[450px] focus:outline-none focus:border-indigo-400 transition-colors"
+                placeholder="Mangga ketik nganggo kibor di handap..."></textarea>
+            
+            <div class="absolute bottom-6 right-6 flex gap-2">
+                <button onclick="clearText()" class="p-3 bg-red-50 text-red-500 rounded-2xl shadow-sm hover:bg-red-100 transition-colors" title="Hapus Semua">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M3 6h18m-2 0v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6m3 0V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/></svg>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="mt-8 mb-8 text-center">
+        <h2 class="text-sm font-extrabold text-slate-700 tracking-wide uppercase">Jawa Banyumasan</h2>
+        <p class="text-[10px] text-slate-400 font-semibold tracking-tighter">Created by Wahyudi</p>
+    </footer>
+
+    <!-- Keyboard Wrapper (Fixed Bottom) -->
+    <div id="keyboardContainer" class="keyboard-wrapper">
+        <!-- Bar Kontrol Atas Keyboard -->
+        <div class="flex items-center justify-between px-3 py-1 bg-slate-50 border-b border-slate-100">
+            <div class="flex gap-2">
+                <button onclick="insertChar(' ')" class="px-3 py-1.5 bg-white border border-slate-200 rounded-lg text-[9px] font-bold text-slate-500 hover:bg-slate-50">SPASI</button>
+                <button onclick="insertChar('\n')" class="px-3 py-1.5 bg-white border border-slate-200 rounded-lg text-[9px] font-bold text-slate-500 hover:bg-slate-50">ENTER</button>
+                <button onclick="copyToClipboard()" class="px-4 py-1.5 bg-indigo-600 text-white rounded-lg text-[9px] font-black shadow-sm flex items-center gap-1 active:scale-95 transition-transform">SALIN</button>
+            </div>
+            <button onclick="backspace()" class="px-4 py-1.5 bg-orange-50 text-orange-600 border border-orange-200 rounded-lg text-[9px] font-black flex items-center gap-1 active:scale-95 transition-transform">HAPUS</button>
+        </div>
+
+        <div class="keyboard-scroll">
+            <!-- Kolom Rarangken Sunda (3 Kolom) -->
+            <div class="keyboard-column col-rarangken">
+                <span class="text-[7px] font-black text-indigo-400 uppercase text-center">Rarangken</span>
+                <div class="grid grid-cols-3 gap-1">
+                    <button onclick="insertChar('\u1BA4')" class="key-btn rarangken"><span class="sandangan-large">ᮤ</span><span class="key-label">i</span></button>
+                    <button onclick="insertChar('\u1BA5')" class="key-btn rarangken"><span class="sandangan-large">ᮥ</span><span class="key-label">u</span></button>
+                    <button onclick="insertChar('\u1BA8')" class="key-btn rarangken"><span class="sandangan-large">ᮨ</span><span class="key-label">e</span></button>
+                    <button onclick="insertChar('\u1BA6')" class="key-btn rarangken"><span class="sandangan-large">ᮦ</span><span class="key-label">é</span></button>
+                    <button onclick="insertChar('\u1BA9')" class="key-btn rarangken"><span class="sandangan-large">ᮩ</span><span class="key-label">eu</span></button>
+                    <button onclick="insertChar('\u1BA7')" class="key-btn rarangken"><span class="sandangan-large">ᮧ</span><span class="key-label">o</span></button>
+                    <button onclick="insertChar('\u1B80')" class="key-btn rarangken"><span class="sandangan-large">ᮀ</span><span class="key-label">+ng</span></button>
+                    <button onclick="insertChar('\u1B81')" class="key-btn rarangken"><span class="sandangan-large">ᮁ</span><span class="key-label">+r</span></button>
+                    <button onclick="insertChar('\u1B82')" class="key-btn rarangken"><span class="sandangan-large">ᮂ</span><span class="key-label">+h</span></button>
+                    <button onclick="insertChar('\u1BA1')" class="key-btn rarangken"><span class="sandangan-large">ᮡ</span><span class="key-label">+ya</span></button>
+                    <button onclick="insertChar('\u1BA2')" class="key-btn rarangken"><span class="sandangan-large">ᮢ</span><span class="key-label">+ra</span></button>
+                    <button onclick="insertChar('\u1BA3')" class="key-btn rarangken"><span class="sandangan-large">ᮣ</span><span class="key-label">+la</span></button>
+                    
+                    <!-- Pamaeh Panjang di bawah Rarangken -->
+                    <button onclick="insertChar('\u1BAA')" class="key-btn pamaeh-striking col-span-3 py-2 flex-row gap-2">
+                        <span class="sandangan-large text-white">᮪</span><span class="text-[10px] font-black uppercase tracking-widest">Pamaéh</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Kolom Carakan, Swara, Rekan, Angka & Tanda Baca -->
+            <div class="keyboard-column col-main-script">
+                <span class="text-[7px] font-black text-slate-400 uppercase text-center">Aksara Dasar & Angka</span>
+                <div class="grid grid-cols-5 gap-1">
+                    <!-- CARAKAN -->
+                    <button onclick="insertChar('ꦲ')" class="key-btn"><span class="aksara-font">ꦲ</span><span class="key-label">Ha</span></button>
+                    <button onclick="insertChar('ꦤ')" class="key-btn"><span class="aksara-font">ꦤ</span><span class="key-label">Na</span></button>
+                    <button onclick="insertChar('ꦕ')" class="key-btn"><span class="aksara-font">ꦕ</span><span class="key-label">Ca</span></button>
+                    <button onclick="insertChar('ꦫ')" class="key-btn"><span class="aksara-font">ꦫ</span><span class="key-label">Ra</span></button>
+                    <button onclick="insertChar('ꦏ')" class="key-btn"><span class="aksara-font">ꦏ</span><span class="key-label">Ka</span></button>
+                    <button onclick="insertChar('ꦢ')" class="key-btn"><span class="aksara-font">ꦢ</span><span class="key-label">Da</span></button>
+                    <button onclick="insertChar('ꦠ')" class="key-btn"><span class="aksara-font">ꦠ</span><span class="key-label">Ta</span></button>
+                    <button onclick="insertChar('ꦱ')" class="key-btn"><span class="aksara-font">ꦱ</span><span class="key-label">Sa</span></button>
+                    <button onclick="insertChar('ꦮ')" class="key-btn"><span class="aksara-font">ꦮ</span><span class="key-label">Wa</span></button>
+                    <button onclick="insertChar('ꦭ')" class="key-btn"><span class="aksara-font">ꦭ</span><span class="key-label">La</span></button>
+                    <button onclick="insertChar('ꦥ')" class="key-btn"><span class="aksara-font">ꦥ</span><span class="key-label">Pa</span></button>
+                    <button onclick="insertChar('ꦝ')" class="key-btn"><span class="aksara-font">ꦝ</span><span class="key-label">Dha</span></button>
+                    <button onclick="insertChar('ꦗ')" class="key-btn"><span class="aksara-font">ꦗ</span><span class="key-label">Ja</span></button>
+                    <button onclick="insertChar('ꦪ')" class="key-btn"><span class="aksara-font">ꦪ</span><span class="key-label">Ya</span></button>
+                    <button onclick="insertChar('ꦚ')" class="key-btn"><span class="aksara-font">ꦚ</span><span class="key-label">Nya</span></button>
+                    <button onclick="insertChar('ꦩ')" class="key-btn"><span class="aksara-font">ꦩ</span><span class="key-label">Ma</span></button>
+                    <button onclick="insertChar('ꦒ')" class="key-btn"><span class="aksara-font">ꦒ</span><span class="key-label">Ga</span></button>
+                    <button onclick="insertChar('ꦧ')" class="key-btn"><span class="aksara-font">ꦧ</span><span class="key-label">Ba</span></button>
+                    <button onclick="insertChar('ꦛ')" class="key-btn"><span class="aksara-font">ꦛ</span><span class="key-label">Tha</span></button>
+                    <button onclick="insertChar('ꦔ')" class="key-btn"><span class="aksara-font">ꦔ</span><span class="key-label">Nga</span></button>
+
+                    <!-- SWARA -->
+                    <button onclick="insertChar('ꦄ')" class="key-btn swara"><span class="aksara-font">ꦄ</span><span class="key-label">A</span></button>
+                    <button onclick="insertChar('ꦇ')" class="key-btn swara"><span class="aksara-font">ꦇ</span><span class="key-label">I</span></button>
+                    <button onclick="insertChar('ꦈ')" class="key-btn swara"><span class="aksara-font">ꦈ</span><span class="key-label">U</span></button>
+                    <button onclick="insertChar('ꦌ')" class="key-btn swara"><span class="aksara-font">ꦌ</span><span class="key-label">E</span></button>
+                    <button onclick="insertChar('ꦎ')" class="key-btn swara"><span class="aksara-font">ꦎ</span><span class="key-label">O</span></button>
+                    
+                    <!-- PUNCTUATION & REKAN -->
+                    <button onclick="insertChar(',')" class="key-btn punctuation"><span class="font-bold text-[10px]">,</span></button>
+                    <button onclick="insertChar('.')" class="key-btn punctuation"><span class="font-bold text-[10px]">.</span></button>
+                    <button onclick="insertChar('?')" class="key-btn punctuation"><span class="font-bold text-[10px]">?</span></button>
+                    <button onclick="insertChar('!')" class="key-btn punctuation"><span class="font-bold text-[10px]">!</span></button>
+                    <button onclick="insertChar('꦳')" class="key-btn bg-amber-50 border-amber-200" title="Tanda Rekan"><span class="aksara-font text-amber-600 font-bold">꦳</span><span class="key-label text-amber-400">Rekan</span></button>
+
+                    <!-- ANGKA -->
+                    <button onclick="insertChar('1')" class="key-btn bg-slate-50"><span class="font-bold text-[10px]">1</span></button>
+                    <button onclick="insertChar('2')" class="key-btn bg-slate-50"><span class="font-bold text-[10px]">2</span></button>
+                    <button onclick="insertChar('3')" class="key-btn bg-slate-50"><span class="font-bold text-[10px]">3</span></button>
+                    <button onclick="insertChar('4')" class="key-btn bg-slate-50"><span class="font-bold text-[10px]">4</span></button>
+                    <button onclick="insertChar('5')" class="key-btn bg-slate-50"><span class="font-bold text-[10px]">5</span></button>
+                    <button onclick="insertChar('6')" class="key-btn bg-slate-50"><span class="font-bold text-[10px]">6</span></button>
+                    <button onclick="insertChar('7')" class="key-btn bg-slate-50"><span class="font-bold text-[10px]">7</span></button>
+                    <button onclick="insertChar('8')" class="key-btn bg-slate-50"><span class="font-bold text-[10px]">8</span></button>
+                    <button onclick="insertChar('9')" class="key-btn bg-slate-50"><span class="font-bold text-[10px]">9</span></button>
+                    <button onclick="insertChar('0')" class="key-btn bg-slate-50"><span class="font-bold text-[10px]">0</span></button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast Notifikasi -->
+    <div id="toast" class="fixed top-20 left-1/2 -translate-x-1/2 bg-slate-900 text-white px-5 py-2 rounded-full text-[10px] font-bold opacity-0 transition-all pointer-events-none shadow-xl z-[60]">BERHASIL DISALIN</div>
+
+    <script>
+        const output = document.getElementById('keyboardOutput');
+        const toast = document.getElementById('toast');
+
+        // Fungsi Masukkan Karakter di posisi kursor
+        function insertChar(char) {
+            const start = output.selectionStart;
+            const end = output.selectionEnd;
+            const text = output.value;
+            output.value = text.substring(0, start) + char + text.substring(end);
+            
+            // Atur kursor setelah karakter yang dimasukkan
+            const newPos = start + char.length;
+            output.setSelectionRange(newPos, newPos);
+            output.focus();
+        }
+
+        // Fungsi Backspace (Hapus) yang menangani Unicode Aksara
+        function backspace() {
+            const start = output.selectionStart;
+            const end = output.selectionEnd;
+            const text = output.value;
+            
+            if (start !== end) {
+                // Hapus seleksi
+                output.value = text.substring(0, start) + text.substring(end);
+                output.setSelectionRange(start, start);
+            } else if (start > 0) {
+                // Hapus satu karakter (aman pikeun Unicode)
+                const chars = Array.from(text);
+                const before = Array.from(text.substring(0, start));
+                before.pop();
+                const newTextBefore = before.join('');
+                output.value = newTextBefore + text.substring(start);
+                
+                const newPos = newTextBefore.length;
+                output.setSelectionRange(newPos, newPos);
+            }
+            output.focus();
+        }
+
+        function clearText() {
+            output.value = '';
+            output.focus();
+        }
+
+        function copyToClipboard() {
+            if (!output.value) return;
+            output.select();
+            // Salin ka clipboard
+            document.execCommand('copy');
+            
+            // Témbongkeun notifikasi
+            toast.style.opacity = '1';
+            toast.style.transform = 'translate(-50%, 0)';
+            setTimeout(() => {
+                toast.style.opacity = '0';
+                toast.style.transform = 'translate(-50%, -1rem)';
+            }, 2000);
+        }
+
+        // Mastikeun area teks fokus sarta siap diinput
+        window.onload = () => {
+            output.focus();
+        };
+    </script>
+</body>
+</html>
