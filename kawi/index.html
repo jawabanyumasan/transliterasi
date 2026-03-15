@@ -1,0 +1,317 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kawi Canvas - Latin to Old Javanese</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Kawi&display=swap" rel="stylesheet">
+    <style>
+        .kawi-font { font-family: 'Noto Sans Kawi', serif; }
+        .animate-spin-slow {
+            animation: spin 8s linear infinite;
+        }
+        @keyframes spin {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body class="min-h-screen bg-stone-50 text-stone-900 font-sans p-4 md:p-8">
+    <div class="max-w-5xl mx-auto">
+        <header class="mb-12 text-center">
+            <div class="inline-flex items-center gap-2 bg-amber-100 text-amber-800 px-4 py-1.5 rounded-full text-xs font-bold mb-6 tracking-widest uppercase shadow-sm border border-amber-200">
+                <svg class="animate-spin-slow" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a9 9 0 1 1-6.219-8.56"></path></svg>
+                Jawa Kuna • Kawi Script
+            </div>
+            <h1 class="text-5xl md:text-6xl font-black text-stone-800 mb-4 tracking-tight">Kawi Canvas</h1>
+            <p class="text-stone-500 max-w-xl mx-auto text-lg">
+                High-fidelity transliteration tool for Old Javanese manuscripts.
+            </p>
+        </header>
+
+        <!-- Action Bar -->
+        <div class="flex justify-center mb-8">
+            <button id="swapMode" class="group flex items-center gap-3 bg-white border-2 border-stone-200 px-6 py-3 rounded-2xl shadow-sm hover:border-amber-400 hover:shadow-md transition-all active:scale-95">
+                <span id="labelLatin" class="font-bold transition-colors text-amber-700">Latin</span>
+                <svg class="text-stone-400 group-hover:text-amber-500 transition-colors" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m16 3 4 4-4 4"></path><path d="M20 7H4"></path><path d="m8 21-4-4 4-4"></path><path d="M4 17h16"></path></svg>
+                <span id="labelKawi" class="font-bold transition-colors text-stone-400">Kawi</span>
+            </button>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 items-stretch mb-12">
+            <!-- Input Area -->
+            <div class="flex flex-col h-full">
+                <div class="flex items-center justify-between px-6 py-3 bg-stone-800 rounded-t-3xl text-stone-300">
+                    <span class="text-xs font-bold uppercase tracking-widest flex items-center gap-2">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="18" height="11" x="3" y="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>
+                        Source Text
+                    </span>
+                    <div class="flex gap-1">
+                        <div class="w-2 h-2 rounded-full bg-red-400 opacity-50"></div>
+                        <div class="w-2 h-2 rounded-full bg-amber-400 opacity-50"></div>
+                        <div class="w-2 h-2 rounded-full bg-green-400 opacity-50"></div>
+                    </div>
+                </div>
+                <textarea id="inputText" class="w-full flex-grow min-h-[350px] p-8 text-2xl outline-none resize-none bg-white rounded-b-3xl shadow-xl border-x-2 border-b-2 border-stone-200 focus:border-amber-300 transition-colors" placeholder="Type latin here..."></textarea>
+            </div>
+
+            <!-- Output Area -->
+            <div class="flex flex-col h-full">
+                <div class="flex items-center justify-between px-6 py-3 bg-amber-800 rounded-t-3xl text-amber-50">
+                    <span class="text-xs font-bold uppercase tracking-widest flex items-center gap-2">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="4 7 4 4 20 4 20 7"></polyline><line x1="9" x2="15" y1="20" y2="20"></line><line x1="12" x2="12" y1="4" y2="20"></line></svg>
+                        Transliterated
+                    </span>
+                    <span class="text-[10px] bg-amber-700 px-2 py-0.5 rounded-full font-bold uppercase">Realtime</span>
+                </div>
+                <div class="relative flex-grow">
+                    <textarea id="outputText" class="kawi-font w-full h-full min-h-[350px] p-8 outline-none resize-none bg-white rounded-b-3xl shadow-xl border-x-2 border-b-2 border-stone-200 leading-relaxed text-6xl" readonly placeholder="..."></textarea>
+                    <button id="copyBtn" class="absolute bottom-6 right-6 px-6 py-3 rounded-2xl shadow-lg transition-all flex items-center gap-2 text-sm font-bold bg-stone-800 text-white hover:bg-amber-900 active:scale-95">
+                        <svg id="copyIcon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="14" height="14" x="8" y="8" rx="2" ry="2"></rect><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"></path></svg>
+                        <span id="copyText">Copy Result</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Footer Reference / Guide -->
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-20">
+            <div class="bg-white p-5 rounded-2xl border border-stone-200 shadow-sm flex items-start gap-4">
+                <div class="p-2 bg-amber-100 rounded-lg text-amber-700">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><path d="M12 16v-4"></path><path d="M12 8h.01"></path></svg>
+                </div>
+                <div>
+                    <h4 class="font-bold text-stone-800 text-sm mb-1 uppercase tracking-wider">É (Taling)</h4>
+                    <p class="text-xs text-stone-500 leading-normal">Use 'é' for "lele/sate". Regular 'e' for "sego".</p>
+                </div>
+            </div>
+            <div class="bg-white p-5 rounded-2xl border border-stone-200 shadow-sm flex items-start gap-4">
+                <div class="p-2 bg-amber-100 rounded-lg text-amber-700">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><path d="M12 16v-4"></path><path d="M12 8h.01"></path></svg>
+                </div>
+                <div>
+                    <h4 class="font-bold text-stone-800 text-sm mb-1 uppercase tracking-wider">Retroflex</h4>
+                    <p class="text-xs text-stone-500 leading-normal">Supports 'th' (𑼛) and 'dh' (𑼝) as used in Javanese manuscripts.</p>
+                </div>
+            </div>
+            <div class="bg-white p-5 rounded-2xl border border-stone-200 shadow-sm flex items-start gap-4">
+                <div class="p-2 bg-amber-100 rounded-lg text-amber-700">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><path d="M12 16v-4"></path><path d="M12 8h.01"></path></svg>
+                </div>
+                <div>
+                    <h4 class="font-bold text-stone-800 text-sm mb-1 uppercase tracking-wider">Modern Phonemes</h4>
+                    <p class="text-xs text-stone-500 leading-normal">Maps 'f' to 𑼤 (P), 'v' to 𑼬 (W), and 'z' to 𑼗 (J).</p>
+                </div>
+            </div>
+            <div class="bg-white p-5 rounded-2xl border border-stone-200 shadow-sm flex items-start gap-4">
+                <div class="p-2 bg-amber-100 rounded-lg text-amber-700">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><path d="M12 16v-4"></path><path d="M12 8h.01"></path></svg>
+                </div>
+                <div>
+                    <h4 class="font-bold text-stone-800 text-sm mb-1 uppercase tracking-wider">Clustering</h4>
+                    <p class="text-xs text-stone-500 leading-normal">Uses 'conjoiner' (𑽂) for stacking/tumpuk characters.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const mapping = {
+            consonants: {
+                'kh': '\u{11F11}', 'gh': '\u{11F13}', 'ng': '\u{11F14}',
+                'ch': '\u{11F16}', 'jh': '\u{11F18}', 'ny': '\u{11F19}',
+                'th': '\u{11F1B}', 'dh': '\u{11F1D}', 'ph': '\u{11F25}',
+                'bh': '\u{11F27}', 'sy': '\u{11F2D}', 'sh': '\u{11F2E}',
+                'k': '\u{11F10}', 'g': '\u{11F12}', 'c': '\u{11F15}',
+                'j': '\u{11F17}', 't': '\u{11F1F}', 'd': '\u{11F21}',
+                'n': '\u{11F23}', 'p': '\u{11F24}', 'b': '\u{11F26}',
+                'm': '\u{11F28}', 'y': '\u{11F29}', 'r': '\u{11F2A}',
+                'l': '\u{11F2B}', 'w': '\u{11F2C}', 's': '\u{11F2F}', 'h': '\u{11F30}',
+                'f': '\u{11F24}', 'v': '\u{11F2C}', 'z': '\u{11F17}',
+            },
+            vowels: {
+                'ā': '\u{11F35}', 'i': '\u{11F36}', 'ī': '\u{11F37}',
+                'u': '\u{11F38}', 'ū': '\u{11F39}', 'é': '\u{11F3C}', 
+                'e': '\u{11F3A}', 'o': '\u{11F3E}', 'ai': '\u{11F3D}', 'au': '\u{11F3F}'
+            },
+            independentVowels: {
+                'a': '\u{11F04}', 'ā': '\u{11F05}', 'i': '\u{11F06}', 'ī': '\u{11F07}',
+                'u': '\u{11F08}', 'ū': '\u{11F09}', 'e': '\u{11F0C}', 'o': '\u{11F0E}'
+            },
+            signs: {
+                'anusvara': '\u{11F00}',
+                'visarga': '\u{11F01}',
+                'virama': '\u{11F41}',
+                'conjoiner': '\u{11F42}'
+            }
+        };
+
+        let mode = 'latinToKawi';
+        const inputEl = document.getElementById('inputText');
+        const outputEl = document.getElementById('outputText');
+        const swapBtn = document.getElementById('swapMode');
+        const copyBtn = document.getElementById('copyBtn');
+        const labelLatin = document.getElementById('labelLatin');
+        const labelKawi = document.getElementById('labelKawi');
+
+        function transliterateLatinToKawi(input) {
+            let res = input.toLowerCase()
+                .replace(/v/g, 'w')
+                .replace(/f/g, 'p')
+                .replace(/z/g, 'j');
+
+            let result = '';
+            let i = 0;
+
+            while (i < res.length) {
+                let char = res[i];
+                let nextChar = res[i + 1];
+                let twoChars = char + nextChar;
+
+                if (!/[a-zāéēíīóōúū]/.test(char)) {
+                    result += char;
+                    i++;
+                    continue;
+                }
+
+                if (i === 0 || res[i - 1] === ' ' || res[i - 1] === '\n') {
+                    if (mapping.independentVowels[char]) {
+                        result += mapping.independentVowels[char];
+                        i++;
+                        continue;
+                    }
+                }
+
+                let consonant = '';
+                if (mapping.consonants[twoChars]) {
+                    consonant = mapping.consonants[twoChars];
+                    i += 2;
+                } else if (mapping.consonants[char]) {
+                    consonant = mapping.consonants[char];
+                    i++;
+                }
+
+                if (consonant) {
+                    let vowelMatch = res[i];
+                    let nextTwo = res.slice(i, i + 2);
+
+                    if (nextTwo === 'ai' || nextTwo === 'au') {
+                        result += consonant + mapping.vowels[nextTwo];
+                        i += 2;
+                    } else if (mapping.vowels[vowelMatch] !== undefined) {
+                        result += consonant + mapping.vowels[vowelMatch];
+                        i++;
+                    } else if (vowelMatch === 'a') {
+                        result += consonant;
+                        i++;
+                    } else {
+                        let isEnd = i >= res.length || res[i] === ' ' || res[i] === '\n';
+                        if (isEnd) {
+                            if (consonant === mapping.consonants['h']) result += mapping.signs.visarga;
+                            else if (consonant === mapping.consonants['ng']) result += mapping.signs.anusvara;
+                            else result += consonant + mapping.signs.virama;
+                        } else {
+                            result += consonant + mapping.signs.conjoiner; 
+                        }
+                    }
+                } else {
+                    result += char;
+                    i++;
+                }
+            }
+            return result;
+        }
+
+        function transliterateKawiToLatin(input) {
+            let res = input;
+            Object.entries(mapping.vowels).forEach(([k, v]) => {
+                res = res.split(v).join(k);
+            });
+            res = res.split(mapping.signs.anusvara).join('ng');
+            res = res.split(mapping.signs.visarga).join('h');
+            res = res.split(mapping.signs.virama).join('');
+            res = res.split(mapping.signs.conjoiner).join('');
+            
+            const sortedCons = Object.entries(mapping.consonants).sort((a, b) => b[0].length - a[0].length);
+            sortedCons.forEach(([k, v]) => {
+                res = res.split(v).join(k + "a");
+            });
+            
+            res = res.replace(/aa/g, 'a').replace(/a /g, ' ').replace(/a$/g, '');
+            return res;
+        }
+
+        function updateOutput() {
+            const val = inputEl.value;
+            if (mode === 'latinToKawi') {
+                outputEl.value = transliterateLatinToKawi(val);
+            } else {
+                outputEl.value = transliterateKawiToLatin(val);
+            }
+        }
+
+        inputEl.addEventListener('input', updateOutput);
+
+        swapBtn.addEventListener('click', () => {
+            mode = (mode === 'latinToKawi') ? 'kawiToLatin' : 'latinToKawi';
+            
+            // Swap labels
+            if (mode === 'latinToKawi') {
+                labelLatin.classList.add('text-amber-700');
+                labelLatin.classList.remove('text-stone-400');
+                labelKawi.classList.add('text-stone-400');
+                labelKawi.classList.remove('text-amber-700');
+                inputEl.classList.remove('kawi-font', 'text-5xl');
+                inputEl.classList.add('text-2xl');
+                outputEl.classList.add('kawi-font', 'text-6xl');
+                outputEl.classList.remove('text-2xl');
+                inputEl.placeholder = "Type latin here...";
+            } else {
+                labelKawi.classList.add('text-amber-700');
+                labelKawi.classList.remove('text-stone-400');
+                labelLatin.classList.add('text-stone-400');
+                labelLatin.classList.remove('text-amber-700');
+                inputEl.classList.add('kawi-font', 'text-5xl');
+                inputEl.classList.remove('text-2xl');
+                outputEl.classList.remove('kawi-font', 'text-6xl');
+                outputEl.classList.add('text-2xl');
+                inputEl.placeholder = "Paste Kawi script here...";
+            }
+
+            const temp = inputEl.value;
+            inputEl.value = outputEl.value;
+            outputEl.value = temp;
+            updateOutput();
+        });
+
+        copyBtn.addEventListener('click', () => {
+            const text = outputEl.value;
+            const dummy = document.createElement("textarea");
+            document.body.appendChild(dummy);
+            dummy.value = text;
+            dummy.select();
+            document.execCommand('copy');
+            document.body.removeChild(dummy);
+
+            const copyText = document.getElementById('copyText');
+            const copyIcon = document.getElementById('copyIcon');
+            const originalText = copyText.innerText;
+            
+            copyText.innerText = 'Copied!';
+            copyBtn.classList.remove('bg-stone-800');
+            copyBtn.classList.add('bg-green-600');
+            copyIcon.innerHTML = '<path d="M20 6 9 17l-5-5"></path>';
+
+            setTimeout(() => {
+                copyText.innerText = originalText;
+                copyBtn.classList.add('bg-stone-800');
+                copyBtn.classList.remove('bg-green-600');
+                copyIcon.innerHTML = '<rect width="14" height="14" x="8" y="8" rx="2" ry="2"></rect><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"></path>';
+            }, 2000);
+        });
+    </script>
+</body>
+</html>
