@@ -1,0 +1,276 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Transliterasi Aksara Chakma (Ajhapath)</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Chakma&display=swap" rel="stylesheet">
+    <style>
+        .font-chakma {
+            font-family: 'Noto Sans Chakma', serif;
+        }
+        textarea {
+            resize: none;
+        }
+    </style>
+</head>
+<body class="min-h-screen bg-slate-50 p-4 md:p-10 font-sans text-slate-800">
+
+    <div class="max-w-5xl mx-auto">
+        
+        <!-- Header -->
+        <div class="text-center mb-10">
+            <h1 class="text-4xl font-black text-indigo-900 mb-2 tracking-tighter">
+                Chakma <span class="text-3xl font-chakma">𑄌𑄋𑄴𑄟𑄳𑄦</span> Ajhapath
+            </h1>
+            <p class="text-slate-500 font-medium italic">Update: Unique Question Mark & Conjunct Support</p>
+        </div>
+
+        <!-- Interface Editor -->
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-10">
+            <!-- Latin Input -->
+            <div class="flex flex-col gap-3">
+                <div class="flex items-center px-2 text-[10px] font-bold text-slate-400 uppercase tracking-[0.2em] gap-2">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="20" height="16" x="2" y="4" rx="2" ry="2"/><path d="M6 8h.01"/><path d="M10 8h.01"/><path d="M14 8h.01"/><path d="M18 8h.01"/><path d="M8 12h.01"/><path d="M12 12h.01"/><path d="M16 12h.01"/><path d="M7 16h10"/></svg>
+                    Masukan Latin (Coba: Jakarta?)
+                </div>
+                <textarea
+                    id="latinInput"
+                    class="w-full h-44 p-6 rounded-[2rem] border-none shadow-xl bg-white focus:ring-4 focus:ring-indigo-100 transition-all text-2xl outline-none"
+                    placeholder="Contoh: Jakarta?, sastro, mangan..."
+                ></textarea>
+            </div>
+
+            <!-- Chakma Output -->
+            <div class="flex flex-col gap-3">
+                <div class="flex justify-between items-center px-2">
+                    <span class="text-[10px] font-bold text-slate-400 uppercase tracking-[0.2em]">Hasil Aksara</span>
+                    <button 
+                        id="copyBtn"
+                        class="flex items-center gap-2 px-5 py-2 rounded-full text-xs font-bold transition-all shadow-lg bg-indigo-600 text-white hover:bg-indigo-700"
+                    >
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="14" height="14" x="8" y="8" rx="2" ry="2"/><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"/></svg>
+                        <span id="copyText">Salin</span>
+                    </button>
+                </div>
+                <textarea
+                    id="chakmaOutput"
+                    class="w-full h-44 p-6 rounded-[2rem] border-none shadow-xl bg-indigo-950 text-white font-chakma text-5xl focus:ring-4 focus:ring-indigo-300 transition-all outline-none"
+                    placeholder="𑄎𑄇𑄢𑄳𑄏𑅃"
+                ></textarea>
+            </div>
+        </div>
+
+        <!-- Tabel Referensi -->
+        <div class="bg-white rounded-3xl shadow-lg overflow-hidden border border-slate-100 mb-10">
+            <div class="bg-slate-50 border-b border-slate-100 p-5">
+                <h2 class="font-bold text-slate-700 flex items-center justify-center gap-2 text-sm uppercase tracking-widest">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m16 3 4 4-4 4"/><path d="M20 7H4"/><path d="m8 21-4-4 4-4"/><path d="M4 17h16"/></svg>
+                    Fitur Khusus Baru
+                </h2>
+            </div>
+            <div class="grid grid-cols-2 md:grid-cols-3 divide-x divide-y divide-slate-100">
+                <div class="p-4 flex flex-col items-center">
+                    <span class="text-[10px] font-black text-indigo-300 mb-1 uppercase tracking-tighter">Tanda Tanya</span>
+                    <span class="text-3xl font-chakma">𑅃</span>
+                    <span class="text-[10px] text-slate-400 mt-1">U+11143 (Unique QM)</span>
+                </div>
+                <div class="p-4 flex flex-col items-center">
+                    <span class="text-[10px] font-black text-indigo-300 mb-1 uppercase tracking-tighter">Jakarta</span>
+                    <span class="text-2xl font-chakma">𑄎𑄇𑄢𑄳𑄏</span>
+                    <span class="text-[10px] text-slate-400 mt-1">Menggunakan Conjunct</span>
+                </div>
+                <div class="p-4 flex flex-col items-center">
+                    <span class="text-[10px] font-black text-indigo-300 mb-1 uppercase tracking-tighter">Pasar (Layar)</span>
+                    <span class="text-2xl font-chakma">𑄔𑄝𑄢𑄴</span>
+                    <span class="text-[10px] text-slate-400 mt-1">Ra + Maayyaa</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Info Box -->
+        <div class="bg-white p-8 rounded-[2.5rem] shadow-sm border border-slate-200 flex flex-col md:flex-row gap-6 items-start">
+            <div class="bg-indigo-50 p-4 rounded-3xl text-indigo-600 flex-shrink-0">
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/></svg>
+            </div>
+            <div class="text-sm text-slate-600 leading-relaxed">
+                <h3 class="font-bold text-indigo-900 text-lg mb-2">Penjelasan Sistem Penulisan</h3>
+                <p class="mb-4 text-justify">
+                    Berbeda dengan Aksara Jawa, Chakma tidak memiliki sandhangan khusus untuk "Layar" ($-r$ mati). 
+                    Jika $-r$ berada di akhir kata, maka ditulis <b>Ra + Maayyaa</b> (seperti Pangkon). 
+                    Jika $-r$ berada di tengah kata seperti pada <i>"Jakarta"</i>, maka ditulis sebagai <b>Ra + Virama Joiner + Konsonan berikutnya</b> (tumpuk/conjunct).
+                </p>
+                <p class="italic text-indigo-600 font-medium">
+                    Tanda tanya <b>?</b> sekarang otomatis berubah menjadi tanda tanya asli Chakma <b>𑅃</b>.
+                </p>
+            </div>
+        </div>
+
+        <footer class="py-10 text-center text-slate-400 text-[10px] font-bold uppercase tracking-[0.3em]">
+            Transliterasi Ajhapath-Jawa • Layout Final
+        </footer>
+
+    </div>
+
+    <script>
+        const MAAYYAA = '𑄴';    
+        const VIRAMA_JOIN = '𑄳'; 
+        const PHUDA = '𑄰';      
+        const CHAKMA_QM = '𑅃';   
+
+        const consonants = {
+            'k': '𑄇', 'g': '𑄉', 'j': '𑄎', 'h': '𑄂', 'd': '𑄘',
+            'r': '𑄢', 'n': '𑄚', 'y': '𑄠', 'l': '𑄣', 'w': '𑄤',
+            't': '𑄏', 'c': '𑄅', 'p': '𑄔', 'b': '𑄖', 'm': '𑄘',
+            's': '𑄝', 'ng': '𑄄', 'ny': '𑄋', 'th': '𑄊', 'dh': '𑄌',
+            'kh': '𑄁', 'gh': '𑄃', 'ch': '𑄆', 'jh': '𑄈',
+            'f': '𑄕', 'v': '𑄤', 'z': '𑄎'
+        };
+
+        const vowels = {
+            'aa': '𑄧', 'u': '𑄪', 'i': '𑄨', 'e': '𑄬', 'é': '𑄬',
+            'o': '𑄮', 'ai': '𑄭', 'au': '𑄯', 'ii': '𑄩', 'uu': '𑄫'
+        };
+
+        const independentVowels = {
+            'a': '𑄃', 'i': '𑄄', 'u': '𑄅', 'e': '𑄆'
+        };
+
+        function isConsonant(char) {
+            if (!char) return false;
+            return consonants[char.toLowerCase()] !== undefined;
+        }
+
+        function toChakma(input) {
+            if (!input) return '';
+            let text = input.toLowerCase();
+            let res = '';
+            let i = 0;
+            const digraphs = ['ng', 'ny', 'th', 'dh', 'kh', 'gh', 'ch', 'jh', 'ph', 'bh', 'sy'];
+
+            while (i < text.length) {
+                let char = text[i];
+                let currentTwo = text.substr(i, 2);
+                
+                if (char === '?') {
+                    res += CHAKMA_QM;
+                    i++;
+                    continue;
+                }
+
+                if (currentTwo === 'ng') {
+                    let afterNg = text[i + 2];
+                    if (!afterNg || isConsonant(afterNg) || afterNg === ' ') {
+                        res += PHUDA;
+                        i += 2;
+                        continue;
+                    }
+                }
+
+                let isDigraph = digraphs.includes(currentTwo);
+                let consKey = isDigraph ? currentTwo : char;
+                let consCode = consonants[consKey];
+
+                if (consCode) {
+                    let skip = isDigraph ? 2 : 1;
+                    let nextIdx = i + skip;
+                    let nextChar = text[nextIdx];
+                    let nextTwo = text.substr(nextIdx, 2);
+
+                    res += consCode;
+
+                    if (nextChar && isConsonant(nextChar) && nextChar !== ' ' && nextChar !== 'a') {
+                        let nextTwoCheck = text.substr(nextIdx, 2);
+                        if (nextTwoCheck === 'ng') {
+                            let afterNextNg = text[nextIdx + 2];
+                            if (!afterNextNg || isConsonant(afterNextNg) || afterNextNg === ' ') {
+                            } else {
+                                res += VIRAMA_JOIN;
+                            }
+                        } else {
+                            res += VIRAMA_JOIN;
+                        }
+                        i += skip;
+                        continue; 
+                    }
+
+                    if (nextTwo && vowels[nextTwo]) {
+                        res += vowels[nextTwo];
+                        i = nextIdx + 2;
+                    } else if (nextChar && (vowels[nextChar] || nextChar === 'é')) {
+                        res += vowels[nextChar === 'é' ? 'é' : nextChar];
+                        i = nextIdx + 1;
+                    } else if (nextChar === 'a') {
+                        i = nextIdx + 1;
+                    } else {
+                        if (!nextChar || nextChar === ' ') {
+                            res += MAAYYAA;
+                        }
+                        i += skip;
+                    }
+                } else if (independentVowels[char]) {
+                    res += independentVowels[char];
+                    i++;
+                } else {
+                    res += char;
+                    i++;
+                }
+            }
+            return res;
+        }
+
+        function toLatin(input) {
+            if (!input) return '';
+            const revCons = Object.fromEntries(Object.entries(consonants).map(([k, v]) => [v, k]));
+            const revVow = Object.fromEntries(Object.entries(vowels).map(([k, v]) => [v, k]));
+            const revInd = Object.fromEntries(Object.entries(independentVowels).map(([k, v]) => [v, k]));
+            
+            let res = '';
+            for (let char of input) {
+                if (revCons[char]) res += revCons[char];
+                else if (revVow[char]) res += revVow[char];
+                else if (revInd[char]) res += revInd[char];
+                else if (char === PHUDA) res += 'ng';
+                else if (char === CHAKMA_QM) res += '?';
+                else if (char === MAAYYAA || char === VIRAMA_JOIN) res += '';
+                else res += char;
+            }
+            return res;
+        }
+
+        const latinInput = document.getElementById('latinInput');
+        const chakmaOutput = document.getElementById('chakmaOutput');
+        const copyBtn = document.getElementById('copyBtn');
+        const copyText = document.getElementById('copyText');
+
+        latinInput.addEventListener('input', (e) => {
+            chakmaOutput.value = toChakma(e.target.value);
+        });
+
+        chakmaOutput.addEventListener('input', (e) => {
+            latinInput.value = toLatin(e.target.value);
+        });
+
+        copyBtn.addEventListener('click', () => {
+            const text = chakmaOutput.value;
+            if (!text) return;
+            
+            const el = document.createElement('textarea');
+            el.value = text;
+            document.body.appendChild(el);
+            el.select();
+            document.execCommand('copy');
+            document.body.removeChild(el);
+
+            copyText.textContent = 'Tersalin!';
+            copyBtn.classList.replace('bg-indigo-600', 'bg-emerald-500');
+            
+            setTimeout(() => {
+                copyText.textContent = 'Salin';
+                copyBtn.classList.replace('bg-emerald-500', 'bg-indigo-600');
+            }, 2000);
+        });
+    </script>
+</body>
+</html>
