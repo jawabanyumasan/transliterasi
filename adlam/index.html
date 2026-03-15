@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Adlam Javanese Transliterator</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Adlam&family=Inter:wght@400;600&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f8fafc;
+        }
+        .adlam-text {
+            font-family: 'Noto Sans Adlam', sans-serif;
+            direction: rtl;
+            unicode-bidi: bidi-override;
+        }
+        .glass-panel {
+            background: rgba(255, 255, 255, 0.8);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(226, 232, 240, 1);
+        }
+    </style>
+</head>
+<body class="min-h-screen py-8 px-4 sm:px-6">
+    <div class="max-w-4xl mx-auto">
+        <!-- Header -->
+        <header class="text-center mb-10">
+            <h1 class="text-3xl font-bold text-slate-800 mb-2">Adlam ↔ Javanese</h1>
+            <p class="text-slate-600 italic">Transliterasi Aksara Adlam kagem Basa Jawi</p>
+        </header>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <!-- Latin ke Adlam -->
+            <div class="glass-panel p-6 rounded-2xl shadow-sm">
+                <div class="flex justify-between items-center mb-4">
+                    <h2 class="font-semibold text-slate-700">Latin ke Adlam</h2>
+                    <button id="copyAdlam" class="text-indigo-600 hover:text-indigo-800 text-sm flex items-center gap-1">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="14" height="14" x="8" y="8" rx="2" ry="2"/><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"/></svg>
+                        Salin Hasil
+                    </button>
+                </div>
+                <textarea 
+                    id="latinInput" 
+                    class="w-full h-40 p-4 rounded-xl border border-slate-200 focus:ring-2 focus:ring-indigo-500 focus:border-transparent outline-none transition-all resize-none mb-4"
+                    placeholder="Ketikaken mriki (Tuladha: Pripun kabaripun?)"
+                ></textarea>
+                <div 
+                    id="adlamOutput" 
+                    class="adlam-text w-full h-40 p-4 rounded-xl bg-slate-50 border border-slate-100 overflow-y-auto text-2xl text-slate-800 whitespace-pre-wrap"
+                ></div>
+            </div>
+
+            <!-- Adlam ke Latin -->
+            <div class="glass-panel p-6 rounded-2xl shadow-sm">
+                <div class="flex justify-between items-center mb-4">
+                    <h2 class="font-semibold text-slate-700">Adlam ke Latin</h2>
+                    <button id="copyLatin" class="text-indigo-600 hover:text-indigo-800 text-sm flex items-center gap-1">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="14" height="14" x="8" y="8" rx="2" ry="2"/><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"/></svg>
+                        Salin Hasil
+                    </button>
+                </div>
+                <textarea 
+                    id="adlamInput" 
+                    class="adlam-text w-full h-40 p-4 rounded-xl border border-slate-200 focus:ring-2 focus:ring-indigo-500 focus:border-transparent outline-none transition-all resize-none mb-4 text-2xl"
+                    placeholder="𞤨𞤼𞤭𞤨𞤵𞤲..."
+                ></textarea>
+                <div 
+                    id="latinOutput" 
+                    class="w-full h-40 p-4 rounded-xl bg-slate-50 border border-slate-100 overflow-y-auto text-lg text-slate-800 whitespace-pre-wrap"
+                ></div>
+            </div>
+        </div>
+
+        <!-- Tabel Panduan -->
+        <div class="mt-8 glass-panel p-6 rounded-2xl">
+            <h3 class="font-bold text-slate-800 mb-4">Pedoman Fonetik & Tanda Baca</h3>
+            <div class="grid grid-cols-2 sm:grid-cols-4 gap-4 text-sm">
+                <div>
+                    <span class="font-semibold block mb-1 text-slate-500">Retroflex</span>
+                    <p>th → 𞤚</p>
+                    <p>dh → 𞤁</p>
+                </div>
+                <div>
+                    <span class="font-semibold block mb-1 text-slate-500">Nasals</span>
+                    <p>ng → 𞤐𞥃</p>
+                    <p>ny → 𞤐𞥄</p>
+                </div>
+                <div>
+                    <span class="font-semibold block mb-1 text-slate-500">Punctuation</span>
+                    <p>? → ؟ <span class="text-xs text-slate-400">(Tanda tanya RTL)</span></p>
+                    <p>, → ،</p>
+                </div>
+                <div>
+                    <span class="font-semibold block mb-1 text-slate-500">Vowels</span>
+                    <p>e → 𞤫</p>
+                    <p>é → 𞤫𞥅</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Toast notification -->
+        <div id="toast" class="fixed bottom-5 left-1/2 -translate-x-1/2 bg-slate-800 text-white px-6 py-2 rounded-full opacity-0 transition-opacity duration-300 pointer-events-none">
+            Teks berhasil disalin!
+        </div>
+    </div>
+
+    <script>
+        const latinToAdlamMap = {
+            'th': '𞤚',
+            'dh': '𞤁',
+            'ng': '𞤐𞥃',
+            'ny': '𞤐𞥄',
+            'sy': '𞤡',
+            'kh': '𞤖',
+            'é': '𞤫𞥄',
+            'a': '𞤢', 'b': '𞤦', 'c': '𞤧', 'd': '𞤣', 'e': '𞤫', 
+            'f': '𞤊', 'g': '𞤺', 'h': '𞤸', 'i': '𞤭', 'j': '𞤶', 
+            'k': '𞤳', 'l': '𞤤', 'm': '𞤥', 'n': '𞤲', 'o': '𞤮', 
+            'p': '𞤨', 'r': '𞤪', 's': '𞤧', 't': '𞤼', 'u': '𞤵', 
+            'v': '𞤊', 'w': '𞤬', 'y': '𞤴', 'z': '𞤟',
+            '?': '؟',
+            ',': '،'
+        };
+
+        const adlamToLatinMap = [
+            { a: '𞤫𞥄', l: 'é' },
+            { a: '𞤐𞥃', l: 'ng' },
+            { a: '𞤐𞥄', l: 'ny' },
+            { a: '𞤚', l: 'th' },
+            { a: '𞤁', l: 'dh' },
+            { a: '𞤢', l: 'a' }, { a: '𞤦', l: 'b' }, { a: '𞤧', l: 'c' }, { a: '𞤣', l: 'd' }, { a: '𞤫', l: 'e' }, 
+            { a: '𞤊', l: 'f' }, { a: '𞤺', l: 'g' }, { a: '𞤸', l: 'h' }, { a: '𞤭', l: 'i' }, { a: '𞤶', l: 'j' }, 
+            { a: '𞤳', l: 'k' }, { a: '𞤤', l: 'l' }, { a: '𞤥', l: 'm' }, { a: '𞤲', l: 'n' }, { a: '𞤮', l: 'o' }, 
+            { a: '𞤨', l: 'p' }, { a: '𞤪', l: 'r' }, { a: '𞤧', l: 's' }, { a: '𞤼', l: 't' }, { a: '𞤵', l: 'u' }, 
+            { a: '𞤬', l: 'w' }, { a: '𞤴', l: 'y' }, { a: '𞤟', l: 'z' }, { a: '𞤖', l: 'kh' }, { a: '𞤡', l: 'sy' },
+            { a: '؟', l: '?' }, { a: '،', l: ',' }
+        ];
+
+        const latinInput = document.getElementById('latinInput');
+        const adlamOutput = document.getElementById('adlamOutput');
+        const adlamInput = document.getElementById('adlamInput');
+        const latinOutput = document.getElementById('latinOutput');
+
+        function toAdlam(text) {
+            let lower = text.toLowerCase();
+            let result = "";
+            let i = 0;
+            while (i < lower.length) {
+                let bi = lower.substr(i, 2);
+                if (latinToAdlamMap[bi]) {
+                    result += latinToAdlamMap[bi];
+                    i += 2;
+                } else if (latinToAdlamMap[lower[i]]) {
+                    result += latinToAdlamMap[lower[i]];
+                    i++;
+                } else {
+                    result += lower[i];
+                    i++;
+                }
+            }
+            return result;
+        }
+
+        function toLatin(text) {
+            let result = text;
+            for (let mapping of adlamToLatinMap) {
+                result = result.split(mapping.a).join(mapping.l);
+            }
+            return result;
+        }
+
+        latinInput.addEventListener('input', (e) => {
+            adlamOutput.textContent = toAdlam(e.target.value);
+        });
+
+        adlamInput.addEventListener('input', (e) => {
+            latinOutput.textContent = toLatin(e.target.value);
+        });
+
+        function showToast() {
+            const toast = document.getElementById('toast');
+            toast.style.opacity = '1';
+            setTimeout(() => toast.style.opacity = '0', 2000);
+        }
+
+        const copyText = (elementId) => {
+            const text = document.getElementById(elementId).textContent;
+            if (!text) return;
+            const temp = document.createElement('textarea');
+            temp.value = text;
+            document.body.appendChild(temp);
+            temp.select();
+            document.execCommand('copy');
+            document.body.removeChild(temp);
+            showToast();
+        };
+
+        document.getElementById('copyAdlam').addEventListener('click', () => copyText('adlamOutput'));
+        document.getElementById('copyLatin').addEventListener('click', () => copyText('latinOutput'));
+    </script>
+</body>
+</html>
