@@ -1,0 +1,259 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Baybayin for Javanese</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f8fafc;
+        }
+        /* Custom font fallback for Baybayin if available on system, 
+           otherwise uses standard unicode */
+        .baybayin-text {
+            font-family: 'Noto Sans Tagalog', 'Courier New', sans-serif;
+            font-size: 2.5rem;
+            line-height: 1.2;
+        }
+        .glass-panel {
+            background: rgba(255, 255, 255, 0.8);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(226, 232, 240, 1);
+        }
+    </style>
+</head>
+<body class="min-h-screen py-8 px-4">
+    <div class="max-w-3xl mx-auto">
+        <!-- Header -->
+        <header class="text-center mb-10">
+            <h1 class="text-4xl font-bold text-slate-800 mb-2">ᜊᜌ᜔ᜊᜌᜒᜈ᜔</h1>
+            <h2 class="text-xl text-slate-600">Baybayin for Javanese</h2>
+            <p class="text-sm text-slate-500 mt-2">Specialized for Javanese phonology (th, dh, ng, ny, é)</p>
+        </header>
+
+        <!-- Main Converter -->
+        <div class="grid gap-6">
+            <!-- Latin Input Section -->
+            <div class="glass-panel p-6 rounded-2xl shadow-sm">
+                <label class="block text-sm font-semibold text-slate-700 mb-2 uppercase tracking-wider">Latin / Aksara Jawa (Romanized)</label>
+                <textarea 
+                    id="latinInput" 
+                    placeholder="Type Javanese words here... (e.g., Sego, Dhahar, Thole, Nyoto)" 
+                    class="w-full h-32 p-4 bg-white border border-slate-200 rounded-xl focus:ring-2 focus:ring-amber-500 focus:border-transparent outline-none transition-all resize-none text-lg"
+                ></textarea>
+                <div class="mt-2 flex gap-2 overflow-x-auto pb-2">
+                    <button onclick="insertChar('é')" class="px-3 py-1 bg-amber-100 hover:bg-amber-200 text-amber-800 rounded-md text-sm font-medium">é</button>
+                    <button onclick="insertChar('th')" class="px-3 py-1 bg-slate-100 hover:bg-slate-200 text-slate-800 rounded-md text-sm font-medium">th</button>
+                    <button onclick="insertChar('dh')" class="px-3 py-1 bg-slate-100 hover:bg-slate-200 text-slate-800 rounded-md text-sm font-medium">dh</button>
+                    <button onclick="insertChar('ng')" class="px-3 py-1 bg-slate-100 hover:bg-slate-200 text-slate-800 rounded-md text-sm font-medium">ng</button>
+                    <button onclick="insertChar('ny')" class="px-3 py-1 bg-slate-100 hover:bg-slate-200 text-slate-800 rounded-md text-sm font-medium">ny</button>
+                </div>
+            </div>
+
+            <!-- Arrow Icon -->
+            <div class="flex justify-center -my-3 z-10">
+                <div class="bg-amber-500 text-white p-2 rounded-full shadow-lg">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 14l-7 7m0 0l-7-7m7 7V3" />
+                    </svg>
+                </div>
+            </div>
+
+            <!-- Baybayin Output Section -->
+            <div class="glass-panel p-6 rounded-2xl shadow-sm border-amber-200 bg-amber-50/30">
+                <div class="flex justify-between items-center mb-2">
+                    <label class="block text-sm font-semibold text-slate-700 uppercase tracking-wider">Baybayin Script</label>
+                    <button id="copyBtn" class="flex items-center gap-1 text-xs font-bold text-amber-600 hover:text-amber-700 uppercase tracking-tighter">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2m0 0h2a2 2 0 012 2v3m2 4H10m0 0l3-3m-3 3l3 3" />
+                        </svg>
+                        Copy
+                    </button>
+                </div>
+                <div 
+                    id="baybayinOutput" 
+                    class="baybayin-text min-h-[120px] p-4 bg-white/50 rounded-xl border border-amber-100 text-slate-800 break-words"
+                ></div>
+            </div>
+        </div>
+
+        <!-- Reference Table -->
+        <section class="mt-12">
+            <h3 class="text-lg font-bold text-slate-800 mb-4 border-b pb-2">Javanese Phonetic Mapping</h3>
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+                <div class="bg-white p-3 rounded-lg border text-sm">
+                    <span class="font-bold text-amber-600">Th / Dh</span>
+                    <p class="text-slate-500">Maps to ᜆ and ᜇ with context.</p>
+                </div>
+                <div class="bg-white p-3 rounded-lg border text-sm">
+                    <span class="font-bold text-amber-600">Ny / Ng</span>
+                    <p class="text-slate-500">Maps to ᜎ (modified) and ᜅ.</p>
+                </div>
+                <div class="bg-white p-3 rounded-lg border text-sm">
+                    <span class="font-bold text-amber-600">é (Taling)</span>
+                    <p class="text-slate-500">Uses ᜒ kudlit (top dot).</p>
+                </div>
+                <div class="bg-white p-3 rounded-lg border text-sm">
+                    <span class="font-bold text-amber-600">F, V, Z</span>
+                    <p class="text-slate-500">Extension glyphs included.</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Feedback UI -->
+        <div id="toast" class="fixed bottom-8 left-1/2 -translate-x-1/2 bg-slate-800 text-white px-6 py-3 rounded-full shadow-xl opacity-0 transition-opacity duration-300 pointer-events-none">
+            Copied to clipboard!
+        </div>
+    </div>
+
+    <script>
+        const latinInput = document.getElementById('latinInput');
+        const baybayinOutput = document.getElementById('baybayinOutput');
+        const copyBtn = document.getElementById('copyBtn');
+        const toast = document.getElementById('toast');
+
+        // Baybayin Base Characters
+        const baseMap = {
+            'a': 'ᜀ', 'i': 'ᜁ', 'u': 'ᜂ', 'e': 'ᜁ', 'o': 'ᜂ', 'é': 'ᜁ',
+            'ka': 'ᜃ', 'ga': 'ᜄ', 'nga': 'ᜅ',
+            'ta': 'ᜆ', 'da': 'ᜇ', 'na': 'ᜈ',
+            'pa': 'ᜉ', 'ba': 'ᜊ', 'ma': 'ᜋ',
+            'ya': 'ᜌ', 'la': 'ᜎ', 'wa': 'ᜏ', 'sa': 'ᜐ', 'ha': 'ᜑ',
+            // Extensions / Javanese Nuance
+            'tha': 'ᜆ', // Retained as Ta (closer approximation)
+            'dha': 'ᜇ', // Retained as Da
+            'nya': 'ᜎ', // Often used as Nya in some variations or custom mark
+            'fa': 'ᜉ',  // Modern extension 
+            'va': 'ᜊ',  // Modern extension
+            'za': 'ᜐ',  // Modern extension
+            'kha': 'ᜃ',
+            'sya': 'ᜐ'
+        };
+
+        const virama = '᜔'; // Spanish Virama (X cross to cancel vowel)
+        const kudlitI = 'ᜒ'; // Dot above
+        const kudlitU = 'ᜓ'; // Dot below
+
+        function transliterate(text) {
+            if (!text) return '';
+            
+            // Normalize
+            let str = text.toLowerCase();
+            
+            // Special handling for multi-char consonants
+            const combinations = ['nga', 'nya', 'tha', 'dha', 'kha', 'sya'];
+            
+            let result = '';
+            let i = 0;
+            
+            while (i < str.length) {
+                let foundMatch = false;
+                
+                // Check for 3-char chunks (e.g. "nga")
+                let three = str.substr(i, 3);
+                // Check for 2-char chunks (e.g. "ng", "ny", "th", "dh")
+                let two = str.substr(i, 2);
+                // Check for 1-char
+                let one = str.substr(i, 1);
+
+                // Phoneme matching logic
+                if (baseMap[three]) {
+                    result += baseMap[three];
+                    i += 3;
+                    foundMatch = true;
+                } else if (["ng", "ny", "th", "dh", "kh", "sy"].includes(two)) {
+                    // Check next char for vowel
+                    let next = str.substr(i + 2, 1);
+                    let base = baseMap[two + 'a'] || baseMap[one + 'a'];
+                    
+                    if (['a', 'i', 'u', 'e', 'o', 'é'].includes(next)) {
+                        result += applyKudlit(base, next);
+                        i += 3;
+                    } else {
+                        // Dead consonant
+                        result += base + virama;
+                        i += 2;
+                    }
+                    foundMatch = true;
+                } else if (['f', 'v', 'z'].includes(one)) {
+                     let next = str.substr(i + 1, 1);
+                     let base = baseMap[one + 'a'];
+                     if (['a', 'i', 'u', 'e', 'o', 'é'].includes(next)) {
+                        result += applyKudlit(base, next);
+                        i += 2;
+                     } else {
+                        result += base + virama;
+                        i += 1;
+                     }
+                     foundMatch = true;
+                } else if (['a', 'i', 'u', 'e', 'o', 'é'].includes(one)) {
+                    // Solo Vowels
+                    result += baseMap[one];
+                    i += 1;
+                    foundMatch = true;
+                } else if (one.match(/[a-z]/)) {
+                    // Regular Consonants
+                    let base = baseMap[one + 'a'] || '';
+                    let next = str.substr(i + 1, 1);
+                    
+                    if (['a', 'i', 'u', 'e', 'o', 'é'].includes(next)) {
+                        result += applyKudlit(base, next);
+                        i += 2;
+                    } else {
+                        result += (base !== '' ? base + virama : one);
+                        i += 1;
+                    }
+                    foundMatch = true;
+                } else {
+                    // Spaces, punctuation, etc.
+                    result += one === '\n' ? '<br>' : one;
+                    i += 1;
+                }
+            }
+            
+            return result;
+        }
+
+        function applyKudlit(base, vowel) {
+            if (vowel === 'a') return base;
+            if (['i', 'e', 'é'].includes(vowel)) return base + kudlitI;
+            if (['u', 'o'].includes(vowel)) return base + kudlitU;
+            return base;
+        }
+
+        function insertChar(char) {
+            const start = latinInput.selectionStart;
+            const end = latinInput.selectionEnd;
+            const text = latinInput.value;
+            latinInput.value = text.substring(0, start) + char + text.substring(end);
+            latinInput.focus();
+            latinInput.dispatchEvent(new Event('input'));
+        }
+
+        latinInput.addEventListener('input', () => {
+            const translated = transliterate(latinInput.value);
+            baybayinOutput.innerHTML = translated;
+        });
+
+        copyBtn.addEventListener('click', () => {
+            const text = baybayinOutput.innerText;
+            if (!text) return;
+            
+            const el = document.createElement('textarea');
+            el.value = text;
+            document.body.appendChild(el);
+            el.select();
+            document.execCommand('copy');
+            document.body.removeChild(el);
+
+            toast.style.opacity = '1';
+            setTimeout(() => {
+                toast.style.opacity = '0';
+            }, 2000);
+        });
+    </script>
+</body>
+</html>
