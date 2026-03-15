@@ -1,0 +1,306 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Burmese-Javanese Transliteration</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Padauk:wght@400;700&family=Inter:wght@400;600&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f8fafc;
+        }
+        .burmese-font {
+            font-family: 'Padauk', sans-serif;
+        }
+        .glass-panel {
+            background: rgba(255, 255, 255, 0.9);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(226, 232, 240, 1);
+        }
+        textarea {
+            resize: none;
+        }
+        .transition-all {
+            transition: all 0.2s ease-in-out;
+        }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col items-center p-4 md:p-8">
+
+    <div class="w-full max-w-4xl">
+        <header class="text-center mb-8">
+            <h1 class="text-3xl font-bold text-slate-800 mb-2">Burmese ↔ Javanese</h1>
+            <p class="text-slate-600">Transliterasi Latin (Fonetik Jawa) ke Aksara Myanmar dengan Dukungan Medial & Final</p>
+        </header>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 relative">
+            <!-- Area Input -->
+            <div class="flex flex-col space-y-2">
+                <div class="flex justify-between items-center px-2">
+                    <span id="label-left" class="text-sm font-semibold text-slate-500 uppercase tracking-wider">Latin (Jawa)</span>
+                    <button onclick="clearAll()" class="text-xs text-red-500 hover:text-red-700 transition-all">Hapus</button>
+                </div>
+                <div class="glass-panel rounded-2xl p-4 shadow-sm focus-within:ring-2 focus-within:ring-indigo-500 transition-all">
+                    <textarea id="input-text" 
+                              class="w-full h-48 bg-transparent border-none outline-none text-lg text-slate-800" 
+                              placeholder="Ketik: kya, kra, kang, kah, kar..."
+                              oninput="handleInput()"></textarea>
+                </div>
+            </div>
+
+            <!-- Tombol Tukar -->
+            <div class="flex items-center justify-center md:absolute md:left-1/2 md:top-1/2 md:-translate-x-1/2 md:-translate-y-1/2 z-10 my-2 md:my-0">
+                <button onclick="swapDirection()" class="bg-indigo-600 text-white p-3 rounded-full shadow-lg hover:bg-indigo-700 active:scale-95 transition-all">
+                    <svg id="swap-icon" xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4" />
+                    </svg>
+                </button>
+            </div>
+
+            <!-- Area Output -->
+            <div class="flex flex-col space-y-2">
+                <div class="flex justify-between items-center px-2">
+                    <span id="label-right" class="text-sm font-semibold text-slate-500 uppercase tracking-wider">Aksara Myanmar</span>
+                    <button onclick="copyToClipboard()" class="flex items-center space-x-1 text-xs text-indigo-600 hover:text-indigo-800 transition-all">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2m0 0h2a2 2 0 012 2v3m2 4H10m0 0l3-3m-3 3l3 3" />
+                        </svg>
+                        <span>Salin</span>
+                    </button>
+                </div>
+                <div class="glass-panel rounded-2xl p-4 shadow-sm bg-white/50">
+                    <div id="output-text" class="w-full h-48 burmese-font text-3xl text-slate-900 break-words overflow-y-auto" style="line-height: 1.6;"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Panduan Fonetik Khusus -->
+        <div class="mt-12 p-6 glass-panel rounded-2xl">
+            <h3 class="text-lg font-bold text-slate-800 mb-4 border-b pb-2">Dukungan Medial & Final (Sandhangan)</h3>
+            <div class="grid grid-cols-2 sm:grid-cols-3 gap-6 text-sm text-slate-600">
+                <div>
+                    <p class="font-bold text-indigo-600">Medial (Tengah)</p>
+                    <ul class="list-disc ml-4">
+                        <li><span class="font-mono bg-slate-100 px-1 rounded">kya</span> → ကျ (Ya-pin)</li>
+                        <li><span class="font-mono bg-slate-100 px-1 rounded">kra</span> → ကြ (Ya-rit)</li>
+                        <li><span class="font-mono bg-slate-100 px-1 rounded">kwa</span> → ကွ (Wa-swal)</li>
+                    </ul>
+                </div>
+                <div>
+                    <p class="font-bold text-indigo-600">Final (Akhir)</p>
+                    <ul class="list-disc ml-4">
+                        <li><span class="font-mono bg-slate-100 px-1 rounded">kang</span> → ကံ (Anusvara)</li>
+                        <li><span class="font-mono bg-slate-100 px-1 rounded">kah</span> → ကး (Visarga)</li>
+                        <li><span class="font-mono bg-slate-100 px-1 rounded">kar</span> → ကာရ် (Layar)</li>
+                    </ul>
+                </div>
+                <div>
+                    <p class="font-bold text-indigo-600">Contoh Kata</p>
+                    <ul class="list-disc ml-4">
+                        <li><span class="font-mono bg-slate-100 px-1 rounded">madyang</span> → မဒျံ</li>
+                        <li><span class="font-mono bg-slate-100 px-1 rounded">krakså</span> → ကြကသ</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let mode = 'LATIN_TO_BURMESE';
+
+        const consonantMap = {
+            'kh': 'ခ', 'gh': 'ဃ', 'ng': 'င',
+            'ch': 'ဆ', 'jh': 'ဈ', 'ny': 'ည',
+            'th': 'ထ', 'dh': 'ဓ', 
+            'ph': 'ဖ', 'bh': 'ဘ',
+            'sy': 'ရှ',
+            'k': 'က', 'g': 'ဂ',
+            'c': 'စ', 'j': 'ဇ',
+            't': 'တ', 'd': 'ဒ', 'n': 'န',
+            'p': 'ပ', 'b': 'ဗ', 'm': 'မ',
+            'y': 'ယ', 'r': 'ရ', 'l': 'လ', 'w': 'ဝ', 'v': 'ဝ',
+            's': 'သ', 'h': 'ဟ', 'f': 'ဖ', 'z': 'ဇ'
+        };
+
+        const medialMap = {
+            'y': '\u103B', // Ya-pin
+            'r': '\u103C', // Ya-rit
+            'w': '\u103D', // Wa-swal
+        };
+
+        const vowelMap = {
+            'i': '\u102D',
+            'u': '\u102F',
+            'é': '\u1031',
+            'e': '\u1031',
+            'o': '\u1031\u102C',
+            'a': '' 
+        };
+
+        const asat = '\u103A';
+        const carrierA = '\u1021';
+        const anusvara = '\u1036'; // cecak (ng)
+        const visarga = '\u1038';  // wignyan (h)
+
+        function latinToBurmese(text) {
+            let input = text.toLowerCase();
+            let result = "";
+            let i = 0;
+
+            while (i < input.length) {
+                let char = input[i];
+
+                if (/\s/.test(char) || /[0-9]/.test(char)) {
+                    result += char;
+                    i++;
+                    continue;
+                }
+
+                // Vokal Mandiri
+                let isStartOfWord = (i === 0 || /\s/.test(input[i-1]));
+                if (isStartOfWord && vowelMap[char] !== undefined) {
+                    result += carrierA + vowelMap[char];
+                    i++;
+                    continue;
+                }
+
+                // Ambil Konsonan Utama
+                let currentConsonant = "";
+                if (i + 1 < input.length && consonantMap[input.substring(i, i + 2)]) {
+                    currentConsonant = consonantMap[input.substring(i, i + 2)];
+                    i += 2;
+                } else if (consonantMap[char]) {
+                    currentConsonant = consonantMap[char];
+                    i += 1;
+                }
+
+                if (currentConsonant) {
+                    let tempToken = currentConsonant;
+
+                    // Cek Medial (k-y-a, k-r-a)
+                    if (i < input.length && medialMap[input[i]]) {
+                        // Hanya tambahkan medial jika setelahnya ada vokal atau itu akhir kata
+                        // Contoh: "kya"
+                        tempToken += medialMap[input[i]];
+                        i++;
+                    }
+
+                    // Cek Vokal atau Final
+                    if (i < input.length) {
+                        if (vowelMap[input[i]] !== undefined) {
+                            // Ada vokal (a, i, u, e, o)
+                            let vChar = input[i];
+                            tempToken += vowelMap[vChar];
+                            i++;
+
+                            // Cek Final setelah vokal (kang, kah)
+                            if (i < input.length) {
+                                if (input.substring(i, i+2) === 'ng') {
+                                    tempToken += anusvara;
+                                    i += 2;
+                                } else if (input[i] === 'h' && (i+1 === input.length || /\s/.test(input[i+1]))) {
+                                    tempToken += visarga;
+                                    i++;
+                                }
+                            }
+                        } else {
+                            // Tidak ada vokal, matikan konsonan dengan Asat
+                            tempToken += asat;
+                        }
+                    } else {
+                        // Akhir kalimat, matikan
+                        tempToken += asat;
+                    }
+                    result += tempToken;
+                } else {
+                    result += char;
+                    i++;
+                }
+            }
+            return result;
+        }
+
+        function burmeseToLatin(text) {
+            // Implementasi balik sederhana
+            let result = "";
+            const revCons = Object.entries(consonantMap).reduce((a, [k, v]) => ({ ...a, [v]: k }), {});
+            const revVow = Object.entries(vowelMap).reduce((a, [k, v]) => ({ ...a, [v]: k }), {});
+            const revMed = Object.entries(medialMap).reduce((a, [k, v]) => ({ ...a, [v]: k }), {});
+
+            for (let i = 0; i < text.length; i++) {
+                let char = text[i];
+                if (char === asat || char === carrierA) continue;
+                if (char === anusvara) { result += "ng"; continue; }
+                if (char === visarga) { result += "h"; continue; }
+                
+                if (revCons[char]) result += revCons[char];
+                else if (revVow[char]) result += revVow[char];
+                else if (revMed[char]) result += revMed[char];
+                else result += char;
+            }
+            return result;
+        }
+
+        function handleInput() {
+            const input = document.getElementById('input-text').value;
+            const output = document.getElementById('output-text');
+            if (mode === 'LATIN_TO_BURMESE') {
+                output.innerText = latinToBurmese(input);
+            } else {
+                output.innerText = burmeseToLatin(input);
+            }
+        }
+
+        function swapDirection() {
+            mode = mode === 'LATIN_TO_BURMESE' ? 'BURMESE_TO_LATIN' : 'LATIN_TO_BURMESE';
+            const labelLeft = document.getElementById('label-left');
+            const labelRight = document.getElementById('label-right');
+            const inputArea = document.getElementById('input-text');
+            const outputArea = document.getElementById('output-text');
+            const swapIcon = document.getElementById('swap-icon');
+
+            if (mode === 'BURMESE_TO_LATIN') {
+                labelLeft.innerText = "Aksara Myanmar";
+                labelRight.innerText = "Latin (Jawa)";
+                inputArea.placeholder = "စာရိုက်ပါ...";
+                inputArea.classList.add('burmese-font');
+                outputArea.classList.remove('burmese-font');
+                swapIcon.style.transform = "rotate(180deg)";
+            } else {
+                labelLeft.innerText = "Latin (Jawa)";
+                labelRight.innerText = "Aksara Myanmar";
+                inputArea.placeholder = "Ketik: kya, kra, kang...";
+                inputArea.classList.remove('burmese-font');
+                outputArea.classList.add('burmese-font');
+                swapIcon.style.transform = "rotate(0deg)";
+            }
+
+            const tempInput = inputArea.value;
+            inputArea.value = outputArea.innerText;
+            outputArea.innerText = tempInput;
+            handleInput();
+        }
+
+        function copyToClipboard() {
+            const text = document.getElementById('output-text').innerText;
+            if (!text) return;
+            const textArea = document.createElement("textarea");
+            textArea.value = text;
+            document.body.appendChild(textArea);
+            textArea.select();
+            document.execCommand('copy');
+            document.body.removeChild(textArea);
+            const toast = document.getElementById('toast');
+            toast.style.opacity = '1';
+            setTimeout(() => toast.style.opacity = '0', 2000);
+        }
+
+        function clearAll() {
+            document.getElementById('input-text').value = "";
+            document.getElementById('output-text').innerText = "";
+        }
+    </script>
+</body>
+</html>
