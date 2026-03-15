@@ -1,0 +1,262 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bamum Script for Javanese</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+        .bamum-text {
+            line-height: 1.8;
+        }
+        textarea {
+            scrollbar-width: thin;
+            scrollbar-color: #cbd5e1 transparent;
+        }
+    </style>
+</head>
+<body class="min-h-screen bg-slate-50 text-slate-900 p-4 md:p-8">
+    <div class="max-w-4xl mx-auto">
+        <!-- Header -->
+        <header class="mb-8 text-center">
+            <h1 class="text-3xl font-bold text-indigo-900 mb-2">Bamum Script for Javanese</h1>
+            <p class="text-slate-600 max-w-2xl mx-auto">
+                A phonetic bridge between Latin script and the Bamum syllabary, 
+                optimized for Javanese phonology including retroflex stops and specific vowels.
+            </p>
+        </header>
+
+        <!-- Controls -->
+        <div class="flex flex-wrap items-center justify-between gap-4 mb-6 bg-white p-4 rounded-2xl shadow-sm border border-slate-200">
+            <div class="flex items-center gap-3">
+                <span id="mode-badge" class="px-3 py-1 rounded-full text-sm font-medium bg-indigo-100 text-indigo-700">
+                    Latin ⮕ Bamum
+                </span>
+                <button 
+                    id="swap-btn"
+                    class="p-2 hover:bg-slate-100 rounded-full transition-colors text-indigo-600"
+                    title="Swap Languages"
+                >
+                    <i data-lucide="arrow-left-right" class="w-5 h-5"></i>
+                </button>
+            </div>
+
+            <div class="flex items-center gap-4">
+                <button 
+                    id="clear-btn"
+                    class="flex items-center gap-2 text-sm font-medium text-red-600 hover:text-red-700 transition-colors"
+                >
+                    <i data-lucide="trash-2" class="w-4 h-4"></i>
+                    Clear
+                </button>
+            </div>
+        </div>
+
+        <!-- Translation Area -->
+        <div class="grid md:grid-cols-2 gap-6">
+            <!-- Input Pane -->
+            <div class="flex flex-col gap-2">
+                <label id="input-label" class="text-sm font-semibold text-slate-500 ml-1 uppercase tracking-wider">
+                    Latin Input
+                </label>
+                <div class="relative">
+                    <textarea
+                        id="input-text"
+                        placeholder="Type 'th', 'dh', 'ng', 'ny', 'é'..."
+                        class="w-full h-64 p-5 bg-white border border-slate-200 rounded-3xl shadow-sm focus:ring-2 focus:ring-indigo-500 focus:border-transparent outline-none resize-none text-lg leading-relaxed"
+                    ></textarea>
+                    <button 
+                        id="copy-input-btn"
+                        class="absolute bottom-4 right-4 p-2 bg-slate-50 hover:bg-slate-100 text-slate-500 rounded-xl transition-all border border-slate-200"
+                        title="Copy Input"
+                    >
+                        <i data-lucide="copy" class="w-4.5 h-4.5"></i>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Output Pane -->
+            <div class="flex flex-col gap-2">
+                <label class="text-sm font-semibold text-slate-500 ml-1 uppercase tracking-wider">
+                    Result
+                </label>
+                <div class="relative">
+                    <div
+                        id="output-display"
+                        class="w-full h-64 p-5 bg-indigo-50 border border-indigo-100 rounded-3xl shadow-inner overflow-y-auto text-2xl leading-loose text-indigo-900 whitespace-pre-wrap text-left bamum-text"
+                    ><span class="text-indigo-300 italic text-lg">Translation appears here...</span></div>
+                    
+                    <button 
+                        id="copy-output-btn"
+                        class="absolute bottom-4 right-4 flex items-center gap-2 px-4 py-2 rounded-xl transition-all font-medium bg-indigo-600 hover:bg-indigo-700 text-white shadow-lg shadow-indigo-200"
+                    >
+                        <i data-lucide="copy" class="w-4.5 h-4.5"></i>
+                        <span id="copy-btn-text">Copy Result</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Info Section -->
+        <div class="mt-12 p-6 bg-white rounded-3xl border border-slate-200 shadow-sm">
+            <div class="flex items-center gap-2 mb-4 text-indigo-900 font-bold">
+                <i data-lucide="info" class="w-5 h-5"></i>
+                <h2>Phonetic Guide</h2>
+            </div>
+            <div id="guide-grid" class="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-6 gap-4 text-sm">
+                <!-- Guide items will be injected by JS -->
+            </div>
+            <p class="mt-6 text-xs text-slate-400 leading-relaxed italic">
+                Note: This tool maps Javanese retroflex and nasal digraphs to specific Bamum characters for consistent transliteration. The script is displayed in its natural Left-to-Right orientation.
+            </p>
+        </div>
+    </div>
+
+    <script>
+        // Bamum Unicode Mapping
+        const LATIN_TO_BAMUM = {
+            'a': 'ꚠ', 'i': 'ꚧ', 'u': 'ꚢ', 'e': 'ꚩ', 'é': 'ꚩ', 'o': 'ꚫ',
+            'th': 'ꚳ', 'dh': 'ꚴ', 'ng': 'ꚶ', 'ny': 'ꚲ',
+            'h': 'ꛈ', 'n': 'ꚬ', 'c': 'ꚮ', 'r': 'ꚱ', 'k': 'ꚡ',
+            'd': 'ꚵ', 't': 'ꚲ', 's': 'ꛇ', 'w': 'ꛉ', 'l': 'ꚰ',
+            'p': 'ꚯ', 'b': 'ꚮ', 'm': 'ꚭ', 'j': 'ꚯ', 'y': 'ꛊ',
+            'g': 'ꚣ',
+            'f': 'ꛋ', 'v': 'ꛋ', 'z': 'ꛌ', 'kh': 'ꛍ', 'sy': 'ꛎ',
+            '?': 'ꛖ', '.': 'ꛕ', ',': 'ꛔ', '!': 'ꛗ',
+        };
+
+        const BAMUM_TO_LATIN = Object.entries(LATIN_TO_BAMUM).reduce((acc, [lat, bam]) => {
+            acc[bam] = lat;
+            return acc;
+        }, {});
+
+        const DIGRAPHS = ['th', 'dh', 'ng', 'ny', 'kh', 'sy', 'é'];
+
+        // State
+        let mode = 'lat-to-bam';
+        
+        // Elements
+        const inputText = document.getElementById('input-text');
+        const outputDisplay = document.getElementById('output-display');
+        const swapBtn = document.getElementById('swap-btn');
+        const clearBtn = document.getElementById('clear-btn');
+        const modeBadge = document.getElementById('mode-badge');
+        const inputLabel = document.getElementById('input-label');
+        const copyInputBtn = document.getElementById('copy-input-btn');
+        const copyOutputBtn = document.getElementById('copy-output-btn');
+        const copyBtnText = document.getElementById('copy-btn-text');
+        const guideGrid = document.getElementById('guide-grid');
+
+        // Initialize Lucide Icons
+        lucide.createIcons();
+
+        // Initialize Guide
+        const guideItems = [
+            { l: 'th', b: 'ꚳ' }, { l: 'dh', b: 'ꚴ' }, { l: 'ng', b: 'ꚶ' },
+            { l: 'ny', b: 'ꚲ' }, { l: 'é / e', b: 'ꚩ' }, { l: 'sy', b: 'ꛎ' },
+            { l: 'kh', b: 'ꛍ' }, { l: 'f / v', b: 'ꛋ' }, { l: '?', b: 'ꛖ' }
+        ];
+
+        guideItems.forEach(item => {
+            const div = document.createElement('div');
+            div.className = 'flex flex-col p-2 bg-slate-50 rounded-lg';
+            div.innerHTML = `<span class="text-slate-400 font-mono">${item.l}</span><span class="text-lg font-bold">${item.b}</span>`;
+            guideGrid.appendChild(div);
+        });
+
+        function translate(text, currentMode) {
+            if (!text) return '';
+            if (currentMode === 'lat-to-bam') {
+                let result = '';
+                let i = 0;
+                const lowerText = text.toLowerCase();
+                while (i < lowerText.length) {
+                    let matched = false;
+                    for (const dg of DIGRAPHS) {
+                        if (lowerText.substring(i, i + dg.length) === dg) {
+                            result += LATIN_TO_BAMUM[dg] || dg;
+                            i += dg.length;
+                            matched = true;
+                            break;
+                        }
+                    }
+                    if (!matched) {
+                        const char = lowerText[i];
+                        result += LATIN_TO_BAMUM[char] || char;
+                        i++;
+                    }
+                }
+                return result;
+            } else {
+                let result = '';
+                for (const char of text) {
+                    result += BAMUM_TO_LATIN[char] || char;
+                }
+                return result;
+            }
+        }
+
+        function updateOutput() {
+            const result = translate(inputText.value, mode);
+            if (result) {
+                outputDisplay.textContent = result;
+                outputDisplay.classList.remove('text-indigo-300', 'italic');
+            } else {
+                outputDisplay.innerHTML = '<span class="text-indigo-300 italic text-lg">Translation appears here...</span>';
+                outputDisplay.classList.add('text-indigo-300', 'italic');
+            }
+        }
+
+        function handleCopy(text, btnElement, originalText) {
+            const el = document.createElement('textarea');
+            el.value = text;
+            document.body.appendChild(el);
+            el.select();
+            document.execCommand('copy');
+            document.body.removeChild(el);
+
+            if (btnElement === copyOutputBtn) {
+                copyBtnText.textContent = 'Copied!';
+                btnElement.classList.replace('bg-indigo-600', 'bg-green-600');
+                setTimeout(() => {
+                    copyBtnText.textContent = 'Copy Result';
+                    btnElement.classList.replace('bg-green-600', 'bg-indigo-600');
+                }, 2000);
+            }
+        }
+
+        // Event Listeners
+        inputText.addEventListener('input', updateOutput);
+
+        swapBtn.addEventListener('click', () => {
+            const currentOutput = outputDisplay.textContent.includes('Translation appears here') ? '' : outputDisplay.textContent;
+            mode = mode === 'lat-to-bam' ? 'bam-to-lat' : 'lat-to-bam';
+            
+            // UI Updates
+            modeBadge.textContent = mode === 'lat-to-bam' ? 'Latin ⮕ Bamum' : 'Bamum ⮕ Latin';
+            inputLabel.textContent = mode === 'lat-to-bam' ? 'Latin Input' : 'Bamum Input';
+            inputText.placeholder = mode === 'lat-to-bam' ? "Type 'th', 'dh', 'ng', 'ny', 'é'..." : "Paste Bamum script here...";
+            
+            // Swap Content
+            inputText.value = currentOutput;
+            updateOutput();
+        });
+
+        clearBtn.addEventListener('click', () => {
+            inputText.value = '';
+            updateOutput();
+        });
+
+        copyInputBtn.addEventListener('click', () => handleCopy(inputText.value));
+        copyOutputBtn.addEventListener('click', () => {
+            const result = outputDisplay.textContent.includes('Translation appears here') ? '' : outputDisplay.textContent;
+            if (result) handleCopy(result, copyOutputBtn);
+        });
+    </script>
+</body>
+</html>
