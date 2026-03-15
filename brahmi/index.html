@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Aksara Brahmi Jawa - Edisi Lengkap</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f1f5f9;
+        }
+        .brahmi-font {
+            font-family: 'Noto Sans Brahmi', serif;
+            font-size: 1.85rem;
+            line-height: 2.8rem;
+        }
+        textarea::placeholder {
+            font-family: 'Inter', sans-serif;
+            font-size: 1rem;
+        }
+    </style>
+</head>
+<body class="min-h-screen py-8 px-4">
+    <div class="max-w-5xl mx-auto">
+        <header class="text-center mb-10">
+            <h1 class="text-4xl font-extrabold text-slate-900 mb-3">Aksara Brahmi <span class="text-indigo-600">Jawa</span></h1>
+            <p class="text-slate-600 max-w-2xl mx-auto italic">
+                Versi Perbaikan: Transliterasi cerdas untuk sandhangan panyigeg (ng, h, r) dan seselan (y, r, l).
+            </p>
+        </header>
+
+        <div class="grid lg:grid-cols-2 gap-8">
+            <!-- Latin Column -->
+            <div class="flex flex-col gap-4">
+                <div class="flex justify-between items-center">
+                    <label class="text-sm font-bold text-slate-700 uppercase tracking-wider">Latin (Fonetik Jawa)</label>
+                    <span class="text-[10px] bg-indigo-100 text-indigo-700 px-2 py-1 rounded-full font-bold">INPUT</span>
+                </div>
+                <div class="relative">
+                    <textarea 
+                        id="latinInput" 
+                        class="w-full h-64 p-6 rounded-2xl border-2 border-white shadow-xl focus:ring-4 focus:ring-indigo-200 focus:border-indigo-400 outline-none transition-all resize-none text-lg bg-white/50"
+                        placeholder="Contoh: kang, kar, gajah, krapyak, sugeng..."
+                    ></textarea>
+                    <button 
+                        onclick="copyText('latinInput')"
+                        class="absolute bottom-4 right-4 px-4 py-2 bg-slate-800 text-white text-xs rounded-xl hover:bg-slate-700 transition-colors shadow-lg"
+                    >
+                        Salin Latin
+                    </button>
+                </div>
+                <div class="p-4 rounded-xl bg-indigo-50 border border-indigo-100 text-xs text-indigo-800">
+                    <strong>Update:</strong> Perbaikan bug pada kata akhiran "ng" (kang) dan "r" (kar). Sekarang karakter tidak akan pecah/rusak ().
+                </div>
+            </div>
+
+            <!-- Brahmi Column -->
+            <div class="flex flex-col gap-4">
+                <div class="flex justify-between items-center">
+                    <label class="text-sm font-bold text-slate-700 uppercase tracking-wider">Aksara Brahmi</label>
+                    <span class="text-[10px] bg-emerald-100 text-emerald-700 px-2 py-1 rounded-full font-bold">OUTPUT</span>
+                </div>
+                <div class="relative">
+                    <textarea 
+                        id="brahmiInput" 
+                        class="brahmi-font w-full h-64 p-6 rounded-2xl border-2 border-white shadow-xl focus:ring-4 focus:ring-emerald-200 focus:border-emerald-400 outline-none transition-all resize-none bg-white"
+                        readonly
+                    ></textarea>
+                    <button 
+                        onclick="copyText('brahmiInput')"
+                        class="absolute bottom-4 right-4 px-4 py-2 bg-emerald-600 text-white text-xs rounded-xl hover:bg-emerald-500 transition-colors shadow-lg"
+                    >
+                        Salin Brahmi
+                    </button>
+                </div>
+                
+                <!-- Info Grid -->
+                <div class="grid grid-cols-2 gap-3">
+                    <div class="p-3 rounded-xl bg-white border border-slate-200 flex justify-between items-center">
+                        <span class="text-xs text-slate-500 italic">Kang (-ng)</span>
+                        <span class="brahmi-font text-sm">𑀓𑀁</span>
+                    </div>
+                    <div class="p-3 rounded-xl bg-white border border-slate-200 flex justify-between items-center">
+                        <span class="text-xs text-slate-500 italic">Kar (-r)</span>
+                        <span class="brahmi-font text-sm">𑀓𑀭𑁆</span>
+                    </div>
+                    <div class="p-3 rounded-xl bg-white border border-slate-200 flex justify-between items-center">
+                        <span class="text-xs text-slate-500 italic">Kah (-h)</span>
+                        <span class="brahmi-font text-sm">𑀓𑀂</span>
+                    </div>
+                    <div class="p-3 rounded-xl bg-white border border-slate-200 flex justify-between items-center">
+                        <span class="text-xs text-slate-500 italic">Krya (Medial)</span>
+                        <span class="brahmi-font text-sm">𑀓𑁆𑀭𑁆𑀬</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div id="toast" class="fixed bottom-10 left-1/2 -translate-x-1/2 px-6 py-3 bg-slate-900 text-white rounded-2xl opacity-0 pointer-events-none transition-opacity duration-300 shadow-2xl z-50 text-sm font-semibold">
+            Teks berhasil disalin!
+        </div>
+    </div>
+
+    <script>
+        const MAP = {
+            // Vowels
+            'a': '𑀅', 'ā': '𑀆', 'i': '𑀇', 'ī': '𑀈', 'u': '𑀉', 'ū': '𑀊', 'e': '𑀏', 'é': '𑀏', 'ai': '𑀐', 'o': '𑀑', 'au': '𑀒',
+            // Consonants
+            'k': '𑀓', 'kh': '𑀔', 'g': '𑀕', 'gh': '𑀖', 'ng': '𑀗',
+            'c': '𑀘', 'ch': '𑀙', 'j': '𑀚', 'jh': '𑀛', 'ny': '𑀜',
+            'th': '𑀝', 'ṭh': '𑀞', 'dh': '𑀟', 'ḍh': '𑀠', 'ṇ': '𑀡',
+            't': '𑀢', 'th_low': '𑀣', 'd': '𑀤', 'dh_low': '𑀥', 'n': '𑀦',
+            'p': '𑀧', 'ph': '𑀨', 'b': '𑀩', 'bh': '𑀪', 'm': '𑀫',
+            'y': '𑀬', 'r': '𑀭', 'l': '𑀮', 'w': '𑀯', 'v': '𑀯',
+            'sy': '𑀰', 'ṣ': '𑀱', 's': '𑀲', 'h': '𑀳', 'f': '𑀨', 'z': '𑀚',
+            // Matras
+            'm_ā': '𑀸', 'm_i': '𑀹', 'm_ī': '𑀺', 'm_u': '𑀻', 'm_ū': '𑀼', 'm_e': '𑁂', 'm_é': '𑁂', 'm_ai': '𑁃', 'm_o': '𑁄', 'm_au': '𑁅',
+            // Special
+            'virama': '𑁆', 'anusvara': '𑀁', 'visarga': '𑀂'
+        };
+
+        const VOWELS = ['a','ā','i','ī','u','ū','e','é','ai','o','au'];
+        const SEQUENCES = ['kh', 'gh', 'ng', 'ch', 'jh', 'ny', 'th', 'dh', 'sy', 'ai', 'au', 'ā', 'ī', 'ū', 'é'];
+
+        function solve() {
+            const input = document.getElementById('latinInput').value.toLowerCase();
+            let result = "";
+            let i = 0;
+
+            while (i < input.length) {
+                let char = "";
+                
+                // Cari urutan multi-karakter (ng, th, dll)
+                for (let seq of SEQUENCES) {
+                    if (input.substr(i, seq.length) === seq) {
+                        char = seq;
+                        break;
+                    }
+                }
+                if (!char) char = input[i];
+
+                // Karakter Non-Mapping (spasi, angka, dll)
+                if (!MAP[char] && !VOWELS.includes(char)) {
+                    result += char;
+                    i++;
+                    continue;
+                }
+
+                // Vokal Mandiri
+                if (VOWELS.includes(char) && (i === 0 || input[i-1] === ' ')) {
+                    result += MAP[char];
+                    i += char.length;
+                    continue;
+                }
+
+                // Konsonan
+                if (MAP[char] && !VOWELS.includes(char)) {
+                    let cluster = MAP[char];
+                    i += char.length;
+
+                    // Cek apa yang mengikuti konsonan ini
+                    let next = "";
+                    for (let seq of SEQUENCES) { if (input.substr(i, seq.length) === seq) { next = seq; break; } }
+                    if (!next) next = input[i] || "";
+
+                    // Kasus 1: Konsonan + Vokal
+                    if (VOWELS.includes(next)) {
+                        if (next !== 'a') cluster += MAP['m_' + next];
+                        i += next.length;
+                    } 
+                    // Kasus 2: Konsonan + Medial (y, r, l)
+                    else if (['y', 'r', 'l'].includes(next)) {
+                        cluster += MAP['virama'] + MAP[next];
+                        i += next.length;
+                        
+                        // Cek vokal setelah medial
+                        let vAfter = "";
+                        for (let seq of SEQUENCES) { if (input.substr(i, seq.length) === seq) { vAfter = seq; break; } }
+                        if (!vAfter) vAfter = input[i] || "";
+
+                        if (VOWELS.includes(vAfter)) {
+                            if (vAfter !== 'a') cluster += MAP['m_' + vAfter];
+                            i += vAfter.length;
+                        } else {
+                            // Mati setelah medial
+                            cluster += MAP['virama'];
+                        }
+                    }
+                    // Kasus 3: Konsonan Mati (Pangkon)
+                    else {
+                        cluster += MAP['virama'];
+                    }
+
+                    result += cluster;
+                    continue;
+                }
+
+                i++;
+            }
+
+            // PEMBERSIHAN AKHIR (Paling Aman untuk Unicode)
+            // Menggunakan penggantian string utuh untuk Sandhangan Panyigeg
+            
+            // 1. Ng di akhir suku kata tertutup menjadi Anusvara (Cecak)
+            // Ng + Virama -> Anusvara
+            result = result.split('𑀗𑁆').join('𑀁');
+            
+            // 2. H di akhir suku kata tertutup menjadi Visarga (Wignyan)
+            // H + Virama -> Visarga
+            result = result.split('𑀳𑁆').join('𑀂');
+            
+            // 3. Opsional: Jika Anda ingin R + Virama tetap terlihat seperti itu (Layar di Brahmi standar)
+            // Tidak perlu split/join karena r + virama sudah benar secara teknis di Brahmi.
+
+            document.getElementById('brahmiInput').value = result;
+        }
+
+        document.getElementById('latinInput').addEventListener('input', solve);
+
+        function copyText(id) {
+            const el = document.getElementById(id);
+            el.select();
+            document.execCommand('copy');
+            const toast = document.getElementById('toast');
+            toast.style.opacity = '1';
+            setTimeout(() => { toast.style.opacity = '0'; }, 2000);
+        }
+
+        window.onload = () => {
+            document.getElementById('latinInput').value = "kang kar";
+            solve();
+        };
+    </script>
+</body>
+</html>
