@@ -1,0 +1,285 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Transliterasi Aksara Cham (ꨀꨇꩉ ꨌꩌ)</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+Cham&family=Inter:wght@400;600&display=swap');
+        
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f8fafc;
+        }
+
+        .cham-font {
+            font-family: 'Noto Sans Cham', sans-serif;
+            font-size: 2.5rem;
+            line-height: 1.5;
+        }
+
+        .custom-card {
+            background: white;
+            border-radius: 1rem;
+            box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+        }
+
+        textarea {
+            resize: none;
+        }
+
+        .btn-action {
+            transition: all 0.2s;
+        }
+
+        .btn-action:active {
+            transform: scale(0.95);
+        }
+
+        .guide-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+            gap: 0.5rem;
+        }
+    </style>
+</head>
+<body class="p-4 md:p-8">
+    <div class="max-w-4xl mx-auto">
+        <header class="text-center mb-8">
+            <h1 class="text-3xl font-bold text-slate-800 mb-2">Transliterasi Aksara Cham</h1>
+            <p class="text-slate-600 italic">ꨀꨇꩉ ꨌꩌ (Akhar Cham) - Versi untuk Penutur Aksara Jawa</p>
+        </header>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+            <!-- Latin to Cham -->
+            <div class="custom-card p-6 border-t-4 border-blue-500">
+                <label class="block text-sm font-semibold text-slate-700 mb-2">Input Latin</label>
+                <textarea id="latinInput" class="w-full h-40 p-4 border border-slate-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none text-lg" placeholder="Ketik di sini... (contoh: nyam, krak, sani)"></textarea>
+                <div class="flex justify-between mt-4">
+                    <button onclick="clearText('latinInput')" class="text-sm text-slate-500 hover:text-red-500">Hapus</button>
+                    <button onclick="copyText('latinInput')" class="btn-action bg-slate-100 px-3 py-1 rounded text-sm font-medium hover:bg-slate-200">Salin</button>
+                </div>
+            </div>
+
+            <!-- Cham to Latin / Result -->
+            <div class="custom-card p-6 border-t-4 border-emerald-500">
+                <label class="block text-sm font-semibold text-slate-700 mb-2">Hasil Aksara Cham</label>
+                <textarea id="chamOutput" class="cham-font w-full h-40 p-4 border border-slate-200 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-transparent outline-none" placeholder="ꨀꨇꩉ ꨌꩌ..."></textarea>
+                <div class="flex justify-between mt-4">
+                    <button onclick="clearText('chamOutput')" class="text-sm text-slate-500 hover:text-red-500">Hapus</button>
+                    <button onclick="copyText('chamOutput')" class="btn-action bg-emerald-500 text-white px-4 py-1 rounded text-sm font-medium hover:bg-emerald-600">Salin Hasil</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Reference Section -->
+        <div class="custom-card p-6">
+            <h2 class="text-xl font-bold text-slate-800 mb-4 border-b pb-2">Padanan dengan Aksara Jawa</h2>
+            
+            <div class="space-y-6">
+                <div>
+                    <h3 class="font-semibold text-blue-700 mb-2 underline">Sandhangan Panyigeg (Finals)</h3>
+                    <div class="guide-grid text-sm">
+                        <div class="bg-blue-50 p-2 rounded"><strong>-ng (Cecak):</strong> ꩂ</div>
+                        <div class="bg-blue-50 p-2 rounded"><strong>-h (Wignyan):</strong> ꩄ</div>
+                        <div class="bg-blue-50 p-2 rounded"><strong>-r (Layar):</strong> ꩈ</div>
+                        <div class="bg-blue-50 p-2 rounded"><strong>-k:</strong> ꩀ</div>
+                        <div class="bg-blue-50 p-2 rounded"><strong>-m:</strong> ꩇ</div>
+                        <div class="bg-blue-50 p-2 rounded"><strong>-n:</strong> ꩆ</div>
+                        <div class="bg-blue-50 p-2 rounded"><strong>-l:</strong> ꩉ</div>
+                        <div class="bg-blue-50 p-2 rounded"><strong>-s:</strong> ꩋ</div>
+                    </div>
+                </div>
+
+                <div>
+                    <h3 class="font-semibold text-purple-700 mb-2 underline">Sandhangan Madya (Medials)</h3>
+                    <div class="guide-grid text-sm">
+                        <div class="bg-purple-50 p-2 rounded"><strong>-y- (Pengkal):</strong> ꩈ</div>
+                        <div class="bg-purple-50 p-2 rounded"><strong>-r- (Cakra):</strong> ꩉ</div>
+                        <div class="bg-purple-50 p-2 rounded"><strong>-l-:</strong> ꩊ</div>
+                        <div class="bg-purple-50 p-2 rounded"><strong>-w-:</strong> ꩋ</div>
+                    </div>
+                </div>
+
+                <div>
+                    <h3 class="font-semibold text-emerald-700 mb-2 underline">Sandhangan Swara (Vowels)</h3>
+                    <div class="guide-grid text-sm">
+                        <div class="bg-emerald-50 p-2 rounded"><strong>i:</strong> ꨪ</div>
+                        <div class="bg-emerald-50 p-2 rounded"><strong>u:</strong> ꨫ</div>
+                        <div class="bg-emerald-50 p-2 rounded"><strong>e (pepet):</strong> ꨭ</div>
+                        <div class="bg-emerald-50 p-2 rounded"><strong>é (taling):</strong> ꨬ</div>
+                        <div class="bg-emerald-50 p-2 rounded"><strong>o:</strong> ꨯ</div>
+                        <div class="bg-emerald-50 p-2 rounded"><strong>ai:</strong> ꨮ</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <footer class="mt-8 text-center text-slate-400 text-xs">
+            Aplikasi ini mendukung input khusus: th, dh, ng, ny, sy, kh, f, v, z.
+        </footer>
+    </div>
+
+    <!-- Toast Notification -->
+    <div id="toast" class="fixed bottom-5 left-1/2 -translate-x-1/2 bg-slate-800 text-white px-6 py-2 rounded-full text-sm opacity-0 transition-opacity pointer-events-none">
+        Teks berhasil disalin!
+    </div>
+
+    <script>
+        // Mapping Data Aksara Cham
+        const consonants = {
+            'kh': 'ꨇ', 'ng': 'ꨉ', 'ch': 'ꨋ', 'ny': 'ꨍ', 'th': 'ꨔ', 'dh': 'ꨕ', 'ph': 'ꨙ', 
+            'sh': 'ꨟ', 'sy': 'ꨟ', 'kh': 'ꨇ', 'f': 'ꨘ', 'v': 'ꨚ', 'z': 'ꨌ', 
+            'k': 'ꨆ', 'g': 'ꨈ', 'c': 'ꨊ', 'j': 'ꨌ', 't': 'ꨓ', 'd': 'ꨕ', 
+            'n': 'ꨖ', 'p': 'ꨘ', 'b': 'ꨚ', 'm': 'ꨛ', 'y': 'ꨜ', 'r': 'ꨝ', 
+            'l': 'ꨞ', 's': 'ꨟ', 'h': 'ꨠ', 'w': 'ꨥ'
+        };
+
+        const vowels = {
+            'aa': 'ꨩ', 'i': 'ꨪ', 'u': 'ꨫ', 'é': 'ꨬ', 'e': 'ꨭ', 'o': 'ꨯ', 'ai': 'ꨮ', 'au': 'ꨯꨩ'
+        };
+
+        const medials = {
+            'y': 'ꩈ', 'r': 'ꩉ', 'l': 'ꩊ', 'w': 'ꩋ'
+        };
+
+        const finals = {
+            'ng': 'ꩂ', 'h': 'ꩄ', 'k': 'ꩀ', 'm': 'ꩇ', 'n': 'ꩆ', 'r': 'ꩈ', 'l': 'ꩉ', 's': 'ꩋ', 'p': 'ꩁ', 't': 'ꩅ'
+        };
+
+        const independentVowels = {
+            'a': 'ꨀ', 'i': 'ꨁ', 'u': 'ꨂ', 'é': 'ꨄ', 'e': 'ꨅ', 'o': 'ꨆ'
+        };
+
+        // UI Logic
+        const latinInput = document.getElementById('latinInput');
+        const chamOutput = document.getElementById('chamOutput');
+
+        latinInput.addEventListener('input', () => {
+            const result = translateToCham(latinInput.value.toLowerCase());
+            chamOutput.value = result;
+        });
+
+        chamOutput.addEventListener('input', () => {
+            // Placeholder for Cham to Latin reversal if needed
+            // For now, it stays manual
+        });
+
+        function translateToCham(text) {
+            if (!text) return "";
+            
+            // Step 1: Tokenisasi suku kata sederhana
+            // Regex untuk memecah: (Konsonan)(Medial?)(Vokal)(Final?)
+            // Menggunakan pendekatan iteratif untuk menangani digraphs (th, ng, dll)
+            
+            let output = "";
+            let i = 0;
+            const words = text.split(/\s+/);
+            
+            const processedWords = words.map(word => {
+                let wordOut = "";
+                let j = 0;
+                while (j < word.length) {
+                    let char = "";
+                    let cluster = "";
+                    
+                    // 1. Cek Konsonan Awal (termasuk digraphs)
+                    let foundConsonant = "";
+                    if (j + 1 < word.length && consonants[word.substr(j, 2)]) {
+                        foundConsonant = consonants[word.substr(j, 2)];
+                        j += 2;
+                    } else if (consonants[word[j]]) {
+                        foundConsonant = consonants[word[j]];
+                        j++;
+                    } else if (vowels[word[j]] || word[j] === 'a') {
+                        // Vokal di awal kata (Aksara Swara)
+                        let v = word[j];
+                        if (v === 'e' && word[j+1] === ' ') {} // handling
+                        foundConsonant = independentVowels[v] || 'ꨀ';
+                        if (v !== 'a') {
+                           // Keep j there so vowel part picks it up if it's a marker
+                        } else {
+                            j++;
+                        }
+                    } else {
+                        wordOut += word[j];
+                        j++;
+                        continue;
+                    }
+
+                    // 2. Cek Medial (Cakra/Pengkal)
+                    let foundMedial = "";
+                    if (j < word.length && medials[word[j]] && !isVowel(word[j])) {
+                        // Cek apakah setelah ini vokal, jika ya maka ini medial
+                        if (j + 1 < word.length && (isVowel(word[j+1]) || word[j+1] === 'a')) {
+                            foundMedial = medials[word[j]];
+                            j++;
+                        }
+                    }
+
+                    // 3. Cek Vokal
+                    let foundVowel = "";
+                    if (j < word.length) {
+                        if (word.substr(j, 2) === 'ai') { foundVowel = vowels['ai']; j += 2; }
+                        else if (word[j] === 'é') { foundVowel = vowels['é']; j++; }
+                        else if (word[j] === 'e') { foundVowel = vowels['e']; j++; }
+                        else if (word[j] === 'i') { foundVowel = vowels['i']; j++; }
+                        else if (word[j] === 'u') { foundVowel = vowels['u']; j++; }
+                        else if (word[j] === 'o') { foundVowel = vowels['o']; j++; }
+                        else if (word[j] === 'a') { j++; } // Inherent
+                    }
+
+                    // 4. Cek Final (Panyigeg)
+                    // Aturannya: Final hanya diambil jika di akhir kata atau diikuti konsonan lain (mati)
+                    let foundFinal = "";
+                    if (j < word.length) {
+                        // Jika sisa karakter adalah konsonan dan di akhir atau konsonan berikutnya bukan vokal
+                        let isNextVowel = (j + 1 < word.length) && (isVowel(word[j+1]) || word[j+1] === 'a');
+                        
+                        if (!isNextVowel) {
+                            if (j + 1 < word.length && finals[word.substr(j, 2)]) {
+                                // Cek apakah setelah digraph ini ada vokal lagi
+                                let isNextNextVowel = (j + 2 < word.length) && (isVowel(word[j+2]) || word[j+2] === 'a');
+                                if (!isNextNextVowel) {
+                                    foundFinal = finals[word.substr(j, 2)];
+                                    j += 2;
+                                }
+                            } else if (finals[word[j]]) {
+                                foundFinal = finals[word[j]];
+                                j++;
+                            }
+                        }
+                    }
+
+                    wordOut += foundConsonant + foundMedial + foundVowel + foundFinal;
+                }
+                return wordOut;
+            });
+
+            return processedWords.join(" ");
+        }
+
+        function isVowel(c) {
+            return ['i', 'u', 'e', 'o', 'é'].includes(c);
+        }
+
+        function clearText(id) {
+            document.getElementById(id).value = "";
+            if (id === 'latinInput') chamOutput.value = "";
+        }
+
+        function copyText(id) {
+            const el = document.getElementById(id);
+            el.select();
+            document.execCommand('copy');
+            
+            const toast = document.getElementById('toast');
+            toast.style.opacity = '1';
+            setTimeout(() => {
+                toast.style.opacity = '0';
+            }, 2000);
+        }
+    </script>
+</body>
+</html>
