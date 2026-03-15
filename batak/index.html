@@ -1,0 +1,286 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pangalusi Surat Batak - Standar Toba</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=Noto+Sans+Batak&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f1f5f9;
+        }
+        .batak-text {
+            font-family: 'Noto Sans Batak', 'Arial Unicode MS', sans-serif;
+            font-size: 2.75rem;
+            line-height: 3.5rem;
+            text-rendering: optimizeLegibility;
+            color: #1e293b;
+        }
+        .batak-textarea {
+            font-family: 'Noto Sans Batak', sans-serif !important;
+            font-size: 1.5rem !important;
+        }
+        .copy-toast {
+            visibility: hidden;
+            opacity: 0;
+            transition: opacity 0.3s, visibility 0.3s;
+        }
+        .copy-toast.show {
+            visibility: visible;
+            opacity: 1;
+        }
+        textarea {
+            line-height: 1.6;
+        }
+    </style>
+</head>
+<body class="p-4 md:p-8">
+    <div class="max-w-5xl mx-auto">
+        <header class="mb-8 text-center">
+            <h1 class="text-4xl font-black text-slate-900 mb-2">Pangalusi Surat Batak</h1>
+            <p class="text-slate-600">Transliterasi Akurat Standar Toba/Mandailing</p>
+        </header>
+
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <!-- Sisi Input -->
+            <div class="flex flex-col space-y-3">
+                <div class="flex justify-between items-center bg-white px-4 py-2 rounded-t-xl border border-slate-200 border-b-0">
+                    <span id="inputLabel" class="text-xs font-bold text-slate-500 uppercase tracking-widest">Latin</span>
+                    <button id="swapBtn" class="text-indigo-600 hover:bg-indigo-50 p-2 rounded-lg transition-colors" title="Tukar Mode">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16V4m0 0L3 8m4-4l4 4m6 0v12m0 0l4-4m-4 4l-4-4" />
+                        </svg>
+                    </button>
+                </div>
+                <textarea id="inputText" placeholder="Ketik di sini (misal: mangan horas)..." class="w-full h-72 p-6 rounded-b-xl border border-slate-200 focus:ring-4 focus:ring-indigo-500/10 focus:border-indigo-500 shadow-sm outline-none transition-all resize-none text-xl"></textarea>
+            </div>
+
+            <!-- Sisi Output -->
+            <div class="flex flex-col space-y-3">
+                <div class="flex justify-between items-center bg-white px-4 py-2 rounded-t-xl border border-slate-200 border-b-0">
+                    <span id="outputLabel" class="text-xs font-bold text-slate-500 uppercase tracking-widest">Surat Batak</span>
+                    <button id="copyBtn" class="flex items-center gap-2 bg-slate-900 hover:bg-slate-800 text-white px-4 py-1.5 rounded-lg text-xs font-bold transition-transform active:scale-95">
+                        SALIN HASIL
+                    </button>
+                </div>
+                <div id="outputTextContainer" class="w-full h-72 p-6 rounded-b-xl border border-slate-200 bg-white shadow-sm overflow-y-auto">
+                    <div id="outputText" class="batak-text break-words w-full"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Panduan -->
+        <div class="mt-8 bg-white p-6 rounded-2xl border border-slate-200 shadow-sm grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div>
+                <h3 class="font-bold text-slate-800 mb-2">Contoh Transliterasi:</h3>
+                <div class="space-y-2 text-sm">
+                    <div class="flex justify-between p-2 bg-slate-50 rounded">
+                        <span>mangan horas</span>
+                        <span class="batak-text !text-lg">ᯔᯝᯉ᯲ ᯂᯬᯒᯘ᯲</span>
+                    </div>
+                    <div class="flex justify-between p-2 bg-slate-50 rounded">
+                        <span>masih énak</span>
+                        <span class="batak-text !text-lg">ᯔᯘᯩᯂ᯲ ᯀᯩᯉᯄ᯲</span>
+                    </div>
+                    <div class="flex justify-between p-2 bg-slate-50 rounded">
+                        <span>dhahar thole</span>
+                        <span class="batak-text !text-lg">ᯇᯂᯒ᯲ ᯪᯬᯞᯩ</span>
+                    </div>
+                </div>
+            </div>
+            <div class="text-sm text-slate-600">
+                <h3 class="font-bold text-slate-800 mb-2">Catatan:</h3>
+                <p>Aplikasi ini secara otomatis mendeteksi <b>Pangolat (᯲)</b> di akhir suku kata yang mati. Karakter <b>é</b> (e-taling) dan fonetik Jawa lainnya dipetakan ke aksara Batak yang paling mendekati bunyinya.</p>
+            </div>
+        </div>
+
+        <!-- Toast -->
+        <div id="toast" class="copy-toast fixed bottom-8 left-1/2 -translate-x-1/2 bg-slate-900 text-white px-8 py-3 rounded-xl shadow-2xl text-sm z-50">
+            Teks berhasil disalin!
+        </div>
+    </div>
+
+    <script>
+        /**
+         * MAP DATA STANDAR TOBA (Unicode U+1BC0 - U+1BFF)
+         */
+        const INA_NI_SURAT = {
+            'a': '\u1BC0', // A / Carrier
+            'h': '\u1BC2', // Ha
+            'b': '\u1BC5', // Ba
+            'p': '\u1BC7', // Pa
+            'n': '\u1BC9', // Na
+            'w': '\u1BCB', // Wa
+            'g': '\u1BCD', // Ga
+            'j': '\u1BCF', // Ja
+            'd': '\u1BD0', // Da
+            'r': '\u1BD2', // Ra
+            'm': '\u1BD4', // Ma
+            't': '\u1BD7', // Ta
+            's': '\u1BDA', // Sa
+            'y': '\u1BDC', // Ya
+            'ng': '\u1BDE', // Nga
+            'l': '\u1BDF', // La
+            'ny': '\u1BE2'  // Nya
+        };
+
+        const ANAK_NI_SURAT = {
+            'i': '\u1BE9', // I (Haluasing)
+            'u': '\u1BEA', // U (Boruta)
+            'e': '\u1BEB', // E (Hatadingan)
+            'o': '\u1BEC', // O (Siala ulu)
+            'pangolat': '\u1BF2' // Pangolat (Vowel killer)
+        };
+
+        const REVERSE_INA = {};
+        Object.keys(INA_NI_SURAT).forEach(k => REVERSE_INA[INA_NI_SURAT[k]] = k);
+
+        const state = { mode: 'latin-to-batak' };
+
+        function latinToBatak(text) {
+            // Normalisasi input
+            text = text.toLowerCase()
+                       .replace(/é/g, 'e')
+                       .replace(/th/g, 't')
+                       .replace(/dh/g, 'd')
+                       .replace(/v/g, 'p')
+                       .replace(/f/g, 'p')
+                       .replace(/z/g, 's')
+                       .replace(/kh/g, 'h')
+                       .replace(/sy/g, 's');
+
+            let result = "";
+            let i = 0;
+
+            while (i < text.length) {
+                let current = text[i];
+                let next = text[i + 1] || "";
+
+                if (!/[a-z]/.test(current)) {
+                    result += current;
+                    i++;
+                    continue;
+                }
+
+                // Cek konsonan ganda
+                let consonant = current;
+                if ((current === 'n' && next === 'g') || (current === 'n' && next === 'y')) {
+                    consonant = current + next;
+                    i++; 
+                }
+                i++; 
+
+                let baseChar = "";
+                let vowel = text[i] || "";
+
+                // Jika input adalah vokal di awal atau vokal ganda
+                if (/[aeiou]/.test(consonant) && consonant.length === 1) {
+                    baseChar = INA_NI_SURAT['a']; // Carrier A
+                    vowel = consonant;
+                } else {
+                    baseChar = INA_NI_SURAT[consonant] || INA_NI_SURAT['h'];
+                }
+
+                result += baseChar;
+
+                if (/[aeiou]/.test(vowel)) {
+                    if (vowel !== 'a') {
+                        result += ANAK_NI_SURAT[vowel];
+                    }
+                    i++; // Konsumsi vokal
+                } else {
+                    // Konsonan mati
+                    result += ANAK_NI_SURAT['pangolat'];
+                }
+            }
+            return result;
+        }
+
+        function batakToLatin(text) {
+            let result = "";
+            let i = 0;
+            while (i < text.length) {
+                let char = text[i];
+                let next = text[i + 1] || "";
+
+                if (REVERSE_INA[char]) {
+                    let c = REVERSE_INA[char];
+                    if (next === ANAK_NI_SURAT['pangolat']) {
+                        result += c;
+                        i++;
+                    } else if (next === ANAK_NI_SURAT['i']) { result += c + 'i'; i++; }
+                    else if (next === ANAK_NI_SURAT['u']) { result += c + 'u'; i++; }
+                    else if (next === ANAK_NI_SURAT['e']) { result += c + 'e'; i++; }
+                    else if (next === ANAK_NI_SURAT['o']) { result += c + 'o'; i++; }
+                    else {
+                        result += (c === 'a') ? 'a' : c + 'a';
+                    }
+                } else {
+                    result += char;
+                }
+                i++;
+            }
+            return result;
+        }
+
+        const inputEl = document.getElementById('inputText');
+        const outputEl = document.getElementById('outputText');
+        const swapBtn = document.getElementById('swapBtn');
+        const copyBtn = document.getElementById('copyBtn');
+        const inputLabel = document.getElementById('inputLabel');
+        const outputLabel = document.getElementById('outputLabel');
+
+        function sync() {
+            if (state.mode === 'latin-to-batak') {
+                outputEl.innerText = latinToBatak(inputEl.value);
+            } else {
+                outputEl.innerText = batakToLatin(inputEl.value);
+            }
+        }
+
+        inputEl.addEventListener('input', sync);
+
+        swapBtn.addEventListener('click', () => {
+            state.mode = (state.mode === 'latin-to-batak') ? 'batak-to-latin' : 'latin-to-batak';
+            if (state.mode === 'batak-to-latin') {
+                inputLabel.innerText = 'Surat Batak';
+                outputLabel.innerText = 'Latin';
+                inputEl.classList.add('batak-textarea');
+                outputEl.classList.remove('text-xl');
+                outputEl.classList.remove('batak-text');
+                outputEl.classList.add('text-2xl', 'font-semibold');
+            } else {
+                inputLabel.innerText = 'Latin';
+                outputLabel.innerText = 'Surat Batak';
+                inputEl.classList.remove('batak-textarea');
+                inputEl.classList.add('text-xl');
+                outputEl.classList.add('batak-text');
+                outputEl.classList.remove('text-2xl', 'font-semibold');
+            }
+            const currentVal = inputEl.value;
+            inputEl.value = outputEl.innerText;
+            sync();
+        });
+
+        copyBtn.addEventListener('click', () => {
+            const text = outputEl.innerText;
+            if (!text) return;
+            const temp = document.createElement('textarea');
+            temp.value = text;
+            document.body.appendChild(temp);
+            temp.select();
+            document.execCommand('copy');
+            document.body.removeChild(temp);
+            const toast = document.getElementById('toast');
+            toast.classList.add('show');
+            setTimeout(() => toast.classList.remove('show'), 2000);
+        });
+
+        sync();
+    </script>
+</body>
+</html>
