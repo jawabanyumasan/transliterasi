@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Armenian Alphabet for Javanese</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+Armenian:wght@400;700&family=Inter:wght@400;600&display=swap');
+        
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f8fafc;
+        }
+        .armenian-text {
+            font-family: 'Noto Sans Armenian', sans-serif;
+        }
+        textarea {
+            resize: none;
+        }
+        .copy-btn:active {
+            transform: scale(0.95);
+        }
+    </style>
+</head>
+<body class="min-h-screen p-4 md:p-8">
+    <div class="max-w-4xl mx-auto">
+        <!-- Header -->
+        <header class="text-center mb-8">
+            <h1 class="text-3xl font-bold text-slate-800 mb-2">Armenian for Javanese</h1>
+            <p class="text-slate-600">Transliterate between Latin Javanese (Aksara Latin) and Armenian Script.</p>
+        </header>
+
+        <!-- Main Interface -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            
+            <!-- Latin Section -->
+            <div class="flex flex-col space-y-2">
+                <label class="font-semibold text-slate-700 flex justify-between items-center">
+                    Latin (Javanese Phonetics)
+                    <button onclick="copyText('latinInput')" class="copy-btn bg-slate-200 hover:bg-slate-300 text-slate-700 text-xs px-3 py-1 rounded transition-all">
+                        Copy
+                    </button>
+                </label>
+                <textarea id="latinInput" 
+                    placeholder="Type Javanese words here (e.g., sate, sego, dhahar, thole, nyanyi, mbegegeg...)"
+                    class="w-full h-48 p-4 border border-slate-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all shadow-sm"
+                ></textarea>
+                <div class="flex flex-wrap gap-2 text-[10px] text-slate-500 italic">
+                    <span>Try: é (taling), e (pepet), th, dh, ng, ny, kh, sy, f, v, z</span>
+                </div>
+            </div>
+
+            <!-- Armenian Section -->
+            <div class="flex flex-col space-y-2">
+                <label class="font-semibold text-slate-700 flex justify-between items-center">
+                    Armenian Script (Արմենիան)
+                    <button onclick="copyText('armenianOutput')" class="copy-btn bg-slate-200 hover:bg-slate-300 text-slate-700 text-xs px-3 py-1 rounded transition-all">
+                        Copy
+                    </button>
+                </label>
+                <textarea id="armenianOutput" 
+                    placeholder="Արդյունքը այստեղ կլինի..."
+                    class="armenian-text w-full h-48 p-4 border border-slate-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all shadow-sm text-xl"
+                ></textarea>
+            </div>
+        </div>
+
+        <!-- Success Toast -->
+        <div id="toast" class="fixed bottom-10 left-1/2 -translate-x-1/2 bg-slate-800 text-white px-6 py-2 rounded-full opacity-0 pointer-events-none transition-opacity duration-300">
+            Copied to clipboard!
+        </div>
+
+        <!-- Phonetic Reference Guide -->
+        <div class="mt-12 bg-white p-6 rounded-2xl shadow-sm border border-slate-100">
+            <h2 class="text-xl font-bold text-slate-800 mb-4 border-b pb-2">Reference Guide</h2>
+            <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-4">
+                <div class="p-2 border rounded text-center"><span class="font-bold text-blue-600">e</span> <span class="text-slate-400">→</span> <span class="armenian-text text-lg">ը</span> (pepet)</div>
+                <div class="p-2 border rounded text-center"><span class="font-bold text-blue-600">é</span> <span class="text-slate-400">→</span> <span class="armenian-text text-lg">է</span> (taling)</div>
+                <div class="p-2 border rounded text-center"><span class="font-bold text-blue-600">th</span> <span class="text-slate-400">→</span> <span class="armenian-text text-lg">թ</span></div>
+                <div class="p-2 border rounded text-center"><span class="font-bold text-blue-600">dh</span> <span class="text-slate-400">→</span> <span class="armenian-text text-lg">դ</span></div>
+                <div class="p-2 border rounded text-center"><span class="font-bold text-blue-600">ng</span> <span class="text-slate-400">→</span> <span class="armenian-text text-lg">նգ</span></div>
+                <div class="p-2 border rounded text-center"><span class="font-bold text-blue-600">ny</span> <span class="text-slate-400">→</span> <span class="armenian-text text-lg">նյ</span></div>
+                <div class="p-2 border rounded text-center"><span class="font-bold text-blue-600">kh</span> <span class="text-slate-400">→</span> <span class="armenian-text text-lg">խ</span></div>
+                <div class="p-2 border rounded text-center"><span class="font-bold text-blue-600">sy</span> <span class="text-slate-400">→</span> <span class="armenian-text text-lg">շ</span></div>
+                <div class="p-2 border rounded text-center"><span class="font-bold text-blue-600">v / w</span> <span class="text-slate-400">→</span> <span class="armenian-text text-lg">վ</span></div>
+                <div class="p-2 border rounded text-center"><span class="font-bold text-blue-600">z</span> <span class="text-slate-400">→</span> <span class="armenian-text text-lg">զ</span></div>
+                <div class="p-2 border rounded text-center"><span class="font-bold text-blue-600">f</span> <span class="text-slate-400">→</span> <span class="armenian-text text-lg">ֆ</span></div>
+            </div>
+        </div>
+        
+        <footer class="mt-8 text-center text-slate-400 text-sm">
+            Created for Javanese-Armenian phonetic exploration.
+        </footer>
+    </div>
+
+    <script>
+        // Transliteration Maps
+        // Note: We handle digraphs (th, dh, etc.) first in the mapping process to avoid partial matches.
+        
+        const latinToArmenianMap = {
+            'th': 'թ', 'dh': 'դ', 'ng': 'նգ', 'ny': 'նյ', 'kh': 'խ', 'sy': 'շ',
+            'Th': 'Թ', 'Dh': 'Դ', 'Ng': 'Նգ', 'Ny': 'Նյ', 'Kh': 'Խ', 'Sy': 'Շ',
+            'a': 'ա', 'b': 'բ', 'c': 'ճ', 'd': 'տ', 'e': 'ը', 'é': 'է', 'f': 'ֆ', 
+            'g': 'գ', 'h': 'հ', 'i': 'ի', 'j': 'ջ', 'k': 'կ', 'l': 'լ', 'm': 'մ', 
+            'n': 'ն', 'o': 'օ', 'p': 'պ', 'r': 'ր', 's': 'ս', 't': 'տ', 'u': 'ու', 
+            'v': 'վ', 'w': 'վ', 'y': 'յ', 'z': 'զ',
+            'A': 'Ա', 'B': 'Բ', 'C': 'Ճ', 'D': 'Տ', 'E': 'Ը', 'É': 'Է', 'F': 'Ֆ', 
+            'G': 'Գ', 'H': 'Հ', 'I': 'Ի', 'J': 'Ջ', 'K': 'Կ', 'L': 'Լ', 'M': 'Մ', 
+            'N': 'Ն', 'O': 'Օ', 'P': 'Պ', 'R': 'Ր', 'S': 'Ս', 'T': 'Տ', 'U': 'Ու', 
+            'V': 'Վ', 'W': 'Վ', 'Y': 'Յ', 'Z': 'Զ'
+        };
+
+        const armenianToLatinMap = {
+            'թ': 'th', 'դ': 'dh', 'նգ': 'ng', 'նյ': 'ny', 'խ': 'kh', 'շ': 'sy',
+            'Թ': 'Th', 'Դ': 'Dh', 'Նգ': 'Ng', 'Նյ': 'Ny', 'Խ': 'Kh', 'Շ': 'Sy',
+            'ա': 'a', 'բ': 'b', 'ճ': 'c', 'ը': 'e', 'է': 'é', 'ֆ': 'f', 'գ': 'g', 
+            'հ': 'h', 'ի': 'i', 'ջ': 'j', 'կ': 'k', 'լ': 'l', 'մ': 'm', 'ն': 'n', 
+            'օ': 'o', 'պ': 'p', 'ր': 'r', 'ս': 's', 'տ': 't', 'ու': 'u', 'վ': 'w', 
+            'յ': 'y', 'զ': 'z',
+            'Ա': 'A', 'Բ': 'B', 'Ճ': 'C', 'Ը': 'E', 'Է': 'É', 'Ֆ': 'F', 'Գ': 'G', 
+            'Հ': 'H', 'Ի': 'I', 'Ջ': 'J', 'Կ': 'K', 'Լ': 'L', 'Մ': 'M', 'Ն': 'N', 
+            'Օ': 'O', 'Պ': 'P', 'Ր': 'R', 'Ս': 'S', 'Տ': 'T', 'Ու': 'U', 'Վ': 'W', 
+            'Յ': 'Y', 'Զ': 'Z'
+        };
+
+        const latinInput = document.getElementById('latinInput');
+        const armenianOutput = document.getElementById('armenianOutput');
+
+        // Logic for Latin to Armenian
+        latinInput.addEventListener('input', (e) => {
+            const text = e.target.value;
+            armenianOutput.value = transliterate(text, latinToArmenianMap, ['th', 'dh', 'ng', 'ny', 'kh', 'sy', 'Th', 'Dh', 'Ng', 'Ny', 'Kh', 'Sy', 'ou', 'Ou']);
+        });
+
+        // Logic for Armenian to Latin
+        armenianOutput.addEventListener('input', (e) => {
+            const text = e.target.value;
+            latinInput.value = transliterate(text, armenianToLatinMap, ['նգ', 'նյ', 'ու', 'Նգ', 'Նյ', 'Ու']);
+        });
+
+        /**
+         * Generic transliteration function
+         * @param {string} text - Input text
+         * @param {object} map - Key-value pair map
+         * @param {array} multiCharKeys - Keys that consist of more than 1 character (priority)
+         */
+        function transliterate(text, map, multiCharKeys) {
+            let result = '';
+            let i = 0;
+            
+            while (i < text.length) {
+                let matchFound = false;
+                
+                // 1. Check for multi-character matches first (digraphs)
+                for (let key of multiCharKeys) {
+                    if (text.substr(i, key.length) === key) {
+                        result += map[key] || key;
+                        i += key.length;
+                        matchFound = true;
+                        break;
+                    }
+                }
+                
+                if (matchFound) continue;
+
+                // 2. Check for single character matches
+                const char = text[i];
+                if (map[char]) {
+                    result += map[char];
+                } else {
+                    result += char; // Keep punctuation/spaces as is
+                }
+                i++;
+            }
+            return result;
+        }
+
+        // Utility: Copy to clipboard
+        function copyText(id) {
+            const el = document.getElementById(id);
+            el.select();
+            document.execCommand('copy');
+            
+            const toast = document.getElementById('toast');
+            toast.style.opacity = '1';
+            setTimeout(() => {
+                toast.style.opacity = '0';
+            }, 2000);
+        }
+    </script>
+</body>
+</html>
