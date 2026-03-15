@@ -1,0 +1,284 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>N’Ko Script for Javanese</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+NKo&display=swap" rel="stylesheet">
+    <style>
+        .nko-font {
+            font-family: 'Noto Sans NKo', sans-serif;
+            direction: rtl;
+        }
+        .tab-active {
+            border-bottom: 2px solid #4f46e5;
+            color: #4f46e5;
+        }
+        textarea {
+            resize: none;
+        }
+        /* Ensure the N'Ko text looks clean */
+        #outputText {
+            line-height: 1.6;
+        }
+    </style>
+</head>
+<body class="bg-slate-50 min-h-screen text-slate-900 font-sans">
+
+    <div class="max-w-3xl mx-auto px-4 py-8">
+        <header class="text-center mb-8">
+            <h1 class="text-3xl font-bold text-indigo-700 mb-2">N’Ko for Javanese</h1>
+            <p class="text-slate-600 italic">Improved Phonetics & Independent Vowel Support</p>
+        </header>
+
+        <div class="bg-white rounded-2xl shadow-xl overflow-hidden">
+            <!-- Mode Selector -->
+            <div class="flex border-b">
+                <button id="btnLatToNko" class="flex-1 py-4 text-sm font-semibold transition-all tab-active" onclick="setMode('latin-to-nko')">
+                    Latin → N’Ko
+                </button>
+                <button id="btnNkoToLat" class="flex-1 py-4 text-sm font-semibold transition-all text-slate-500" onclick="setMode('nko-to-latin')">
+                    N’Ko → Latin
+                </button>
+            </div>
+
+            <!-- Main Workspace -->
+            <div class="p-6 space-y-6">
+                <!-- Input Area -->
+                <div class="space-y-2">
+                    <label class="block text-xs font-bold uppercase tracking-wider text-slate-400" id="inputLabel">
+                        Input Latin (Javanese)
+                    </label>
+                    <textarea 
+                        id="inputText" 
+                        class="w-full h-40 p-4 border border-slate-200 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-transparent outline-none transition-all text-lg"
+                        placeholder="Type here..."
+                    ></textarea>
+                </div>
+
+                <!-- Result Area -->
+                <div class="space-y-2">
+                    <div class="flex justify-between items-center">
+                        <label class="block text-xs font-bold uppercase tracking-wider text-slate-400" id="outputLabel">
+                            N’Ko Script
+                        </label>
+                        <button 
+                            onclick="copyResult()" 
+                            class="text-indigo-600 hover:text-indigo-800 text-sm font-medium flex items-center gap-1 active:scale-95 transition-transform"
+                        >
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7v8a2 2 0 002 2h6M8 7V5a2 2 0 012-2h4.586a1 1 0 01.707.293l4.414 4.414a1 1 0 01.293.707V15a2 2 0 01-2 2h-2M8 7H6a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2v-2" />
+                            </svg>
+                            Copy Result
+                        </button>
+                    </div>
+                    <div 
+                        id="outputText" 
+                        class="w-full min-h-[160px] p-4 bg-slate-50 border border-slate-200 rounded-xl text-3xl nko-font"
+                    ></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Phonetic Reference -->
+        <div class="mt-8 bg-white p-6 rounded-2xl shadow-md border border-slate-100">
+            <h2 class="text-lg font-bold mb-4">Logic Reference</h2>
+            <div class="space-y-4 text-sm text-slate-700">
+                <p><strong>Vowels:</strong></p>
+                <ul class="list-disc pl-5 grid grid-cols-2 gap-2">
+                    <li>/a/ = ߊ</li>
+                    <li>/i/ = ߌ</li>
+                    <li>/u/ = ߎ</li>
+                    <li>/é/ (Taling) = ߋ</li>
+                    <li>/è/ (Open) = ߍ</li>
+                    <li>/o/ = ߏ</li>
+                    <li>/e/ (Pepet) = ߲ (Dot below)</li>
+                </ul>
+                <p class="bg-indigo-50 p-3 rounded-lg border border-indigo-100">
+                    <strong>Independent Vowels:</strong> If a word starts with a vowel, the system automatically prepends ߊ (Alif) to prevent placeholder circles. E.g., <em>emas</em> becomes ߊ߲ߡߊߛ.
+                </p>
+            </div>
+        </div>
+
+        <!-- Success Message -->
+        <div id="toast" class="fixed bottom-8 left-1/2 -translate-x-1/2 bg-indigo-900 text-white px-6 py-3 rounded-full opacity-0 pointer-events-none transition-opacity shadow-2xl">
+            Copied to clipboard!
+        </div>
+    </div>
+
+    <script>
+        // Updated N'Ko Mapping based on user reference
+        const vowels = {
+            'a': '\u07EB', // ߊ
+            'i': '\u07ED', // ߌ
+            'u': '\u07EE', // ߎ
+            'é': '\u07EC', // ߋ (Taling)
+            'è': '\u07ED', // ߍ (Open E / English æ)
+            'o': '\u07EF', // ߏ
+            'e': '\u07F2', // ◌߲ (Pepet / Schwa)
+        };
+
+        const consonants = {
+            'b': '\u07D2',
+            'p': '\u07D4',
+            't': '\u07D5',
+            'th': '\u07D5\u07F3', // Retroflex mark
+            'd': '\u07D8',
+            'dh': '\u07D8\u07F3', // Retroflex mark
+            'j': '\u07D6',
+            'c': '\u07D7',
+            'r': '\u07D9',
+            's': '\u07DB',
+            'g': '\u07E1',
+            'k': '\u07DE',
+            'l': '\u07E3',
+            'm': '\u07E5',
+            'n': '\u07E4',
+            'ny': '\u07E2',
+            'ng': '\u07E0',
+            'h': '\u07DC',
+            'w': '\u07E7',
+            'y': '\u07E6',
+            'f': '\u07DF',
+            'v': '\u07DF\u07F5',
+            'z': '\u07DA',
+            'kh': '\u07DD',
+            'sy': '\u07DB\u07F5'
+        };
+
+        let currentMode = 'latin-to-nko';
+        const inputTextArea = document.getElementById('inputText');
+        const outputDiv = document.getElementById('outputText');
+
+        function setMode(mode) {
+            currentMode = mode;
+            document.getElementById('btnLatToNko').classList.toggle('tab-active', mode === 'latin-to-nko');
+            document.getElementById('btnLatToNko').classList.toggle('text-slate-500', mode !== 'latin-to-nko');
+            document.getElementById('btnNkoToLat').classList.toggle('tab-active', mode === 'nko-to-latin');
+            document.getElementById('btnNkoToLat').classList.toggle('text-slate-500', mode !== 'nko-to-latin');
+
+            if (mode === 'latin-to-nko') {
+                document.getElementById('inputLabel').innerText = "Input Latin (Javanese)";
+                document.getElementById('outputLabel').innerText = "N’Ko Script";
+                inputTextArea.placeholder = "Conto: emas, thole, dhahar...";
+                inputTextArea.classList.remove('nko-font');
+                outputDiv.classList.add('nko-font');
+                inputTextArea.dir = "ltr";
+            } else {
+                document.getElementById('inputLabel').innerText = "Input N’Ko Script";
+                document.getElementById('outputLabel').innerText = "Latin Result";
+                inputTextArea.placeholder = "ߒߞߏ...";
+                inputTextArea.classList.add('nko-font');
+                outputDiv.classList.remove('nko-font');
+                inputTextArea.dir = "rtl";
+            }
+            inputTextArea.value = "";
+            outputDiv.innerText = "";
+        }
+
+        function convertToNko(text) {
+            let result = "";
+            text = text.toLowerCase();
+            const sortedCons = Object.keys(consonants).sort((a, b) => b.length - a.length);
+            
+            let i = 0;
+            while (i < text.length) {
+                let found = false;
+                
+                // Check consonants
+                for (const key of sortedCons) {
+                    if (text.substr(i, key.length) === key) {
+                        result += consonants[key];
+                        i += key.length;
+                        found = true;
+                        break;
+                    }
+                }
+                if (found) continue;
+
+                // Check vowels
+                const char = text[i];
+                if (vowels[char]) {
+                    // Special Logic for Pepet (Schwa) /e/
+                    if (char === 'e') {
+                        // Check if it's "mandiri" (start of word or preceded by non-letter)
+                        const isMandiri = (i === 0 || !/[a-zàéè]/.test(text[i-1]));
+                        if (isMandiri) {
+                            result += '\u07EB\u07F2'; // Alif + Dot Below
+                        } else {
+                            result += '\u07F2'; // Just Dot Below (attaches to previous char)
+                        }
+                    } else {
+                        // Other vowels are independent letters in N'Ko usually
+                        result += vowels[char];
+                    }
+                    i++;
+                } else {
+                    result += char;
+                    i++;
+                }
+            }
+            return result;
+        }
+
+        function convertToLatin(text) {
+            // Reverse maps
+            const revCons = Object.fromEntries(Object.entries(consonants).map(([k, v]) => [v, k]));
+            // Add the special Alif+Dot case for Pepet
+            const revVows = {
+                '\u07EB\u07F2': 'e', // Alif + Pepet
+                '\u07F2': 'e',       // Pepet alone
+                ...Object.fromEntries(Object.entries(vowels).filter(([k]) => k !== 'e').map(([k, v]) => [v, k]))
+            };
+            
+            let result = "";
+            const nkoChars = [...Object.keys(revCons), ...Object.keys(revVows)].sort((a,b) => b.length - a.length);
+
+            let i = 0;
+            while (i < text.length) {
+                let found = false;
+                for(const char of nkoChars) {
+                    if (text.substr(i, char.length) === char) {
+                        result += revCons[char] || revVows[char];
+                        i += char.length;
+                        found = true;
+                        break;
+                    }
+                }
+                if (!found) {
+                    result += text[i];
+                    i++;
+                }
+            }
+            return result;
+        }
+
+        inputTextArea.addEventListener('input', () => {
+            const val = inputTextArea.value;
+            if (currentMode === 'latin-to-nko') {
+                outputDiv.innerText = convertToNko(val);
+            } else {
+                outputDiv.innerText = convertToLatin(val);
+            }
+        });
+
+        function copyResult() {
+            const textToCopy = outputDiv.innerText;
+            if (!textToCopy) return;
+            const textarea = document.createElement('textarea');
+            textarea.value = textToCopy;
+            document.body.appendChild(textarea);
+            textarea.select();
+            document.execCommand('copy');
+            document.body.removeChild(textarea);
+
+            const toast = document.getElementById('toast');
+            toast.style.opacity = '1';
+            setTimeout(() => { toast.style.opacity = '0'; }, 2000);
+        }
+
+        setMode('latin-to-nko');
+    </script>
+</body>
+</html>
