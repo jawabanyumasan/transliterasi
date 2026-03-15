@@ -1,0 +1,289 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bassa Vah Javanese Transliteration</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f8fafc;
+        }
+        .bassa-font {
+            /* Fallback for Bassa Vah characters */
+            font-family: 'Noto Sans Bassa Vah', sans-serif;
+            font-size: 1.5rem;
+            line-height: 2rem;
+        }
+        .glass {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(226, 232, 240, 1);
+        }
+    </style>
+</head>
+<body class="min-h-screen p-4 md:p-8">
+
+<div class="max-w-4xl mx-auto">
+    <!-- Header -->
+    <header class="text-center mb-8">
+        <h1 class="text-3xl font-bold text-slate-800 mb-2">Bassa Vah 𖫔𖫧𖫳𖫒𖫨𖫰𖫨𖫱</h1>
+        <p class="text-slate-600">Javanese Latin ↔ Bassa Vah Script Converter</p>
+    </header>
+
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+        <!-- Input Section -->
+        <div class="flex flex-col space-y-4">
+            <div class="flex justify-between items-center">
+                <label id="inputLabel" class="font-semibold text-slate-700">Latin Input (Javanese)</label>
+                <button onclick="clearText()" class="text-xs text-red-500 hover:underline">Clear</button>
+            </div>
+            <textarea 
+                id="inputText" 
+                class="w-full h-48 p-4 rounded-xl border border-slate-200 focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none shadow-sm transition-all text-lg"
+                placeholder="Type here (e.g., mbegegegi, thole, dhahar...)"
+            ></textarea>
+        </div>
+
+        <!-- Output Section -->
+        <div class="flex flex-col space-y-4">
+            <div class="flex justify-between items-center">
+                <label id="outputLabel" class="font-semibold text-slate-700">Bassa Vah Result</label>
+                <button onclick="copyToClipboard()" class="bg-blue-600 text-white px-3 py-1 rounded-md text-sm hover:bg-blue-700 transition-colors flex items-center gap-2">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
+                    Copy
+                </button>
+            </div>
+            <div 
+                id="outputText" 
+                class="w-full h-48 p-4 rounded-xl border border-slate-200 bg-white shadow-sm bassa-font overflow-y-auto break-all"
+            ></div>
+        </div>
+    </div>
+
+    <!-- Direction Switch -->
+    <div class="flex justify-center mb-8">
+        <button 
+            onclick="switchDirection()" 
+            class="flex items-center gap-3 bg-slate-800 text-white px-6 py-3 rounded-full hover:bg-slate-700 shadow-lg transition-all active:scale-95"
+        >
+            <span id="directionText">Latin to Bassa Vah</span>
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m16 3 4 4-4 4"></path><path d="M20 7H4"></path><path d="m8 21-4-4 4-4"></path><path d="M4 17h16"></path></svg>
+        </button>
+    </div>
+
+    <!-- Reference Info -->
+    <div class="glass p-6 rounded-2xl">
+        <h2 class="text-xl font-bold text-slate-800 mb-4">Supported Phonemes (Javanese)</h2>
+        <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-4">
+            <div class="p-3 bg-slate-50 rounded-lg text-center">
+                <div class="text-sm text-slate-500">e (pepet)</div>
+                <div class="bassa-font">𖫨</div>
+            </div>
+            <div class="p-3 bg-slate-50 rounded-lg text-center">
+                <div class="text-sm text-slate-500">é (taling)</div>
+                <div class="bassa-font">𖫩</div>
+            </div>
+            <div class="p-3 bg-slate-50 rounded-lg text-center">
+                <div class="text-sm text-slate-500">dh (retroflex)</div>
+                <div class="bassa-font">𖫗</div>
+            </div>
+            <div class="p-3 bg-slate-50 rounded-lg text-center">
+                <div class="text-sm text-slate-500">th (retroflex)</div>
+                <div class="bassa-font">𖫡</div>
+            </div>
+             <div class="p-3 bg-slate-50 rounded-lg text-center">
+                <div class="text-sm text-slate-500">ng</div>
+                <div class="bassa-font">𖫐𖫖</div>
+            </div>
+             <div class="p-3 bg-slate-50 rounded-lg text-center">
+                <div class="text-sm text-slate-500">ny</div>
+                <div class="bassa-font">𖫐𖫕</div>
+            </div>
+            <div class="p-3 bg-slate-50 rounded-lg text-center">
+                <div class="text-sm text-slate-500">kh / sy</div>
+                <div class="bassa-font">𖫑 / 𖫒</div>
+            </div>
+            <div class="p-3 bg-slate-50 rounded-lg text-center">
+                <div class="text-sm text-slate-500">z / v / f</div>
+                <div class="bassa-font">𖫜 / 𖫓</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Notification Toast -->
+    <div id="toast" class="fixed bottom-8 left-1/2 -translate-x-1/2 bg-slate-800 text-white px-4 py-2 rounded-lg opacity-0 pointer-events-none transition-opacity">
+        Copied to clipboard!
+    </div>
+</div>
+
+<script>
+    // Bassa Vah Mapping
+    // Note: Bassa Vah is an alphabet where vowels follow consonants.
+    // We map Latin phonemes to the best-fitting Bassa Vah characters.
+    
+    const LATIN_TO_BASSA = [
+        // Clusters / Multi-char
+        { l: 'mbe', b: '𖫔' },
+        { l: 'gbe', b: '𖫝' },
+        { l: 'hwa', b: '𖫚' },
+        { l: 'kpa', b: '𖫘' },
+        { l: 'ng', b: '𖫐𖫖' }, // Nasal + G
+        { l: 'ny', b: '𖫐𖫕' }, // Nasal + Y
+        { l: 'th', b: '𖫡' },    // Retroflex T
+        { l: 'dh', b: '𖫗' },    // Retroflex D
+        { l: 'kh', b: '𖫑' },    // K-variant
+        { l: 'sy', b: '𖫒' },    // S-variant
+        
+        // Single Consonants
+        { l: 'b', b: '𖫢' },
+        { l: 'c', b: '𖫟' },
+        { l: 'd', b: '𖫞' },
+        { l: 'f', b: '𖫓' },
+        { l: 'g', b: '𖫖' },
+        { l: 'h', b: '𖫚' },
+        { l: 'j', b: '𖫙' },
+        { l: 'k', b: '𖫑' },
+        { l: 'l', b: '𖫤' },
+        { l: 'm', b: '𖫦' },
+        { l: 'n', b: '𖫐' },
+        { l: 'p', b: '𖫥' },
+        { l: 'r', b: '𖫤' }, // Bassa Vah often lacks 'r', 'l' is used as substitute
+        { l: 's', b: '𖫒' },
+        { l: 't', b: '𖫡' },
+        { l: 'v', b: '𖫓' },
+        { l: 'w', b: '𖫛' },
+        { l: 'y', b: '𖫕' },
+        { l: 'z', b: '𖫜' },
+
+        // Vowels
+        { l: 'a', b: '𖫧' },
+        { l: 'é', b: '𖫩' }, // Taling
+        { l: 'e', b: '𖫨' }, // Pepet
+        { l: 'i', b: '𖫪' },
+        { l: 'o', b: '𖫫' },
+        { l: 'u', b: '𖫭' }
+    ];
+
+    let currentDirection = 'latin-to-bassa';
+
+    const inputEl = document.getElementById('inputText');
+    const outputEl = document.getElementById('outputText');
+    const inputLabel = document.getElementById('inputLabel');
+    const outputLabel = document.getElementById('outputLabel');
+    const directionText = document.getElementById('directionText');
+
+    function switchDirection() {
+        if (currentDirection === 'latin-to-bassa') {
+            currentDirection = 'bassa-to-latin';
+            inputLabel.innerText = 'Bassa Vah Input';
+            outputLabel.innerText = 'Latin Result';
+            directionText.innerText = 'Bassa Vah to Latin';
+            inputEl.classList.add('bassa-font');
+            outputEl.classList.remove('bassa-font');
+        } else {
+            currentDirection = 'latin-to-bassa';
+            inputLabel.innerText = 'Latin Input (Javanese)';
+            outputLabel.innerText = 'Bassa Vah Result';
+            directionText.innerText = 'Latin to Bassa Vah';
+            inputEl.classList.remove('bassa-font');
+            outputEl.classList.add('bassa-font');
+        }
+        clearText();
+    }
+
+    function clearText() {
+        inputEl.value = '';
+        outputEl.innerText = '';
+    }
+
+    function transliterate() {
+        const text = inputEl.value;
+        if (!text) {
+            outputEl.innerText = '';
+            return;
+        }
+
+        if (currentDirection === 'latin-to-bassa') {
+            outputEl.innerText = convertLatinToBassa(text.toLowerCase());
+        } else {
+            outputEl.innerText = convertBassaToLatin(text);
+        }
+    }
+
+    function convertLatinToBassa(input) {
+        let result = input;
+        
+        // Sorting mappings by length to ensure multi-char (ng, mbe) are handled first
+        const sortedMap = [...LATIN_TO_BASSA].sort((a, b) => b.l.length - a.l.length);
+        
+        let temp = "";
+        let i = 0;
+        while (i < result.length) {
+            let found = false;
+            for (const map of sortedMap) {
+                if (result.startsWith(map.l, i)) {
+                    temp += map.b;
+                    i += map.l.length;
+                    found = true;
+                    break;
+                }
+            }
+            if (!found) {
+                temp += result[i];
+                i++;
+            }
+        }
+        return temp;
+    }
+
+    function convertBassaToLatin(input) {
+        let result = input;
+        const sortedMap = [...LATIN_TO_BASSA].sort((a, b) => b.b.length - a.b.length);
+        
+        let temp = "";
+        let i = 0;
+        while (i < result.length) {
+            let found = false;
+            for (const map of sortedMap) {
+                // Check if the substring starting at i matches the Bassa character
+                if (result.substring(i, i + map.b.length) === map.b) {
+                    temp += map.l;
+                    i += map.b.length;
+                    found = true;
+                    break;
+                }
+            }
+            if (!found) {
+                temp += result[i];
+                i++;
+            }
+        }
+        return temp;
+    }
+
+    function copyToClipboard() {
+        const text = outputEl.innerText;
+        if (!text) return;
+        
+        const el = document.createElement('textarea');
+        el.value = text;
+        document.body.appendChild(el);
+        el.select();
+        document.execCommand('copy');
+        document.body.removeChild(el);
+
+        const toast = document.getElementById('toast');
+        toast.style.opacity = '1';
+        setTimeout(() => {
+            toast.style.opacity = '0';
+        }, 2000);
+    }
+
+    inputEl.addEventListener('input', transliterate);
+
+</script>
+</body>
+</html>
