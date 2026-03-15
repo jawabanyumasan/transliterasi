@@ -1,240 +1,262 @@
-import React, { useState, useEffect, useMemo } from 'react';
-import { Copy, ArrowLeftRight, Info, Keyboard, BookOpen, AlertCircle } from 'lucide-react';
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gunjala Gondi Translator</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Gunjala+Gondi&family=Inter:wght@400;600;900&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Inter', sans-serif; }
+        .gondi-font { font-family: 'Noto Sans Gunjala Gondi', serif; }
+        textarea:focus { outline: none; }
+        .custom-scrollbar::-webkit-scrollbar { width: 6px; }
+        .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
+        .custom-scrollbar::-webkit-scrollbar-thumb { background: #e2e8f0; border-radius: 10px; }
+    </style>
+</head>
+<body class="bg-neutral-50 text-neutral-900 min-h-screen p-4 md:p-8">
 
-const App = () => {
-  const [inputText, setInputText] = useState('');
-  const [outputText, setOutputText] = useState('');
-  const [copyStatus, setCopyStatus] = useState(false);
-
-  // Gunjala Gondi Unicode Standard (U+11D60 - U+11D9F)
-  const GONDI_DATA = useMemo(() => ({
-    vowels: {
-      'a': '\u{11D60}', 'aa': '\u{11D61}', 'i': '\u{11D62}', 'ii': '\u{11D63}',
-      'u': '\u{11D64}', 'uu': '\u{11D65}', 'e': '\u{11D67}', 'ee': '\u{11D68}',
-      'ai': '\u{11D69}', 'o': '\u{11D6A}', 'oo': '\u{11D6B}', 'au': '\u{11D6C}'
-    },
-    matras: {
-      'aa': '\u{11D8A}', 'i': '\u{11D8B}', 'ii': '\u{11D8C}', 'u': '\u{11D8D}',
-      'uu': '\u{11D8E}', 'e': '\u{11D90}', 'ee': '\u{11D91}', 'ai': '\u{11D92}',
-      'o': '\u{11D93}', 'oo': '\u{11D94}', 'au': '\u{11D95}'
-    },
-    consonants: {
-      'k': '\u{11D6D}', 'kh': '\u{11D6E}', 'g': '\u{11D6F}', 'gh': '\u{11D70}',
-      'ng': '\u{11D71}', 'c': '\u{11D72}', 'ch': '\u{11D73}', 'j': '\u{11D74}',
-      'jh': '\u{11D75}', 'ny': '\u{11D76}', 
-      'th': '\u{11D77}', 'tth': '\u{11D78}', // Retrofleks Jawa (ꦛ)
-      'dh': '\u{11D79}', 'ddh': '\u{11D7A}', // Retrofleks Jawa (ꦝ)
-      'nn': '\u{11D7B}', 
-      't': '\u{11D7C}', 'thh': '\u{11D7D}',  // Dental Jawa (ꦠ)
-      'd': '\u{11D7E}', 'dhh': '\u{11D7F}',  // Dental Jawa (ꦢ)
-      'n': '\u{11D80}', 'p': '\u{11D81}', 
-      'ph': '\u{11D82}', 'b': '\u{11D83}', 
-      'bh': '\u{11D84}', 'm': '\u{11D85}', 
-      'y': '\u{11D86}', 'r': '\u{11D87}', 
-      'l': '\u{11D88}', 'v': '\u{11D89}', 'w': '\u{11D89}', 
-      's': '\u{11D72}', 'sh': '\u{11D72}', 'sy': '\u{11D72}',
-      'h': '\u{11D94}' 
-    },
-    anusvara: '\u{11D95}', // ang (𑶕)
-    visarga: '\u{11D96}',  // ah (𑶖)
-    virama: '\u{11D97}'    // pangkon / medial connector (𑶗)
-  }), []);
-
-  const transliterate = (text) => {
-    if (!text) return '';
-    let result = '';
-    let i = 0;
-    const t = text.toLowerCase();
-
-    const isWordEnd = (idx) => !t[idx] || t[idx] === ' ' || /[^a-z\u00E9]/.test(t[idx]);
-
-    while (i < t.length) {
-      let match = null;
-      let matchLen = 0;
-
-      // Prioritas konsonan multi-karakter (ng, ny, ddh, sy, etc)
-      if (GONDI_DATA.consonants[t.substring(i, i + 3)]) { match = t.substring(i, i + 3); matchLen = 3; }
-      else if (GONDI_DATA.consonants[t.substring(i, i + 2)]) { match = t.substring(i, i + 2); matchLen = 2; }
-      else if (GONDI_DATA.consonants[t[i]]) { match = t[i]; matchLen = 1; }
-
-      if (match) {
-        const base = GONDI_DATA.consonants[match];
-        let nextIdx = i + matchLen;
-
-        // --- LOGIKA FINAL (ah / ang) ---
-        if (match === 'h' && isWordEnd(nextIdx)) {
-          result += GONDI_DATA.visarga;
-          i = nextIdx;
-          continue;
-        }
-        if (match === 'ng' && isWordEnd(nextIdx)) {
-          result += GONDI_DATA.anusvara;
-          i = nextIdx;
-          continue;
-        }
-
-        // --- CARI VOKAL/MATRA ---
-        let vowelMatch = "";
-        let vLen = 0;
-        const v2 = t.substring(nextIdx, nextIdx + 2);
-        const v1 = t[nextIdx];
-
-        if (GONDI_DATA.matras[v2]) { vowelMatch = v2; vLen = 2; }
-        else if (v1 === 'é' || v1 === 'e') { vowelMatch = 'ee'; vLen = 1; }
-        else if (GONDI_DATA.matras[v1]) { vowelMatch = v1; vLen = 1; }
-        else if (v1 === 'a') { vowelMatch = 'a'; vLen = 1; }
-
-        result += base;
-
-        if (vowelMatch === 'a') {
-          // Inherent 'a', tidak perlu simbol matra
-        } else if (vowelMatch) {
-          result += GONDI_DATA.matras[vowelMatch];
-        } else {
-          // --- LOGIKA MEDIAL / PANGKON ---
-          if (t[nextIdx] && GONDI_DATA.consonants[t[nextIdx]]) {
-            result += GONDI_DATA.virama;
-          } else if (isWordEnd(nextIdx)) {
-            result += GONDI_DATA.virama; 
-          }
-        }
-        i = nextIdx + vLen;
-      } 
-      // --- VOKAL MANDIRI ---
-      else {
-        const v2 = t.substring(i, i + 2);
-        const v1 = t[i];
-
-        if (GONDI_DATA.vowels[v2]) { result += GONDI_DATA.vowels[v2]; i += 2; }
-        else if (v1 === 'é') { result += GONDI_DATA.vowels['ee']; i += 1; }
-        else if (GONDI_DATA.vowels[v1]) { result += GONDI_DATA.vowels[v1]; i += 1; }
-        else {
-          result += t[i];
-          i++;
-        }
-      }
-    }
-    return result;
-  };
-
-  useEffect(() => {
-    setOutputText(transliterate(inputText));
-  }, [inputText, GONDI_DATA]);
-
-  const handleCopy = () => {
-    const textArea = document.createElement("textarea");
-    textArea.value = outputText;
-    document.body.appendChild(textArea);
-    textArea.select();
-    document.execCommand('copy');
-    setCopyStatus(true);
-    setTimeout(() => setCopyStatus(false), 2000);
-    document.body.removeChild(textArea);
-  };
-
-  return (
-    <div className="min-h-screen bg-neutral-50 text-neutral-900 p-4 md:p-8 font-sans">
-      <div className="max-w-4xl mx-auto">
-        <header className="mb-10 flex flex-col items-center">
-          <div className="bg-indigo-600 p-4 rounded-[2rem] mb-4 shadow-xl shadow-indigo-100 rotate-2">
-            <BookOpen className="text-white w-8 h-8" />
-          </div>
-          <h1 className="text-4xl font-black text-neutral-900 tracking-tight text-center">
-            Gunjala Gondi <span className="text-indigo-600">Translator</span>
-          </h1>
-          <p className="text-neutral-500 text-center font-medium mt-2 max-w-sm">
-            Koreksi Unicode: "Kah" (𑵭𑶖), "kang" (𑵭𑶕), "kar" (𑵭𑶇𑶗).
-          </p>
+    <div class="max-w-4xl mx-auto">
+        <!-- Header -->
+        <header class="mb-10 flex flex-col items-center">
+            <div class="bg-indigo-600 p-4 rounded-[2rem] mb-4 shadow-xl shadow-indigo-100 rotate-2">
+                <svg xmlns="http://www.w3.org/2000/svg" class="text-white w-8 h-8" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path></svg>
+            </div>
+            <h1 class="text-4xl font-black text-neutral-900 tracking-tight text-center">
+                Gunjala Gondi <span class="text-indigo-600">Translator</span>
+            </h1>
+            <p class="text-neutral-500 text-center font-medium mt-2 max-w-sm">
+                Koreksi Unicode: "Kah" (𑵭𑶖), "kang" (𑵭𑶕), "kar" (𑵭𑶇𑶗).
+            </p>
         </header>
 
-        <div className="bg-white rounded-[2.5rem] shadow-2xl border border-neutral-200 overflow-hidden">
-          <div className="p-6 bg-neutral-50 border-b border-neutral-200 flex justify-between items-center">
-            <div className="flex items-center gap-2">
-              <span className="w-2 h-2 bg-indigo-500 rounded-full animate-pulse"></span>
-              <span className="text-xs font-bold uppercase tracking-widest text-neutral-400">Latin to Gondi</span>
-            </div>
-            <button 
-              onClick={handleCopy}
-              className={`flex items-center gap-2 px-8 py-3 rounded-2xl font-bold text-sm transition-all transform active:scale-95 shadow-lg ${
-                copyStatus ? 'bg-emerald-500 text-white shadow-emerald-100' : 'bg-neutral-900 text-white hover:bg-neutral-800 shadow-neutral-200'
-              }`}
-            >
-              <Copy size={16} />
-              {copyStatus ? 'Tersalin' : 'Salin Aksara'}
-            </button>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 divide-y md:divide-y-0 md:divide-x divide-neutral-100">
-            {/* Input */}
-            <div className="p-8">
-              <div className="flex items-center justify-between mb-6">
-                <span className="text-[10px] font-black text-neutral-300 uppercase tracking-widest">Ketik Latin</span>
-                <Keyboard className="text-neutral-200 w-5 h-5" />
-              </div>
-              <textarea
-                value={inputText}
-                onChange={(e) => setInputText(e.target.value)}
-                placeholder="Taip: Kah, kang, kar, kyai..."
-                className="w-full h-64 md:h-80 text-2xl border-none focus:ring-0 p-0 resize-none placeholder-neutral-200 text-neutral-800 font-medium"
-              />
+        <!-- Main Card -->
+        <div class="bg-white rounded-[2.5rem] shadow-2xl border border-neutral-200 overflow-hidden">
+            <div class="p-6 bg-neutral-50 border-b border-neutral-200 flex justify-between items-center">
+                <div class="flex items-center gap-2">
+                    <span class="w-2 h-2 bg-indigo-500 rounded-full animate-pulse"></span>
+                    <span class="text-xs font-bold uppercase tracking-widest text-neutral-400">Latin ke Gondi</span>
+                </div>
+                <button id="copyBtn" class="flex items-center gap-2 px-8 py-3 bg-neutral-900 text-white rounded-2xl font-bold text-sm transition-all transform active:scale-95 shadow-lg hover:bg-neutral-800">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
+                    <span id="copyText">Salin Aksara</span>
+                </button>
             </div>
 
-            {/* Output */}
-            <div className="p-8 bg-indigo-50/10">
-              <div className="flex items-center justify-between mb-6">
-                <span className="text-[10px] font-black text-indigo-300 uppercase tracking-widest">Aksara Gondi</span>
-                <Info className="text-indigo-200 w-5 h-5" />
-              </div>
-              <div className="w-full h-64 md:h-80 overflow-y-auto text-5xl md:text-6xl leading-[1.6] text-indigo-950 break-words font-serif selection:bg-indigo-200">
-                {outputText || <span className="text-neutral-200 italic text-3xl font-sans tracking-normal">Hasil...</span>}
-              </div>
+            <div class="grid grid-cols-1 md:grid-cols-2 divide-y md:divide-y-0 md:divide-x divide-neutral-100">
+                <!-- Input Area -->
+                <div class="p-8">
+                    <div class="flex items-center justify-between mb-6">
+                        <span class="text-[10px] font-black text-neutral-300 uppercase tracking-widest">Ketik Latin</span>
+                        <svg xmlns="http://www.w3.org/2000/svg" class="text-neutral-200 w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="5" width="20" height="14" rx="2" ry="2"></rect><line x1="6" y1="9" x2="6" y2="9"></line><line x1="10" y1="9" x2="10" y2="9"></line><line x1="14" y1="9" x2="14" y2="9"></line><line x1="18" y1="9" x2="18" y2="9"></line><line x1="6" y1="13" x2="6" y2="13"></line><line x1="10" y1="13" x2="10" y2="13"></line><line x1="14" y1="13" x2="14" y2="13"></line><line x1="18" y1="13" x2="18" y2="13"></line></svg>
+                    </div>
+                    <textarea id="latinInput" placeholder="Taip: Kah, kang, kar, kyai..." class="w-full h-64 md:h-80 text-2xl border-none p-0 resize-none placeholder-neutral-200 text-neutral-800 font-medium bg-transparent"></textarea>
+                </div>
+
+                <!-- Output Area -->
+                <div class="p-8 bg-indigo-50/10">
+                    <div class="flex items-center justify-between mb-6">
+                        <span class="text-[10px] font-black text-indigo-300 uppercase tracking-widest">Aksara Gondi</span>
+                        <svg xmlns="http://www.w3.org/2000/svg" class="text-indigo-200 w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg>
+                    </div>
+                    <div id="gondiOutput" class="w-full h-64 md:h-80 overflow-y-auto text-5xl md:text-6xl leading-[1.6] text-indigo-950 break-words gondi-font selection:bg-indigo-200 custom-scrollbar">
+                        <span class="text-neutral-200 italic text-3xl font-sans tracking-normal">Hasil...</span>
+                    </div>
+                </div>
             </div>
-          </div>
         </div>
 
-        {/* Verifikasi Grid */}
-        <div className="mt-8 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-          <div className="bg-white p-5 rounded-3xl border border-neutral-200 shadow-sm">
-            <h4 className="font-bold text-neutral-400 text-[10px] uppercase mb-3 tracking-widest">Final H (ah)</h4>
-            <div className="flex justify-between items-center">
-              <span className="text-xs font-mono">kah</span>
-              <span className="text-2xl text-indigo-600 font-serif">𑵭𑶖</span>
+        <!-- Verification Cards -->
+        <div class="mt-8 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+            <div class="bg-white p-5 rounded-3xl border border-neutral-200 shadow-sm">
+                <h4 class="font-bold text-neutral-400 text-[10px] uppercase mb-3 tracking-widest">Final H (ah)</h4>
+                <div class="flex justify-between items-center">
+                    <span class="text-xs font-mono">kah</span>
+                    <span class="text-2xl text-indigo-600 gondi-font">𑵭𑶖</span>
+                </div>
             </div>
-          </div>
-          <div className="bg-white p-5 rounded-3xl border border-neutral-200 shadow-sm">
-            <h4 className="font-bold text-neutral-400 text-[10px] uppercase mb-3 tracking-widest">Final NG (ang)</h4>
-            <div className="flex justify-between items-center">
-              <span className="text-xs font-mono">kang</span>
-              <span className="text-2xl text-indigo-600 font-serif">𑵭𑶕</span>
+            <div class="bg-white p-5 rounded-3xl border border-neutral-200 shadow-sm">
+                <h4 class="font-bold text-neutral-400 text-[10px] uppercase mb-3 tracking-widest">Final NG (ang)</h4>
+                <div class="flex justify-between items-center">
+                    <span class="text-xs font-mono">kang</span>
+                    <span class="text-2xl text-indigo-600 gondi-font">𑵭𑶕</span>
+                </div>
             </div>
-          </div>
-          <div className="bg-white p-5 rounded-3xl border border-neutral-200 shadow-sm">
-            <h4 className="font-bold text-neutral-400 text-[10px] uppercase mb-3 tracking-widest">Pangkon (kar)</h4>
-            <div className="flex justify-between items-center">
-              <span className="text-xs font-mono">kar</span>
-              <span className="text-2xl text-indigo-600 font-serif">𑵭𑶇𑶗</span>
+            <div class="bg-white p-5 rounded-3xl border border-neutral-200 shadow-sm">
+                <h4 class="font-bold text-neutral-400 text-[10px] uppercase mb-3 tracking-widest">Pangkon (kar)</h4>
+                <div class="flex justify-between items-center">
+                    <span class="text-xs font-mono">kar</span>
+                    <span class="text-2xl text-indigo-600 gondi-font">𑵭𑶇𑶗</span>
+                </div>
             </div>
-          </div>
-          <div className="bg-white p-5 rounded-3xl border border-neutral-200 shadow-sm">
-            <h4 className="font-bold text-neutral-400 text-[10px] uppercase mb-3 tracking-widest">Medial (kya)</h4>
-            <div className="flex justify-between items-center">
-              <span className="text-xs font-mono">kya</span>
-              <span className="text-2xl text-indigo-600 font-serif">𑵭𑶗𑶆</span>
+            <div class="bg-white p-5 rounded-3xl border border-neutral-200 shadow-sm">
+                <h4 class="font-bold text-neutral-400 text-[10px] uppercase mb-3 tracking-widest">Medial (kya)</h4>
+                <div class="flex justify-between items-center">
+                    <span class="text-xs font-mono">kya</span>
+                    <span class="text-2xl text-indigo-600 gondi-font">𑵭𑶗𑶆</span>
+                </div>
             </div>
-          </div>
         </div>
 
-        <div className="mt-10 p-6 bg-amber-50 rounded-3xl border border-amber-200 flex gap-4">
-          <AlertCircle className="text-amber-500 w-8 h-8 shrink-0" />
-          <div className="text-xs text-amber-800 leading-relaxed">
-            <p className="font-bold mb-1">Pembaruan Kode Unicode:</p>
-            Anusvara (titik/ang) kini dipetakan ke <code>U+11D95 (𑶕)</code> dan Visarga (h-mati) ke <code>U+11D96 (𑶖)</code>. 
-            Huruf <strong>w</strong>, <strong>é</strong>, dan sistem medial (Virama <code>U+11D97 𑶗</code>) telah diselaraskan dengan standar Unicode 11.0.
-          </div>
+        <!-- Warning Info -->
+        <div class="mt-10 p-6 bg-amber-50 rounded-3xl border border-amber-200 flex gap-4">
+            <svg xmlns="http://www.w3.org/2000/svg" class="text-amber-500 w-8 h-8 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg>
+            <div class="text-xs text-amber-800 leading-relaxed">
+                <p class="font-bold mb-1">Pembaruan Kode Unicode:</p>
+                Anusvara (titik/ang) kini dipetakan ke <code>U+11D95 (𑶕)</code> dan Visarga (h-mati) ke <code>U+11D96 (𑶖)</code>. 
+                Huruf <strong>w</strong>, <strong>é</strong>, dan sistem medial (Virama <code>U+11D97 𑶗</code>) telah diselaraskan dengan standar Unicode 11.0.
+            </div>
         </div>
-      </div>
     </div>
-  );
-};
 
-export default App;
+    <script>
+        const GONDI_DATA = {
+            vowels: {
+                'a': '\u{11D60}', 'aa': '\u{11D61}', 'i': '\u{11D62}', 'ii': '\u{11D63}',
+                'u': '\u{11D64}', 'uu': '\u{11D65}', 'e': '\u{11D67}', 'ee': '\u{11D68}',
+                'ai': '\u{11D69}', 'o': '\u{11D6A}', 'oo': '\u{11D6B}', 'au': '\u{11D6C}'
+            },
+            matras: {
+                'aa': '\u{11D8A}', 'i': '\u{11D8B}', 'ii': '\u{11D8C}', 'u': '\u{11D8D}',
+                'uu': '\u{11D8E}', 'e': '\u{11D90}', 'ee': '\u{11D91}', 'ai': '\u{11D92}',
+                'o': '\u{11D93}', 'oo': '\u{11D94}', 'au': '\u{11D95}'
+            },
+            consonants: {
+                'k': '\u{11D6D}', 'kh': '\u{11D6E}', 'g': '\u{11D6F}', 'gh': '\u{11D70}',
+                'ng': '\u{11D71}', 'c': '\u{11D72}', 'ch': '\u{11D73}', 'j': '\u{11D74}',
+                'jh': '\u{11D75}', 'ny': '\u{11D76}', 
+                'th': '\u{11D77}', 'tth': '\u{11D78}', 
+                'dh': '\u{11D79}', 'ddh': '\u{11D7A}', 
+                'nn': '\u{11D7B}', 't': '\u{11D7C}', 
+                'thh': '\u{11D7D}', 'd': '\u{11D7E}', 
+                'dhh': '\u{11D7F}', 'n': '\u{11D80}', 
+                'p': '\u{11D81}', 'ph': '\u{11D82}', 
+                'b': '\u{11D83}', 'bh': '\u{11D84}', 
+                'm': '\u{11D85}', 'y': '\u{11D86}', 
+                'r': '\u{11D87}', 'l': '\u{11D88}', 
+                'v': '\u{11D89}', 'w': '\u{11D89}', 
+                's': '\u{11D72}', 'sh': '\u{11D72}', 
+                'sy': '\u{11D72}', 'h': '\u{11D94}' 
+            },
+            anusvara: '\u{11D95}', 
+            visarga: '\u{11D96}',  
+            virama: '\u{11D97}'    
+        };
+
+        const latinInput = document.getElementById('latinInput');
+        const gondiOutput = document.getElementById('gondiOutput');
+        const copyBtn = document.getElementById('copyBtn');
+        const copyText = document.getElementById('copyText');
+
+        function transliterate(text) {
+            if (!text) return '';
+            let result = '';
+            let i = 0;
+            const t = text.toLowerCase();
+
+            const isWordEnd = (idx) => !t[idx] || t[idx] === ' ' || /[^a-z\u00E9]/.test(t[idx]);
+
+            while (i < t.length) {
+                let match = null;
+                let matchLen = 0;
+
+                // Prioritas konsonan multi-karakter
+                const c3 = t.substring(i, i + 3);
+                const c2 = t.substring(i, i + 2);
+                const c1 = t[i];
+
+                if (GONDI_DATA.consonants[c3]) { match = c3; matchLen = 3; }
+                else if (GONDI_DATA.consonants[c2]) { match = c2; matchLen = 2; }
+                else if (GONDI_DATA.consonants[c1]) { match = c1; matchLen = 1; }
+
+                if (match) {
+                    const base = GONDI_DATA.consonants[match];
+                    let nextIdx = i + matchLen;
+
+                    // Final ah / ang
+                    if (match === 'h' && isWordEnd(nextIdx)) {
+                        result += GONDI_DATA.visarga;
+                        i = nextIdx;
+                        continue;
+                    }
+                    if (match === 'ng' && isWordEnd(nextIdx)) {
+                        result += GONDI_DATA.anusvara;
+                        i = nextIdx;
+                        continue;
+                    }
+
+                    // Cari Matra
+                    let vowelMatch = "";
+                    let vLen = 0;
+                    const nextV2 = t.substring(nextIdx, nextIdx + 2);
+                    const nextV1 = t[nextIdx];
+
+                    if (GONDI_DATA.matras[nextV2]) { vowelMatch = nextV2; vLen = 2; }
+                    else if (nextV1 === 'é' || nextV1 === 'e') { vowelMatch = 'ee'; vLen = 1; }
+                    else if (GONDI_DATA.matras[nextV1]) { vowelMatch = nextV1; vLen = 1; }
+                    else if (nextV1 === 'a') { vowelMatch = 'a'; vLen = 1; }
+
+                    result += base;
+
+                    if (vowelMatch === 'a') {
+                        // Inherent
+                    } else if (vowelMatch) {
+                        result += GONDI_DATA.matras[vowelMatch];
+                    } else {
+                        // Medial / Pangkon
+                        if (t[nextIdx] && GONDI_DATA.consonants[t[nextIdx]]) {
+                            result += GONDI_DATA.virama;
+                        } else if (isWordEnd(nextIdx)) {
+                            result += GONDI_DATA.virama; 
+                        }
+                    }
+                    i = nextIdx + vLen;
+                } else {
+                    // Vokal Mandiri
+                    const vc2 = t.substring(i, i + 2);
+                    const vc1 = t[i];
+
+                    if (GONDI_DATA.vowels[vc2]) { result += GONDI_DATA.vowels[vc2]; i += 2; }
+                    else if (vc1 === 'é') { result += GONDI_DATA.vowels['ee']; i += 1; }
+                    else if (GONDI_DATA.vowels[vc1]) { result += GONDI_DATA.vowels[vc1]; i += 1; }
+                    else {
+                        result += t[i];
+                        i++;
+                    }
+                }
+            }
+            return result;
+        }
+
+        latinInput.addEventListener('input', (e) => {
+            const result = transliterate(e.target.value);
+            if (result) {
+                gondiOutput.innerText = result;
+                gondiOutput.classList.remove('text-neutral-200', 'italic', 'text-3xl', 'font-sans');
+            } else {
+                gondiOutput.innerHTML = '<span class="text-neutral-200 italic text-3xl font-sans tracking-normal">Hasil...</span>';
+            }
+        });
+
+        copyBtn.addEventListener('click', () => {
+            const text = gondiOutput.innerText;
+            if (text && text !== "Hasil...") {
+                const temp = document.createElement('textarea');
+                temp.value = text;
+                document.body.appendChild(temp);
+                temp.select();
+                document.execCommand('copy');
+                document.body.removeChild(temp);
+
+                copyBtn.classList.replace('bg-neutral-900', 'bg-emerald-500');
+                copyText.innerText = 'Tersalin';
+                setTimeout(() => {
+                    copyBtn.classList.replace('bg-emerald-500', 'bg-neutral-900');
+                    copyText.innerText = 'Salin Aksara';
+                }, 2000);
+            }
+        });
+    </script>
+</body>
+</html>
