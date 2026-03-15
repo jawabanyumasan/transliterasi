@@ -1,0 +1,375 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Aksara Rencong Transliterator</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Crimson+Pro:ital,wght@0,400;0,700;1,400&family=Inter:wght@400;500;700;800&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Inter', sans-serif; background-color: #f4ece1; color: #3e2f23; }
+        .font-serif { font-family: 'Crimson Pro', serif; }
+        .rencong-font { font-family: 'serif'; } /* Falls back to system serif for Unicode blocks */
+        
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: #f4ece1; }
+        ::-webkit-scrollbar-thumb { background: #d9c5b2; border-radius: 10px; }
+        ::-webkit-scrollbar-thumb:hover { background: #8d6e63; }
+
+        .fade-in { animation: fadeIn 0.3s ease-in-out; }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+    </style>
+</head>
+<body class="min-h-screen p-4 md:p-8 selection:bg-[#d9c5b2]">
+
+    <div class="max-w-3xl mx-auto space-y-6">
+        <!-- Header -->
+        <header class="text-center space-y-2 border-b-2 border-[#d9c5b2] pb-6">
+            <h1 class="text-4xl md:text-5xl font-serif font-bold tracking-tight text-[#5d4037]">
+                Surat Ulu <span class="text-[#8d6e63] font-normal italic">/ Aksara Rencong</span>
+            </h1>
+            <p class="text-sm md:text-base text-[#6d4c41] uppercase tracking-[0.2em] font-medium">
+                Javanese-Phonology Optimized Transliterator
+            </p>
+        </header>
+
+        <!-- Control Bar -->
+        <div class="flex flex-wrap items-center justify-between gap-4 bg-white/50 p-4 rounded-xl backdrop-blur-sm border border-[#d9c5b2]">
+            <div class="flex items-center gap-3">
+                <span id="label-left" class="text-sm font-bold uppercase text-blue-700">Latin</span>
+                <button 
+                    id="btn-toggle"
+                    class="p-2 rounded-full bg-[#5d4037] text-white hover:bg-[#4e342e] transition-all transform active:scale-95 shadow-md"
+                    title="Switch Direction"
+                >
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m2 8 2 2 2-2"/><path d="m22 16-2-2-2 2"/><path d="M4 10h16a2 2 0 0 1 2 2v1"/><path d="M20 14H4a2 2 0 0 1-2-2v-1"/></svg>
+                </button>
+                <span id="label-right" class="text-sm font-bold uppercase text-gray-400">Rencong</span>
+            </div>
+
+            <div class="flex items-center gap-2">
+                <button 
+                    id="btn-info"
+                    class="flex items-center gap-1 text-xs font-bold uppercase bg-[#d9c5b2] px-3 py-2 rounded-lg hover:bg-[#cbb4a0] transition-colors"
+                >
+                    <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/></svg>
+                    <span id="info-text">Character Guide</span>
+                </button>
+                <button 
+                    id="btn-clear"
+                    class="p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors"
+                    title="Clear text"
+                >
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/><line x1="10" x2="10" y1="11" y2="17"/><line x1="14" x2="14" y1="11" y2="17"/></svg>
+                </button>
+            </div>
+        </div>
+
+        <!-- Inputs -->
+        <div class="grid grid-cols-1 gap-6">
+            <div class="space-y-2">
+                <label id="input-label" class="text-xs font-bold uppercase tracking-widest text-[#8d6e63] px-1">
+                    Enter Latin Text
+                </label>
+                <textarea
+                    id="input-text"
+                    placeholder="Ketik di sini (contoh: Sego thiwul énak...)"
+                    class="w-full h-40 p-6 rounded-2xl border-2 border-[#d9c5b2] bg-white focus:border-[#5d4037] focus:ring-0 text-xl transition-all shadow-inner resize-none overflow-y-auto"
+                ></textarea>
+            </div>
+
+            <div class="relative group">
+                <label class="text-xs font-bold uppercase tracking-widest text-[#8d6e63] px-1 block mb-2">
+                    Result
+                </label>
+                <div id="output-text" class="min-h-[160px] w-full p-8 rounded-2xl border-2 border-[#5d4037] bg-white shadow-lg text-4xl md:text-5xl flex items-center justify-center text-center break-all leading-relaxed whitespace-pre-wrap">
+                    <span class="text-gray-300 text-lg italic">Result will appear here...</span>
+                </div>
+                
+                <button
+                    id="btn-copy"
+                    class="absolute top-10 right-4 p-3 rounded-xl transition-all shadow-md bg-[#5d4037] text-white hover:bg-[#4e342e] active:scale-95"
+                >
+                    <svg id="copy-icon" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="14" height="14" x="8" y="8" rx="2" ry="2"/><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"/></svg>
+                    <svg id="check-icon" class="hidden" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+                </button>
+            </div>
+        </div>
+
+        <!-- Info Section -->
+        <div id="info-section" class="hidden bg-white p-6 rounded-2xl border border-[#d9c5b2] shadow-sm space-y-4 fade-in">
+            <h3 class="font-serif font-bold text-xl border-b pb-2">Transliteration Guide</h3>
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
+                <div>
+                    <p class="font-bold text-[#8d6e63] mb-1">Vowels</p>
+                    <ul class="space-y-1">
+                        <li>a <span class="text-gray-400">inherent</span></li>
+                        <li>i <span class="text-blue-600 font-mono">ꤧ</span></li>
+                        <li>u <span class="text-blue-600 font-mono">ꤨ</span></li>
+                        <li>e (pepet) <span class="text-blue-600 font-mono">ꤩ</span></li>
+                        <li>é (taling) <span class="text-blue-600 font-mono">ꤪ</span></li>
+                        <li>o <span class="text-blue-600 font-mono">꤫</span></li>
+                    </ul>
+                </div>
+                <div>
+                    <p class="font-bold text-[#8d6e63] mb-1">Finals</p>
+                    <ul class="space-y-1">
+                        <li>-ng <span class="text-blue-600 font-mono">꤬</span></li>
+                        <li>-n <span class="text-blue-600 font-mono">꤭</span></li>
+                        <li>-r <span class="text-blue-600 font-mono">꤮</span></li>
+                        <li>-h <span class="text-blue-600 font-mono">꤯</span></li>
+                    </ul>
+                </div>
+                <div>
+                    <p class="font-bold text-[#8d6e63] mb-1">Special Javanese</p>
+                    <ul class="space-y-1">
+                        <li>th → Ta <span class="text-blue-600 font-mono">ꤳ</span></li>
+                        <li>dh → Da <span class="text-blue-600 font-mono">ꤴ</span></li>
+                        <li>ny → Nya <span class="text-blue-600 font-mono">ꤻ</span></li>
+                        <li>ng → Nga <span class="text-blue-600 font-mono">ꤲ</span></li>
+                    </ul>
+                </div>
+                <div>
+                    <p class="font-bold text-[#8d6e63] mb-1">Loan Sounds</p>
+                    <ul class="space-y-1">
+                        <li>f/v → Pa/Wa</li>
+                        <li>z → Sa</li>
+                        <li>kh → Ka</li>
+                        <li>sy → Sa</li>
+                    </ul>
+                </div>
+            </div>
+            <p class="text-xs italic text-gray-500 mt-4 pt-4 border-t">
+                Note: This tool uses the Rejang (Surat Ulu) Unicode block for digital compatibility.
+            </p>
+        </div>
+
+        <footer class="text-center text-[#8d6e63] text-xs pt-8 pb-4">
+            <p>© 2024 • Surat Ulu / Aksara Rencong Tool</p>
+            <p class="mt-1">Handcrafted for Cultural Preservation</p>
+        </footer>
+    </div>
+
+    <script>
+        // State
+        let isLatinToRencong = true;
+        
+        // Mapping Configuration
+        const mapping = {
+            consonants: {
+                'ka': '\uA930', 'ga': '\uA931', 'nga': '\uA932',
+                'ta': '\uA933', 'da': '\uA934', 'na': '\uA935',
+                'pa': '\uA936', 'ba': '\uA937', 'ma': '\uA938',
+                'ca': '\uA939', 'ja': '\uA93A', 'nya': '\uA93B',
+                'sa': '\uA93C', 'ra': '\uA93D', 'la': '\uA93E',
+                'wa': '\uA93F', 'ya': '\uA940', 'ha': '\uA941',
+                'mba': '\uA942', 'nggu': '\uA943', 'ndu': '\uA944', 'nyja': '\uA945',
+                'tha': '\uA933', 'dha': '\uA934',
+                'fa': '\uA936', 'va': '\uA93F', 'za': '\uA93C', 'kha': '\uA930', 'sya': '\uA93C'
+            },
+            vowels: {
+                'i': '\uA947', 'u': '\uA948', 'e': '\uA949', 'é': '\uA94A', 'o': '\uA94B', 'ai': '\uA94A', 'au': '\uA94B'
+            },
+            finals: {
+                'ng': '\uA94C', 'n': '\uA94D', 'r': '\uA94E', 'h': '\uA94F', 'virama': '\uA953'
+            },
+            punctuation: { ' ': ' ', '.': '\uA95F', ',': '\uA95F' }
+        };
+
+        const revCons = Object.entries(mapping.consonants).reduce((acc, [k, v]) => ({ ...acc, [v]: k.slice(0, -1) }), {});
+        const revVowels = Object.entries(mapping.vowels).reduce((acc, [k, v]) => ({ ...acc, [v]: k }), {});
+        const revFinals = Object.entries(mapping.finals).reduce((acc, [k, v]) => ({ ...acc, [v]: k }), {});
+
+        // Logic Functions
+        function transliterateToRencong(text) {
+            if (!text) return '';
+            let result = '';
+            let i = 0;
+            const lowerText = text.toLowerCase();
+            const vowelsList = 'aeioué';
+
+            while (i < lowerText.length) {
+                let char = lowerText[i];
+                let nextChar = lowerText[i + 1] || '';
+                let syllable = '';
+                let consumed = 1;
+
+                if (['ng', 'ny', 'th', 'dh', 'kh', 'sy'].includes(char + nextChar)) {
+                    syllable = char + nextChar;
+                    consumed = 2;
+                } else {
+                    syllable = char;
+                    consumed = 1;
+                }
+
+                const baseKey = syllable + 'a';
+                if (mapping.consonants[baseKey]) {
+                    let base = mapping.consonants[baseKey];
+                    let nextIndex = i + consumed;
+                    let vowelMark = '';
+                    let finalMark = '';
+                    let skip = 0;
+
+                    let nextSyllable = lowerText[nextIndex];
+                    let nextTwo = lowerText.substring(nextIndex, nextIndex + 2);
+
+                    if (['ai', 'au'].includes(nextTwo)) {
+                        vowelMark = mapping.vowels[nextTwo];
+                        skip = 2;
+                    } else if (['i', 'u', 'e', 'é', 'o'].includes(nextSyllable)) {
+                        vowelMark = mapping.vowels[nextSyllable];
+                        skip = 1;
+                    } else if (nextSyllable === 'a') {
+                        skip = 1;
+                    }
+
+                    let finalIndex = nextIndex + skip;
+                    let finalPart2 = lowerText.substring(finalIndex, finalIndex + 2);
+                    let finalPart1 = lowerText[finalIndex];
+
+                    if (finalPart2 === 'ng') {
+                        finalMark = mapping.finals['ng'];
+                        skip += 2;
+                    } else if (['r', 'h'].includes(finalPart1) && (!lowerText[finalIndex+1] || !vowelsList.includes(lowerText[finalIndex+1]))) {
+                        finalMark = mapping.finals[finalPart1];
+                        skip += 1;
+                    } else if (!vowelsList.includes(nextSyllable) && nextSyllable !== '' && nextSyllable !== ' ' && nextSyllable !== undefined) {
+                        if (skip === 0) vowelMark = mapping.finals.virama;
+                    }
+
+                    result += base + vowelMark + finalMark;
+                    i += (consumed + skip);
+                } 
+                else if (vowelsList.includes(char) || char === 'a') {
+                    let base = mapping.consonants['ha'];
+                    let mark = (char === 'a') ? '' : mapping.vowels[char];
+                    result += base + mark;
+                    i++;
+                }
+                else {
+                    result += mapping.punctuation[char] || char;
+                    i++;
+                }
+            }
+            return result;
+        }
+
+        function transliterateToLatin(text) {
+            if (!text) return '';
+            let result = '';
+            for (let i = 0; i < text.length; i++) {
+                let char = text[i];
+                if (revCons[char]) {
+                    let base = revCons[char];
+                    let next = text[i+1];
+                    if (revVowels[next]) {
+                        result += base + revVowels[next];
+                        i++;
+                    } else if (revFinals[next]) {
+                        if (next === '\uA953') result += base;
+                        else result += base + 'a' + revFinals[next];
+                        i++;
+                    } else {
+                        result += base + 'a';
+                    }
+                } else {
+                    result += char;
+                }
+            }
+            return result;
+        }
+
+        // DOM Elements
+        const inputEl = document.getElementById('input-text');
+        const outputEl = document.getElementById('output-text');
+        const btnToggle = document.getElementById('btn-toggle');
+        const btnClear = document.getElementById('btn-clear');
+        const btnInfo = document.getElementById('btn-info');
+        const btnCopy = document.getElementById('btn-copy');
+        const infoSection = document.getElementById('info-section');
+        const labelLeft = document.getElementById('label-left');
+        const labelRight = document.getElementById('label-right');
+        const inputLabel = document.getElementById('input-label');
+
+        // Event Handlers
+        function updateOutput() {
+            const text = inputEl.value;
+            let result = '';
+            if (isLatinToRencong) {
+                result = transliterateToRencong(text);
+            } else {
+                result = transliterateToLatin(text);
+            }
+            
+            if (result) {
+                outputEl.textContent = result;
+                outputEl.classList.remove('text-gray-300', 'text-lg', 'italic');
+            } else {
+                outputEl.innerHTML = '<span class="text-gray-300 text-lg italic">Result will appear here...</span>';
+            }
+        }
+
+        inputEl.addEventListener('input', updateOutput);
+
+        btnToggle.addEventListener('click', () => {
+            isLatinToRencong = !isLatinToRencong;
+            const currentOutput = outputEl.textContent.includes('Result will appear') ? '' : outputEl.textContent;
+            inputEl.value = currentOutput;
+            
+            if (isLatinToRencong) {
+                labelLeft.classList.replace('text-gray-400', 'text-blue-700');
+                labelRight.classList.replace('text-blue-700', 'text-gray-400');
+                inputLabel.textContent = 'Enter Latin Text';
+                inputEl.placeholder = "Ketik di sini (contoh: Sego thiwul énak...)";
+                inputEl.style.fontFamily = 'inherit';
+            } else {
+                labelLeft.classList.replace('text-blue-700', 'text-gray-400');
+                labelRight.classList.replace('text-gray-400', 'text-blue-700');
+                inputLabel.textContent = 'Enter Rencong Script';
+                inputEl.placeholder = "Masukkan Aksara...";
+                inputEl.style.fontFamily = 'serif';
+            }
+            updateOutput();
+        });
+
+        btnClear.addEventListener('click', () => {
+            inputEl.value = '';
+            updateOutput();
+        });
+
+        btnInfo.addEventListener('click', () => {
+            const isHidden = infoSection.classList.toggle('hidden');
+            document.getElementById('info-text').textContent = isHidden ? 'Character Guide' : 'Hide Guide';
+        });
+
+        btnCopy.addEventListener('click', () => {
+            const textToCopy = outputEl.textContent.includes('Result will appear') ? '' : outputEl.textContent;
+            if (!textToCopy) return;
+
+            const textarea = document.createElement('textarea');
+            textarea.value = textToCopy;
+            document.body.appendChild(textarea);
+            textarea.select();
+            document.execCommand('copy');
+            document.body.removeChild(textarea);
+
+            const copyIcon = document.getElementById('copy-icon');
+            const checkIcon = document.getElementById('check-icon');
+            
+            btnCopy.classList.replace('bg-[#5d4037]', 'bg-green-500');
+            copyIcon.classList.add('hidden');
+            checkIcon.classList.remove('hidden');
+
+            setTimeout(() => {
+                btnCopy.classList.replace('bg-green-500', 'bg-[#5d4037]');
+                copyIcon.classList.remove('hidden');
+                checkIcon.classList.add('hidden');
+            }, 2000);
+        });
+    </script>
+</body>
+</html>
