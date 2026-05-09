@@ -1,0 +1,341 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Transliterasi Masaram Gondi</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Google Fonts: Noto Sans Masaram Gondi -->
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Masaram+Gondi&display=swap" rel="stylesheet">
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <style>
+        .gondi-font {
+            font-family: 'Noto Sans Masaram Gondi', serif;
+        }
+        textarea {
+            resize: none;
+        }
+    </style>
+</head>
+<body class="min-h-screen bg-slate-50 p-4 md:p-8 font-sans text-slate-900">
+
+    <div class="max-w-4xl mx-auto">
+        <!-- Header -->
+        <header class="mb-8 text-center">
+            <h1 class="text-3xl md:text-4xl font-extrabold text-indigo-900 mb-2">
+                Transliterasi Masaram Gondi
+            </h1>
+            <p class="text-slate-600">Untuk pengguna aksara Jawa & Nusantara</p>
+        </header>
+
+        <!-- Panel Kontrol -->
+        <div class="flex flex-wrap items-center justify-between mb-4 gap-4">
+            <button id="toggleBtn" class="flex items-center gap-2 bg-white border border-indigo-200 px-5 py-2.5 rounded-xl shadow-sm hover:shadow-md transition-all font-bold text-indigo-700 active:scale-95">
+                <i data-lucide="arrow-right-left" class="w-5 h-5"></i>
+                <span id="modeLabel">Latin → Gondi</span>
+            </button>
+
+            <div class="flex gap-3">
+                <button id="infoBtn" class="p-2.5 bg-indigo-600 text-white rounded-xl hover:bg-indigo-700 shadow-sm transition-all" title="Panduan">
+                    <i data-lucide="info" class="w-5 h-5"></i>
+                </button>
+                <button id="clearBtn" class="p-2.5 bg-rose-500 text-white rounded-xl hover:bg-rose-600 shadow-sm transition-all" title="Bersihkan">
+                    <i data-lucide="trash-2" class="w-5 h-5"></i>
+                </button>
+            </div>
+        </div>
+
+        <!-- Area Editor -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div class="flex flex-col">
+                <label id="inputLabel" class="text-sm font-bold text-indigo-900 mb-2 px-1">
+                    Input Teks Latin (Gunakan é untuk taling)
+                </label>
+                <textarea id="inputText" class="w-full h-56 md:h-72 p-5 rounded-2xl border-2 border-indigo-100 shadow-sm focus:ring-4 focus:ring-indigo-200 focus:border-indigo-400 outline-none text-xl bg-white transition-all" placeholder="Ketik di sini... (contoh: abai, arka, kai)"></textarea>
+            </div>
+
+            <div class="flex flex-col relative">
+                <label class="text-sm font-bold text-indigo-900 mb-2 px-1">Hasil Konversi</label>
+                <div id="outputText" class="w-full h-56 md:h-72 p-5 rounded-2xl border-2 border-indigo-200 shadow-inner bg-white/80 text-3xl md:text-4xl overflow-auto break-words leading-relaxed text-indigo-950 gondi-font">
+                    <span class="text-slate-300 text-xl font-sans italic font-normal">Hasil akan muncul di sini...</span>
+                </div>
+                <button id="copyBtn" class="hidden absolute bottom-5 right-5 flex items-center gap-2 px-5 py-2.5 rounded-xl shadow-lg font-bold transition-all transform active:scale-95 bg-indigo-700 text-white hover:bg-indigo-800">
+                    <i data-lucide="copy" class="w-4 h-4"></i>
+                    <span id="copyLabel">Salin</span>
+                </button>
+            </div>
+        </div>
+
+        <!-- Info Cek Cepat -->
+        <div class="mt-8 grid grid-cols-2 md:grid-cols-4 gap-4">
+            <div class="bg-white p-4 rounded-2xl border border-indigo-50 shadow-sm text-center">
+                <div class="text-xs text-slate-400 mb-1 font-sans">Diftong AI / Taling</div>
+                <div class="font-mono text-sm mb-1 text-indigo-600 font-bold">kai / ké</div>
+                <div class="gondi-font text-2xl">𑴌𑴼</div>
+            </div>
+            <div class="bg-white p-4 rounded-2xl border border-indigo-50 shadow-sm text-center">
+                <div class="text-xs text-slate-400 mb-1 font-sans">Antarvokal (abai)</div>
+                <div class="font-mono text-sm mb-1 text-indigo-600 font-bold">abai</div>
+                <div class="gondi-font text-2xl">𑴀𑴣𑴼</div>
+            </div>
+            <div class="bg-white p-4 rounded-2xl border border-indigo-50 shadow-sm text-center">
+                <div class="text-xs text-slate-400 mb-1 font-sans">Layar (Pre-R)</div>
+                <div class="font-mono text-sm mb-1 text-indigo-600 font-bold">arka</div>
+                <div class="gondi-font text-2xl">𑴀𑵆𑴌</div>
+            </div>
+            <div class="bg-white p-4 rounded-2xl border border-indigo-50 shadow-sm text-center">
+                <div class="text-xs text-slate-400 mb-1 font-sans">Wignyan (Final H)</div>
+                <div class="font-mono text-sm mb-1 text-indigo-600 font-bold">kah</div>
+                <div class="gondi-font text-2xl">𑴌𑵁</div>
+            </div>
+        </div>
+
+        <!-- Modal Informasi -->
+        <div id="modal" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm">
+            <div class="bg-white w-full max-w-2xl rounded-3xl shadow-2xl max-h-[85vh] overflow-hidden flex flex-col border border-indigo-100">
+                <div class="p-6 border-b border-indigo-50 flex justify-between items-center bg-indigo-900 text-white">
+                    <h2 class="text-2xl font-bold">Aturan Penulisan</h2>
+                    <button id="closeModal" class="p-2 hover:bg-white/20 rounded-full transition-colors">
+                        <i data-lucide="x" class="w-6 h-6"></i>
+                    </button>
+                </div>
+                <div class="p-8 overflow-y-auto text-slate-700 space-y-6 text-sm md:text-base">
+                    <section>
+                        <h3 class="font-bold text-indigo-800 text-lg mb-2">✦ Vokal & Diftong</h3>
+                        <p>Aplikasi secara otomatis mendeteksi vokal mandiri di awal kata dan sandhangan (matra) setelah konsonan.</p>
+                        <ul class="list-disc ml-5 mt-2 space-y-1">
+                            <li><b>ai / é (Taling):</b> Menghasilkan matra 𑴼 (Contoh: <i>kai</i> atau <i>ké</i>).</li>
+                            <li><b>o pendek:</b> Menghasilkan matra 𑴽 (Contoh: <i>ko</i>).</li>
+                            <li><b>abai:</b> Vokal 'a' awal mandiri + konsonan 'b' + matra 'ai'.</li>
+                        </ul>
+                    </section>
+                    <section>
+                        <h3 class="font-bold text-indigo-800 text-lg mb-2">✦ Sistem Sandhangan Jawa</h3>
+                        <ul class="list-disc ml-5 space-y-2">
+                            <li><b>Layar (𑵆):</b> Muncul otomatis jika 'r' mendahului konsonan (Contoh: <i>arka</i>).</li>
+                            <li><b>Cakra (𑵇):</b> Muncul otomatis jika 'r' mengikuti konsonan (Contoh: <i>kra</i>).</li>
+                            <li><b>Wignyan (𑵁):</b> Muncul otomatis jika 'h' di akhir kata (Contoh: <i>kah</i>).</li>
+                            <li><b>Cecak (𑵀):</b> Muncul otomatis jika 'ng' di akhir kata (Contoh: <i>kang</i>).</li>
+                        </ul>
+                    </section>
+                    <section class="bg-amber-50 p-4 rounded-2xl border border-amber-100 text-amber-900">
+                        <b>Tips Font:</b> Jika aksara muncul sebagai kotak-kotak, pastikan koneksi internet stabil untuk mengunduh <i>Noto Sans Masaram Gondi</i> dari Google Fonts.
+                    </section>
+                </div>
+                <div class="p-5 border-t border-indigo-50 bg-slate-50 text-center">
+                    <button id="closeModalBtn" class="bg-indigo-700 text-white px-10 py-3 rounded-2xl font-bold hover:bg-indigo-800 shadow-md transition-all active:scale-95 font-sans">Tutup Panduan</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Mapping Data
+        const GONDI_INDEPENDENT_VOWELS = {
+            'aa': '𑴁', 'ai': '𑴈', 'au': '𑴋', 'ii': '𑴃', 'uu': '𑴅', 'ee': '𑴇', 'oo': '𑴊',
+            'a': '𑴀', 'i': '𑴂', 'u': '𑴄', 'e': '𑴆', 'é': '𑴆', 'o': '𑴉'
+        };
+
+        const GONDI_MATRAS = {
+            'aa': '𑴱', 'ai': '𑴼', 'au': '𑴻', 'ii': '𑴳', 'uu': '𑴵', 'ee': '𑴷', 'oo': '𑴺',
+            'i': '𑴲', 'u': '𑴴', 'e': '𑴶', 'é': '𑴼', 'o': '𑴽'
+        };
+
+        const GONDI_CONSONANTS = {
+            'k': '𑴌', 'kh': '𑴍', 'g': '𑴎', 'gh': '𑴏', 'ng': '𑴐',
+            'c': '𑴑', 'ch': '𑴒', 'j': '𑴓', 'jh': '𑴔', 'ny': '𑴖',
+            'th': '𑴗', 'tth': '𑴘', 'dh': '𑴙', 'ddh': '𑴚', 'n_retro': '𑴛',
+            't': '𑴜', 'th_den': '𑴝', 'd': '𑴞', 'dh_den': '𑴟', 'n': '𑴠',
+            'p': '𑴡', 'ph': '𑴢', 'b': '𑴣', 'bh': '𑴤', 'm': '𑴥',
+            'y': '𑴦', 'r': '𑴧', 'l': '𑴨', 'v': '𑴩', 'w': '𑴩', 's': '𑴫', 'h': '𑴬'
+        };
+
+        const VIRAMA = '𑵄', ANUSVARA = '𑵀', VISARGA = '𑵁', MEDIAL_ENTUS = '𑵅', REPHA = '𑵆', CAKRA = '𑵇';
+
+        // Helpers
+        const isConsonant = (char) => GONDI_CONSONANTS[char] || ['q', 'f', 'z', 'v', 'w'].includes(char);
+        const isVowel = (char) => /[aeioué]/.test(char);
+
+        // Core Functions
+        function transliterateLatinToGondi(text) {
+            let result = '';
+            let i = 0;
+            const lowerText = text.toLowerCase();
+
+            while (i < lowerText.length) {
+                let char = lowerText[i];
+                let nextChar = lowerText[i + 1];
+
+                if (!/[a-z\u00E9]/.test(char)) {
+                    result += char;
+                    i++;
+                    continue;
+                }
+
+                if (char === 'r' && nextChar && isConsonant(nextChar)) {
+                    result += REPHA;
+                    i++;
+                    continue;
+                }
+
+                if (char === 'h' && (!nextChar || !isVowel(nextChar))) {
+                    result += VISARGA;
+                    i++;
+                    continue;
+                }
+
+                const prevChar = i > 0 ? lowerText[i-1] : null;
+                if (!prevChar || prevChar === ' ' || isVowel(prevChar)) {
+                    let v2 = lowerText.slice(i, i+2);
+                    if (GONDI_INDEPENDENT_VOWELS[v2]) {
+                        result += GONDI_INDEPENDENT_VOWELS[v2];
+                        i += 2;
+                        continue;
+                    } else if (GONDI_INDEPENDENT_VOWELS[char]) {
+                        result += GONDI_INDEPENDENT_VOWELS[char];
+                        i++;
+                        continue;
+                    }
+                }
+
+                let currentConsonant = '', skip = 0;
+                if (lowerText.slice(i, i+2) === 'th') { currentConsonant = '𑴗'; skip = 2; }
+                else if (lowerText.slice(i, i+2) === 'dh') { currentConsonant = '𑴘'; skip = 2; }
+                else if (lowerText.slice(i, i+2) === 'ng') {
+                    const isFinal = (i + 2 === lowerText.length || !isVowel(lowerText[i+2]));
+                    if (isFinal) { result += ANUSVARA; i += 2; continue; }
+                    else { currentConsonant = '𑴐'; skip = 2; }
+                }
+                else if (lowerText.slice(i, i+2) === 'ny') { currentConsonant = '𑴖'; skip = 2; }
+                else if (lowerText.slice(i, i+2) === 'kh') { currentConsonant = '𑴍𑵂'; skip = 2; }
+                else if (lowerText.slice(i, i+2) === 'sy') { currentConsonant = '𑴫𑵂'; skip = 2; }
+                else if (char === 'q') { currentConsonant = '𑴌𑵂'; skip = 1; }
+                else if (char === 'f') { currentConsonant = '𑴡𑵂'; skip = 1; }
+                else if (char === 'z') { currentConsonant = '𑴓𑵂'; skip = 1; }
+                else if (char === 'v' || char === 'w') { currentConsonant = '𑴨'; skip = 1; }
+                else if (GONDI_CONSONANTS[char]) { currentConsonant = GONDI_CONSONANTS[char]; skip = 1; }
+
+                if (currentConsonant) {
+                    let tempResult = currentConsonant, pos = i + skip;
+                    if (lowerText[pos] === 'r' && isVowel(lowerText[pos + 1])) {
+                        tempResult += CAKRA;
+                        pos++; 
+                    } else if (/[ylwv]/.test(lowerText[pos]) && isVowel(lowerText[pos + 1])) {
+                        const medialChar = lowerText[pos] === 'y' ? '𑴥' : (lowerText[pos] === 'l' ? '𑴧' : '𑴨');
+                        tempResult += MEDIAL_ENTUS + medialChar;
+                        pos++; 
+                    }
+
+                    let v2 = lowerText.slice(pos, pos+2);
+                    let v1 = lowerText[pos];
+                    if (GONDI_MATRAS[v2]) { tempResult += GONDI_MATRAS[v2]; pos += 2; }
+                    else if (GONDI_MATRAS[v1]) { tempResult += GONDI_MATRAS[v1]; pos += 1; }
+                    else if (v1 === 'a') { pos += 1; }
+                    else { tempResult += VIRAMA; }
+                    result += tempResult;
+                    i = pos;
+                } else {
+                    result += char;
+                    i++;
+                }
+            }
+            return result;
+        }
+
+        function transliterateGondiToLatin(text) {
+            const reverseMap = {
+                '𑴀': 'a', '𑴁': 'aa', '𑴂': 'i', '𑴃': 'ii', '𑴄': 'u', '𑴅': 'uu',
+                '𑴆': 'e', '𑴇': 'ee', '𑴈': 'ai', '𑴉': 'o', '𑴊': 'oo', '𑴋': 'au',
+                '𑴌': 'k', '𑴍': 'kh', '𑴎': 'g', '𑴏': 'gh', '𑴐': 'ng',
+                '𑴑': 'c', '𑴒': 'ch', '𑴓': 'j', '𑴔': 'jh', '𑴖': 'ny',
+                '𑴗': 'th', '𑴘': 'dh', '𑴙': 'd', '𑴚': 'dh', '𑴛': 'n',
+                '𑴜': 't', '𑴝': 'th', '𑴞': 'd', '𑴟': 'dh', '𑴠': 'n',
+                '𑴡': 'p', '𑴢': 'ph', '𑴣': 'b', '𑴤': 'bh', '𑴥': 'm',
+                '𑴦': 'y', '𑴧': 'r', '𑴨': 'l', '𑴩': 'v', '𑴫': 's', '𑴬': 'h',
+                '𑴱': 'aa', '𑴲': 'i', '𑴳': 'ii', '𑴴': 'u', '𑴵': 'uu',
+                '𑴶': 'e', '𑴷': 'ee', '𑴸': 'ai', '𑴹': 'o', '𑴺': 'oo', '𑴻': 'au',
+                '𑴼': 'ai', '𑴽': 'o',
+                '𑵄': '', '𑵀': 'ng', '𑵁': 'h', '𑵂': '', '𑵅': '', '𑵆': 'r', '𑵇': 'r'
+            };
+            return text.split('').map(char => reverseMap[char] || char).join('');
+        }
+
+        // DOM Logic
+        let isLatinToGondi = true;
+        const inputText = document.getElementById('inputText');
+        const outputText = document.getElementById('outputText');
+        const modeLabel = document.getElementById('modeLabel');
+        const inputLabel = document.getElementById('inputLabel');
+        const toggleBtn = document.getElementById('toggleBtn');
+        const copyBtn = document.getElementById('copyBtn');
+        const copyLabel = document.getElementById('copyLabel');
+        const infoBtn = document.getElementById('infoBtn');
+        const clearBtn = document.getElementById('clearBtn');
+        const modal = document.getElementById('modal');
+        const closeModal = document.getElementById('closeModal');
+        const closeModalBtn = document.getElementById('closeModalBtn');
+
+        function updateOutput() {
+            const input = inputText.value;
+            if (!input) {
+                outputText.innerHTML = '<span class="text-slate-300 text-xl font-sans italic font-normal">Hasil akan muncul di sini...</span>';
+                copyBtn.classList.add('hidden');
+                return;
+            }
+            const result = isLatinToGondi ? transliterateLatinToGondi(input) : transliterateGondiToLatin(input);
+            outputText.innerText = result;
+            copyBtn.classList.remove('hidden');
+        }
+
+        inputText.addEventListener('input', updateOutput);
+
+        toggleBtn.addEventListener('click', () => {
+            isLatinToGondi = !isLatinToGondi;
+            modeLabel.innerText = isLatinToGondi ? 'Latin → Gondi' : 'Gondi → Latin';
+            inputLabel.innerText = isLatinToGondi ? 'Input Teks Latin (Gunakan é untuk taling)' : 'Input Aksara Gondi';
+            inputText.placeholder = isLatinToGondi ? "Ketik di sini... (contoh: abai, arka, kai)" : "Tempel aksara di sini...";
+            
+            if (isLatinToGondi) {
+                inputText.classList.remove('gondi-font', 'text-2xl');
+                outputText.classList.add('gondi-font');
+            } else {
+                inputText.classList.add('gondi-font', 'text-2xl');
+                outputText.classList.remove('gondi-font');
+            }
+            
+            inputText.value = outputText.innerText !== 'Hasil akan muncul di sini...' ? outputText.innerText : '';
+            updateOutput();
+        });
+
+        clearBtn.addEventListener('click', () => {
+            inputText.value = '';
+            updateOutput();
+        });
+
+        copyBtn.addEventListener('click', () => {
+            const textToCopy = outputText.innerText;
+            const tempInput = document.createElement('textarea');
+            tempInput.value = textToCopy;
+            document.body.appendChild(tempInput);
+            tempInput.select();
+            document.execCommand('copy');
+            document.body.removeChild(tempInput);
+            
+            copyLabel.innerText = 'Tersalin!';
+            copyBtn.classList.replace('bg-indigo-700', 'bg-emerald-600');
+            setTimeout(() => {
+                copyLabel.innerText = 'Salin';
+                copyBtn.classList.replace('bg-emerald-600', 'bg-indigo-700');
+            }, 2000);
+        });
+
+        infoBtn.addEventListener('click', () => modal.classList.remove('hidden'));
+        [closeModal, closeModalBtn].forEach(btn => btn.addEventListener('click', () => modal.classList.add('hidden')));
+
+        // Initialize Icons
+        lucide.createIcons();
+    </script>
+</body>
+</html>
