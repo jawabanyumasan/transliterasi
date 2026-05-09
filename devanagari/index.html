@@ -1,0 +1,300 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Konverter Devanagari-Jawa</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Devanagari:wght@400;700&family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Inter', sans-serif; }
+        .devanagari { font-family: 'Noto Sans Devanagari', serif; }
+        textarea:focus { ring: 0; outline: none; }
+    </style>
+</head>
+<body class="bg-slate-50 text-slate-800 p-4 md:p-8 min-h-screen">
+    <div class="max-w-4xl mx-auto">
+        <!-- Header -->
+        <header class="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-4">
+            <div>
+                <h1 class="text-3xl font-bold text-indigo-900 mb-1 flex items-center gap-2">
+                    <span class="bg-indigo-600 text-white px-3 py-1 rounded-lg text-2xl">देव</span>
+                    Aksara Devanāgarī Jawa
+                </h1>
+                <p class="text-slate-500">Logika Serapan (f, q, z, kh, sy) & Final (Cecak/Wignyan)</p>
+            </div>
+            <div class="flex gap-2">
+                <button id="infoBtn" class="flex items-center gap-2 px-4 py-2 bg-white border border-slate-200 rounded-full shadow-sm hover:bg-slate-50 transition-all text-sm font-medium">
+                    <i data-lucide="info" class="text-indigo-600 w-4 h-4"></i> Panduan
+                </button>
+                <button id="clearBtn" class="flex items-center gap-2 px-4 py-2 bg-rose-50 text-rose-600 border border-rose-100 rounded-full shadow-sm hover:bg-rose-100 transition-all text-sm font-medium">
+                    <i data-lucide="trash-2" class="w-4 h-4"></i> Bersihkan
+                </button>
+            </div>
+        </header>
+
+        <!-- Main Interface -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <!-- Latin Input -->
+            <div class="bg-white rounded-2xl shadow-xl border border-slate-100 overflow-hidden flex flex-col h-80">
+                <div class="px-5 py-3 border-b border-slate-50 bg-slate-50/50 flex justify-between items-center">
+                    <span class="text-xs font-bold uppercase tracking-wider text-slate-400">Teks Latin</span>
+                    <button id="copyLatin" class="p-1 hover:bg-white rounded transition-colors relative" title="Salin Latin">
+                        <i data-lucide="copy" class="text-slate-400 w-4 h-4"></i>
+                    </button>
+                </div>
+                <textarea id="latinInput" placeholder="Tes: fa, fi, fu, qa, qi, kh, sy..." class="flex-1 p-6 text-lg resize-none placeholder:text-slate-300 leading-relaxed"></textarea>
+            </div>
+
+            <!-- Devanagari Output -->
+            <div class="bg-white rounded-2xl shadow-xl border border-slate-100 overflow-hidden flex flex-col h-80">
+                <div class="px-5 py-3 border-b border-slate-50 bg-indigo-50/30 flex justify-between items-center">
+                    <span class="text-xs font-bold uppercase tracking-wider text-indigo-400">Aksara Devanagari</span>
+                    <button id="copyDev" class="p-1 hover:bg-white rounded transition-colors" title="Salin Devanagari">
+                        <i data-lucide="copy" class="text-slate-400 w-4 h-4"></i>
+                    </button>
+                </div>
+                <textarea id="devOutput" readonly placeholder="Hasil aksara..." class="devanagari flex-1 p-6 text-4xl text-indigo-900 resize-none placeholder:text-slate-300 leading-normal bg-transparent"></textarea>
+            </div>
+        </div>
+
+        <!-- Examples -->
+        <div class="mt-10">
+            <h3 class="text-sm font-bold text-slate-400 uppercase tracking-widest mb-4">Uji Coba Cepat</h3>
+            <div id="examplesGrid" class="grid grid-cols-2 md:grid-cols-4 gap-4">
+                <!-- Examples will be populated by JS -->
+            </div>
+        </div>
+
+        <!-- Toast Notification -->
+        <div id="toast" class="fixed bottom-8 left-1/2 -translate-x-1/2 bg-slate-900 text-white px-6 py-3 rounded-full shadow-2xl opacity-0 transition-opacity pointer-events-none z-[60]">
+            Teks disalin ke papan klip
+        </div>
+
+        <!-- Footer -->
+        <footer class="mt-12 text-center text-slate-400 text-sm">
+            Gunakan <strong>é</strong> untuk e-taling. Transliterasi mendukung Cecak (ng) dan Wignyan (h) otomatis.
+        </footer>
+    </div>
+
+    <!-- Info Modal -->
+    <div id="infoModal" class="fixed inset-0 z-50 hidden flex items-center justify-center p-4 bg-slate-900/40 backdrop-blur-sm">
+        <div class="bg-white rounded-3xl shadow-2xl max-w-2xl w-full max-h-[85vh] overflow-y-auto">
+            <div class="p-8">
+                <div class="flex justify-between items-center mb-6">
+                    <h2 class="text-2xl font-bold text-indigo-900">Panduan Transliterasi</h2>
+                    <button id="closeModal" class="text-slate-400 hover:text-slate-600 text-xl">✕</button>
+                </div>
+                <div class="space-y-6 text-slate-600">
+                    <section>
+                        <h4 class="font-bold text-slate-800 mb-2 flex items-center gap-2">
+                            <span class="w-1.5 h-6 bg-indigo-500 rounded-full"></span>
+                            Aturan Akhiran (Final)
+                        </h4>
+                        <p class="mb-2">Cecak (Anusvara) dan Wignyan (Visarga) aktif untuk semua vokal:</p>
+                        <ul class="grid grid-cols-2 gap-2 text-sm font-mono bg-slate-50 p-4 rounded-xl border border-slate-100">
+                            <li>king → किं (ki + ं)</li>
+                            <li>kong → कों (ko + ं)</li>
+                            <li>kuh → कुः (ku + ः)</li>
+                            <li>kéh → कॆः (ké + ः)</li>
+                        </ul>
+                    </section>
+                    <section>
+                        <h4 class="font-bold text-slate-800 mb-2 flex items-center gap-2">
+                            <span class="w-1.5 h-6 bg-indigo-500 rounded-full"></span>
+                            Huruf Serapan
+                        </h4>
+                        <div class="grid grid-cols-2 gap-4 text-sm">
+                            <div class="bg-slate-50 p-3 rounded-lg border border-slate-100 font-mono">
+                                f → फ़ | q → क़ | z → ज़
+                            </div>
+                            <div class="bg-slate-50 p-3 rounded-lg border border-slate-100 font-mono">
+                                kh → ख़ | sy → श | sh → ष
+                            </div>
+                        </div>
+                    </section>
+                    <section>
+                        <h4 class="font-bold text-slate-800 mb-2 flex items-center gap-2">
+                            <span class="w-1.5 h-6 bg-indigo-500 rounded-full"></span>
+                            Medial (Cakra/Pengkal)
+                        </h4>
+                        <p class="text-sm">kra → क्र | kya → क्य</p>
+                    </section>
+                </div>
+                <button id="closeModalBtn" class="mt-8 w-full py-4 bg-indigo-600 text-white font-bold rounded-2xl hover:bg-indigo-700 transition-all shadow-lg shadow-indigo-200">
+                    Tutup Panduan
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Data Mapping
+        const latinToDevMap = {
+            'a': 'अ', 'i': 'इ', 'u': 'उ', 'e': 'ए', 'o': 'ओ', 'é': 'अॆ',
+            'kh': 'ख़', 'gh': 'घ', 'ng': 'ङ', 'ch': 'छ', 'jh': 'झ', 'ny': 'ञ',
+            'th': 'ठ', 'dh': 'ढ', 'ph': 'फ', 'bh': 'भ', 'sy': 'श', 'sh': 'ष',
+            'k': 'क', 'g': 'ग', 'c': 'च', 'j': 'ज', 't': 'त', 'd': 'द', 'n': 'न',
+            'p': 'प', 'b': 'ब', 'm': 'म', 'y': 'य', 'r': 'र', 'l': 'ल', 'w': 'व', 'v': 'व', 's': 'स', 'h': 'ह',
+            'f': 'फ़', 'q': 'क़', 'z': 'ज़', 'x': 'क्ष'
+        };
+
+        const matraMap = {
+            'i': 'ि', 'u': 'ु', 'e': 'े', 'o': 'ो', 'é': 'ॆ', 'a': ''
+        };
+
+        // Transliteration Engine
+        function convertToDevanagari(text) {
+            let input = text.toLowerCase();
+            let result = '';
+            let i = 0;
+
+            const isVowel = (char) => 'aeioué'.includes(char);
+
+            while (i < input.length) {
+                let matched = false;
+                let consonant = '';
+                let skip = 0;
+
+                const keys = ['ng', 'ny', 'th', 'dh', 'kh', 'gh', 'ch', 'jh', 'ph', 'bh', 'sy', 'sh'];
+                for (let k of keys) {
+                    if (input.substr(i, k.length) === k) {
+                        consonant = latinToDevMap[k];
+                        skip = k.length;
+                        break;
+                    }
+                }
+
+                if (!consonant && latinToDevMap[input[i]] && !isVowel(input[i])) {
+                    consonant = latinToDevMap[input[i]];
+                    skip = 1;
+                }
+
+                if (consonant) {
+                    i += skip;
+                    let next = input[i];
+
+                    // Medial Check
+                    if (next === 'r' && !isVowel(input[i + 1])) {
+                        let base = consonant + '्र';
+                        i++;
+                        if (isVowel(input[i])) {
+                            let v = input[i];
+                            if (input.substr(i + 1, 2) === 'ng' && !isVowel(input[i + 3])) { result += base + (matraMap[v] || '') + 'ं'; i += 3; }
+                            else if (input[i + 1] === 'h' && !isVowel(input[i + 2])) { result += base + (matraMap[v] || '') + 'ः'; i += 2; }
+                            else { result += base + (matraMap[v] || ''); i++; }
+                        } else { result += base; }
+                    } else if (next === 'y' && !isVowel(input[i + 1])) {
+                        let base = consonant + '्य';
+                        i++;
+                        if (isVowel(input[i])) {
+                            let v = input[i];
+                            if (input.substr(i + 1, 2) === 'ng' && !isVowel(input[i + 3])) { result += base + (matraMap[v] || '') + 'ं'; i += 3; }
+                            else if (input[i + 1] === 'h' && !isVowel(input[i + 2])) { result += base + (matraMap[v] || '') + 'ः'; i += 2; }
+                            else { result += base + (matraMap[v] || ''); i++; }
+                        } else { result += base; }
+                    } 
+                    // Vowel & Final Check
+                    else if (isVowel(next)) {
+                        let v = next;
+                        let matra = matraMap[v];
+                        if (input.substr(i + 1, 2) === 'ng' && !isVowel(input[i + 3])) { result += consonant + matra + 'ं'; i += 3; }
+                        else if (input[i + 1] === 'h' && !isVowel(input[i + 2])) { result += consonant + matra + 'ः'; i += 2; }
+                        else { result += consonant + matra; i++; }
+                    }
+                    // Pangkon
+                    else {
+                        result += consonant + '्';
+                    }
+                    matched = true;
+                } else if (isVowel(input[i])) {
+                    let v = input[i];
+                    let base = latinToDevMap[v];
+                    if (input.substr(i + 1, 2) === 'ng' && !isVowel(input[i + 3])) { result += base + 'ं'; i += 3; }
+                    else if (input[i + 1] === 'h' && !isVowel(input[i + 2])) { result += base + 'ः'; i += 2; }
+                    else { result += base; i++; }
+                    matched = true;
+                }
+
+                if (!matched) {
+                    result += input[i];
+                    i++;
+                }
+            }
+            return result;
+        }
+
+        // DOM Elements
+        const latinInput = document.getElementById('latinInput');
+        const devOutput = document.getElementById('devOutput');
+        const clearBtn = document.getElementById('clearBtn');
+        const infoBtn = document.getElementById('infoBtn');
+        const infoModal = document.getElementById('infoModal');
+        const closeModal = document.getElementById('closeModal');
+        const closeModalBtn = document.getElementById('closeModalBtn');
+        const copyLatin = document.getElementById('copyLatin');
+        const copyDev = document.getElementById('copyDev');
+        const examplesGrid = document.getElementById('examplesGrid');
+        const toast = document.getElementById('toast');
+
+        // Event Listeners
+        latinInput.addEventListener('input', (e) => {
+            devOutput.value = convertToDevanagari(e.target.value);
+        });
+
+        clearBtn.addEventListener('click', () => {
+            latinInput.value = '';
+            devOutput.value = '';
+            latinInput.focus();
+        });
+
+        infoBtn.addEventListener('click', () => infoModal.classList.remove('hidden'));
+        const hideModal = () => infoModal.classList.add('hidden');
+        closeModal.addEventListener('click', hideModal);
+        closeModalBtn.addEventListener('click', hideModal);
+
+        // Copy Logic (Required execCommand approach)
+        function copyText(elementId) {
+            const el = document.getElementById(elementId);
+            el.select();
+            document.execCommand('copy');
+            
+            // Show toast
+            toast.style.opacity = '1';
+            setTimeout(() => toast.style.opacity = '0', 2000);
+        }
+
+        copyLatin.addEventListener('click', () => copyText('latinInput'));
+        copyDev.addEventListener('click', () => copyText('devOutput'));
+
+        // Populate Examples
+        const examples = [
+            { l: 'king', d: 'किं' },
+            { l: 'mbadog', d: 'म्बदोग्' },
+            { l: 'syukur', d: 'शुकुर्' },
+            { l: 'fa', d: 'फ़' },
+            { l: 'kong', d: 'कों' },
+            { l: 'bapak', d: 'बपक्' },
+            { l: 'krong', d: 'क्रों' },
+            { l: 'qa', d: 'क़' }
+        ];
+
+        examples.forEach(ex => {
+            const div = document.createElement('div');
+            div.className = "bg-white p-3 rounded-xl border border-slate-200 shadow-sm flex flex-col items-center cursor-pointer hover:border-indigo-300 transition-all";
+            div.innerHTML = `<span class="text-xs text-slate-400">${ex.l}</span><span class="devanagari text-2xl text-indigo-600">${ex.d}</span>`;
+            div.onclick = () => {
+                latinInput.value = ex.l;
+                devOutput.value = convertToDevanagari(ex.l);
+            };
+            examplesGrid.appendChild(div);
+        });
+
+        // Initialize Lucide Icons
+        window.onload = () => {
+            lucide.createIcons();
+        };
+    </script>
+</body>
+</html>
