@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Transliterasi Hanifi Rohingya - Jawa</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+Hanifi+Rohingya&family=Inter:wght@400;600&display=swap');
+        
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f8fafc;
+        }
+
+        .rohingya-text {
+            font-family: 'Noto Sans Hanifi Rohingya', sans-serif;
+            direction: rtl;
+            font-size: 1.8rem;
+            line-height: 2.5rem;
+        }
+
+        .custom-scrollbar::-webkit-scrollbar {
+            width: 6px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-track {
+            background: #f1f1f1;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+            background: #cbd5e1;
+            border-radius: 10px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+            background: #94a3b8;
+        }
+
+        .fade-in {
+            animation: fadeIn 0.3s ease-in;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .notification {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background: #10b981;
+            color: white;
+            padding: 12px 24px;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1);
+            display: none;
+            z-index: 100;
+        }
+    </style>
+</head>
+<body class="min-h-screen p-4 md:p-8">
+
+    <div class="max-w-4xl mx-auto">
+        <!-- Header -->
+        <header class="text-center mb-8">
+            <h1 class="text-3xl font-bold text-slate-800 mb-2">Hanifi Rohingya ↔ Latin</h1>
+            <p class="text-slate-600">Alat Transliterasi untuk Pengguna Bahasa Jawa (Termasuk Angka & Tanda Tanya)</p>
+            <div class="mt-4 flex justify-center gap-2">
+                <button onclick="toggleGuide()" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg transition text-sm flex items-center gap-2">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                    Papan Panduan
+                </button>
+            </div>
+        </header>
+
+        <!-- Main Converter -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            
+            <!-- Latin Input -->
+            <div class="bg-white rounded-xl shadow-sm border border-slate-200 p-5">
+                <div class="flex justify-between items-center mb-3">
+                    <label class="font-semibold text-slate-700">Latin (Jawa & Angka)</label>
+                    <button onclick="clearText('latin')" class="text-xs text-red-500 hover:text-red-700 font-medium">Bersihkan</button>
+                </div>
+                <textarea 
+                    id="latinInput" 
+                    placeholder="Ketik di sini (contoh: piye kabare?)" 
+                    class="w-full h-48 p-4 border border-slate-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none resize-none custom-scrollbar"
+                ></textarea>
+                <div class="mt-4">
+                    <button onclick="copyToClipboard('latinInput')" class="w-full bg-slate-100 hover:bg-slate-200 text-slate-700 py-2 rounded-lg text-sm font-medium transition">
+                        Salin Latin
+                    </button>
+                </div>
+            </div>
+
+            <!-- Rohingya Output -->
+            <div class="bg-white rounded-xl shadow-sm border border-slate-200 p-5">
+                <div class="flex justify-between items-center mb-3">
+                    <label class="font-semibold text-slate-700">Aksara Hanifi Rohingya</label>
+                    <button onclick="clearText('rohingya')" class="text-xs text-red-500 hover:text-red-700 font-medium">Bersihkan</button>
+                </div>
+                <textarea 
+                    id="rohingyaOutput" 
+                    placeholder="𐴌𐴟𐴇𐴥𐴝𐴚𐴒𐴙𐴝..." 
+                    class="w-full h-48 p-4 border border-slate-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none resize-none custom-scrollbar rohingya-text text-right"
+                    dir="rtl"
+                ></textarea>
+                <div class="mt-4">
+                    <button onclick="copyToClipboard('rohingyaOutput')" class="w-full bg-slate-800 hover:bg-slate-900 text-white py-2 rounded-lg text-sm font-medium transition">
+                        Salin Aksara
+                    </button>
+                </div>
+            </div>
+
+        </div>
+
+        <!-- Guide Section -->
+        <div id="guidePanel" class="hidden mt-8 bg-white rounded-xl shadow-md border border-blue-100 p-6 fade-in">
+            <h2 class="text-xl font-bold text-slate-800 mb-4 border-b pb-2">Panduan Penggunaan</h2>
+            
+            <div class="space-y-4 text-slate-700 text-sm md:text-base">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div class="p-4 bg-blue-50 rounded-lg border border-blue-100">
+                        <h3 class="font-semibold mb-2 text-blue-800">Huruf & Tanda Baca</h3>
+                        <ul class="grid grid-cols-2 gap-1 list-none">
+                            <li><strong>Th</strong> → 𐴄</li>
+                            <li><strong>Dh</strong> → 𐴋</li>
+                            <li><strong>Ng</strong> → 𐴚</li>
+                            <li><strong>Ny</strong> → 𐴛</li>
+                            <li><strong>Tanda Tanya</strong> → ؟</li>
+                        </ul>
+                    </div>
+                    <div class="p-4 bg-purple-50 rounded-lg border border-purple-100">
+                        <h3 class="font-semibold mb-2 text-purple-800">Angka Hanifi Rohingya</h3>
+                        <div class="grid grid-cols-5 gap-2 text-center text-lg">
+                            <div>0: 𐴰</div><div>1: 𐴱</div><div>2: 𐴲</div><div>3: 𐴳</div><div>4: 𐴴</div>
+                            <div>5: 𐴵</div><div>6: 𐴶</div><div>7: 𐴷</div><div>8: 𐴸</div><div>9: 𐴹</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="mt-4 p-4 bg-orange-50 rounded-lg border border-orange-100">
+                    <h3 class="font-semibold mb-2 text-orange-800">Informasi Penting</h3>
+                    <p>Skrip ini bersifat <strong>Right-to-Left (RTL)</strong>. Tanda tanya Latin (?) secara otomatis diubah menjadi tanda tanya Arab/Urdu (؟) agar sesuai dengan arah aliran teks dari kanan ke kiri.</p>
+                </div>
+            </div>
+            
+            <button onclick="toggleGuide()" class="mt-6 text-blue-600 font-medium hover:underline">Tutup Panduan</button>
+        </div>
+
+        <!-- Footer -->
+        <footer class="mt-12 text-center text-slate-500 text-xs">
+            <p>&copy; 2024 Mohammad Hanif Script Tool. Terintegrasi dengan Punctuation RTL.</p>
+        </footer>
+    </div>
+
+    <!-- Toast Notification -->
+    <div id="toast" class="notification">Aksara Berhasil Disalin</div>
+
+    <script>
+        const latinToRohingya = {
+            // Digraphs
+            'kh': '𐴈', 'sy': '𐴐', 'ng': '𐴚', 'ny': '𐴛', 'th': '𐴄', 'dh': '𐴋',
+            
+            // Consonants & Vowels
+            'a': '𐴝', 'b': '𐴁', 'c': '𐴆', 'd': '𐴊', 'e': '𐴠', 'é': '𐴠', 'f': '𐴉',
+            'g': '𐴒', 'h': '𐴇', 'i': '𐴞', 'j': '𐴅', 'k': '𐴑', 'l': '𐴓',
+            'm': '𐴔', 'n': '𐴕', 'o': '𐴡', 'p': '𐴂', 'q': '𐴑', 'r': '𐴌',
+            's': '𐴏', 't': '𐴃', 'u': '𐴟', 'v': '𐴉', 'w': '𐴖', 'x': '𐴏',
+            'y': '𐴘', 'z': '𐴎',
+
+            // Numerals
+            '0': '𐴰', '1': '𐴱', '2': '𐴲', '3': '𐴳', '4': '𐴴', 
+            '5': '𐴵', '6': '𐴶', '7': '𐴷', '8': '𐴸', '9': '𐴹',
+
+            // Punctuation
+            '?': '؟',
+            ',': '،',
+            ';': '؛',
+
+            // Space
+            ' ': ' '
+        };
+
+        const rohingyaToLatin = Object.entries(latinToRohingya).reduce((acc, [key, val]) => {
+            if (val !== ' ') acc[val] = key;
+            return acc;
+        }, {});
+
+        // Supplementary mapping for vowel marks
+        const rohingyaExtras = {
+            '𐴀': 'a', '𐴝': 'a', '𐴞': 'i', '𐴟': 'u', '𐴠': 'e', '𐴡': 'o',
+            '𐴣': 'n', '𐴤': '', '𐴥': '', '𐴦': '', '𐴧': '' 
+        };
+        Object.assign(rohingyaToLatin, rohingyaExtras);
+
+        const latinInput = document.getElementById('latinInput');
+        const rohingyaOutput = document.getElementById('rohingyaOutput');
+
+        // Conversion Logic: Latin to Rohingya
+        latinInput.addEventListener('input', (e) => {
+            let text = e.target.value.toLowerCase();
+            let result = '';
+            let i = 0;
+
+            while (i < text.length) {
+                let twoChars = text.substring(i, i + 2);
+                if (latinToRohingya[twoChars]) {
+                    result += latinToRohingya[twoChars];
+                    i += 2;
+                } else {
+                    let char = text[i];
+                    result += latinToRohingya[char] || char;
+                    i++;
+                }
+            }
+            rohingyaOutput.value = result;
+        });
+
+        // Conversion Logic: Rohingya to Latin
+        rohingyaOutput.addEventListener('input', (e) => {
+            let text = e.target.value;
+            let result = '';
+            for (let char of text) {
+                result += rohingyaToLatin[char] || char;
+            }
+            latinInput.value = result;
+        });
+
+        function clearText(type) {
+            latinInput.value = '';
+            rohingyaOutput.value = '';
+        }
+
+        function copyToClipboard(elementId) {
+            const textArea = document.getElementById(elementId);
+            textArea.select();
+            document.execCommand('copy');
+            
+            const toast = document.getElementById('toast');
+            toast.style.display = 'block';
+            setTimeout(() => {
+                toast.style.display = 'none';
+            }, 2000);
+        }
+
+        function toggleGuide() {
+            const panel = document.getElementById('guidePanel');
+            panel.classList.toggle('hidden');
+        }
+    </script>
+</body>
+</html>
