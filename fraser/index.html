@@ -1,0 +1,298 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fraser Script - Javanese Transliteration</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap');
+        
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f8fafc;
+        }
+
+        /* Lisu Unicode Range: A4D0–A4FF */
+        .lisu-text {
+            font-family: 'Segoe UI Historic', 'Noto Sans Lisu', sans-serif;
+            letter-spacing: 1px;
+        }
+
+        .custom-shadow {
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+        }
+
+        .btn-hover:hover {
+            transform: translateY(-1px);
+            transition: all 0.2s ease;
+        }
+    </style>
+</head>
+<body class="min-h-screen p-4 md:p-8">
+
+    <div class="max-w-4xl mx-auto">
+        <!-- Header -->
+        <header class="text-center mb-8">
+            <h1 class="text-3xl md:text-4xl font-bold text-slate-800 mb-2">Konverter Aksara Fraser (Lisu)</h1>
+            <p class="text-slate-600">Edisi Penyesuaian Fonologi Bahasa Jawa</p>
+        </header>
+
+        <div class="bg-white rounded-2xl p-6 custom-shadow mb-6">
+            <!-- Controls -->
+            <div class="flex flex-wrap justify-between items-center gap-4 mb-6">
+                <div class="flex gap-2">
+                    <button id="btnInfo" class="bg-blue-100 text-blue-700 px-4 py-2 rounded-lg font-semibold flex items-center gap-2 btn-hover">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
+                        Panduan
+                    </button>
+                </div>
+                <div class="flex gap-2">
+                    <button id="btnClear" class="bg-rose-100 text-rose-700 px-4 py-2 rounded-lg font-semibold btn-hover">Bersihkan</button>
+                    <button id="btnCopy" class="bg-emerald-100 text-emerald-700 px-4 py-2 rounded-lg font-semibold btn-hover">Salin Hasil</button>
+                </div>
+            </div>
+
+            <!-- Input/Output Areas -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <!-- Latin Column -->
+                <div>
+                    <label class="block text-sm font-semibold text-slate-500 mb-2 uppercase tracking-wider">Teks Latin (Input)</label>
+                    <textarea id="latinInput" class="w-full h-48 p-4 border border-slate-200 rounded-xl focus:ring-2 focus:ring-blue-400 focus:outline-none text-lg leading-relaxed transition-all" placeholder="Ketik teks latin di sini... (contoh: Sugeng enjang, pripun kabare?)"></textarea>
+                </div>
+
+                <!-- Fraser Column -->
+                <div>
+                    <label class="block text-sm font-semibold text-slate-500 mb-2 uppercase tracking-wider">Aksara Fraser (Hasil)</label>
+                    <textarea id="fraserOutput" class="lisu-text w-full h-48 p-4 border border-slate-200 rounded-xl focus:ring-2 focus:ring-blue-400 focus:outline-none text-2xl leading-relaxed bg-slate-50 transition-all" placeholder="ꓢꓴ ꓖꓰꓥ ꓰꓠ ꓙꓮꓥ..."></textarea>
+                </div>
+            </div>
+        </div>
+
+        <!-- Conversion Direction Toggle -->
+        <div class="flex justify-center mb-8">
+            <div class="bg-slate-200 p-1 rounded-full flex gap-1">
+                <button id="modeLatinToFraser" class="px-6 py-2 rounded-full bg-white shadow-sm font-semibold text-blue-600 transition-all">Latin → Fraser</button>
+                <button id="modeFraserToLatin" class="px-6 py-2 rounded-full text-slate-600 font-semibold transition-all">Fraser → Latin</button>
+            </div>
+        </div>
+
+        <!-- Info Modal -->
+        <div id="infoModal" class="fixed inset-0 bg-black/50 backdrop-blur-sm hidden flex items-center justify-center p-4 z-50">
+            <div class="bg-white rounded-2xl w-full max-w-2xl max-h-[80vh] overflow-y-auto p-6 relative">
+                <button id="btnCloseInfo" class="absolute top-4 right-4 text-slate-400 hover:text-slate-600">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+                </button>
+                
+                <h2 class="text-2xl font-bold text-slate-800 mb-4">Panduan Aksara Fraser-Jawa</h2>
+                
+                <div class="space-y-6 text-slate-700">
+                    <section>
+                        <h3 class="font-bold text-blue-600 border-b pb-1 mb-2">Vokal (Swara)</h3>
+                        <div class="grid grid-cols-2 gap-2">
+                            <div>a: ꓮ</div><div>i: ꓲ</div>
+                            <div>u: ꓴ</div><div>é (Taling): ꓰ</div>
+                            <div>e (Pepet): ꓱ</div><div>o: ꓳ</div>
+                        </div>
+                    </section>
+
+                    <section>
+                        <h3 class="font-bold text-blue-600 border-b pb-1 mb-2">Konsonan Dasar (Wyanjana)</h3>
+                        <div class="grid grid-cols-3 gap-2 text-sm">
+                            <div>ha: ꓧ</div><div>na: ꓠ</div><div>ca: ꓚ</div><div>ra: ꓣ</div><div>ka: ꓗ</div>
+                            <div>da: ꓓ</div><div>ta: ꓔ</div><div>sa: ꓢ</div><div>wa: ꓪ</div><div>la: ꓡ</div>
+                            <div>pa: ꓑ</div><div>dha: ꓓ (D)</div><div>ja: ꓙ</div><div>ya: ꓬ</div><div>nya: ꓠꓬ</div>
+                            <div>ma: ꓟ</div><div>ga: ꓖ</div><div>ba: ꓐ</div><div>tha: ꓕ</div><div>nga: ꓥ</div>
+                        </div>
+                    </section>
+
+                    <section>
+                        <h3 class="font-bold text-blue-600 border-b pb-1 mb-2">Konsonan Serapan</h3>
+                        <div class="grid grid-cols-3 gap-2 text-sm">
+                            <div>fa: ꓩ</div><div>va: ꓦ</div><div>za: ꓜ</div>
+                            <div>kha: ꓘ</div><div>sya: ꓫ</div>
+                        </div>
+                    </section>
+
+                    <section>
+                        <h3 class="font-bold text-blue-600 border-b pb-1 mb-2">Medial & Akhir</h3>
+                        <p class="text-sm italic mb-2">Dalam Fraser, sistem ini ditulis secara linear (berurutan):</p>
+                        <ul class="list-disc list-inside text-sm space-y-1">
+                            <li><strong>Cakra (r):</strong> Ditulis setelah konsonan utama (contoh: 'kra' -> ꓗꓣꓮ).</li>
+                            <li><strong>Pengkal (y):</strong> Ditulis setelah konsonan utama (contoh: 'kya' -> ꓗꓬꓮ).</li>
+                            <li><strong>Sigeg (Mati):</strong> 'ng' akhir (ꓥ), 'h' akhir (ꓧ), 'r' akhir (ꓣ).</li>
+                        </ul>
+                    </section>
+                </div>
+            </div>
+        </div>
+
+        <!-- Status Toast -->
+        <div id="toast" class="fixed bottom-8 left-1/2 -translate-x-1/2 bg-slate-800 text-white px-6 py-3 rounded-full opacity-0 pointer-events-none transition-all duration-300">
+            Pesan tersalin!
+        </div>
+    </div>
+
+    <script>
+        // Mapping Tables
+        const LATIN_TO_FRASER = {
+            // Consonants (Longer strings first to catch 'ng', 'ny', etc)
+            'kh': 'ꓘ', 'sy': 'ꓫ', 'ng': 'ꓥ', 'ny': 'ꓠꓬ', 'th': 'ꓕ', 'dh': 'ꓓ',
+            'h': 'ꓧ', 'n': 'ꓠ', 'c': 'ꓚ', 'r': 'ꓣ', 'k': 'ꓗ', 'd': 'ꓓ', 
+            't': 'ꓔ', 's': 'ꓢ', 'w': 'ꓪ', 'l': 'ꓡ', 'p': 'ꓑ', 'j': 'ꓙ', 
+            'y': 'ꓬ', 'm': 'ꓟ', 'g': 'ꓖ', 'b': 'ꓐ', 'f': 'ꓩ', 'v': 'ꓦ', 'z': 'ꓜ',
+            // Vowels
+            'a': 'ꓮ', 'i': 'ꓲ', 'u': 'ꓴ', 'é': 'ꓰ', 'e': 'ꓱ', 'o': 'ꓳ'
+        };
+
+        const FRASER_TO_LATIN = {};
+        for (const [key, val] of Object.entries(LATIN_TO_FRASER)) {
+            if (!FRASER_TO_LATIN[val]) FRASER_TO_LATIN[val] = key;
+        }
+        // Specific fixes for reverse mapping
+        FRASER_TO_LATIN['ꓠꓬ'] = 'ny'; 
+
+        // State
+        let mode = 'LtoF'; // LtoF or FtoL
+
+        // DOM Elements
+        const latinInput = document.getElementById('latinInput');
+        const fraserOutput = document.getElementById('fraserOutput');
+        const btnClear = document.getElementById('btnClear');
+        const btnCopy = document.getElementById('btnCopy');
+        const btnInfo = document.getElementById('btnInfo');
+        const infoModal = document.getElementById('infoModal');
+        const btnCloseInfo = document.getElementById('btnCloseInfo');
+        const modeLtoF = document.getElementById('modeLatinToFraser');
+        const modeFtoL = document.getElementById('modeFraserToLatin');
+        const toast = document.getElementById('toast');
+
+        // Functions
+        function convertLatinToFraser(text) {
+            let result = text.toLowerCase();
+            
+            // Special handling for Javanese Taling/Pepet common usage
+            result = result.replace(/è/g, 'é'); // standardizing taling
+
+            // Sort keys by length to ensure multigraphs (ng, ny) are handled first
+            const sortedKeys = Object.keys(LATIN_TO_FRASER).sort((a, b) => b.length - a.length);
+            
+            let output = "";
+            let i = 0;
+            while (i < result.length) {
+                let matched = false;
+                for (let key of sortedKeys) {
+                    if (result.startsWith(key, i)) {
+                        output += LATIN_TO_FRASER[key];
+                        i += key.length;
+                        matched = true;
+                        break;
+                    }
+                }
+                if (!matched) {
+                    output += result[i];
+                    i++;
+                }
+            }
+            return output.toUpperCase();
+        }
+
+        function convertFraserToLatin(text) {
+            // Lisu strings can be composed of multiple characters like ꓠꓬ
+            // We need to iterate carefully
+            let output = "";
+            let i = 0;
+            while (i < text.length) {
+                // Check for 2-char Lisu combinations first if any (like ny)
+                let slice2 = text.substr(i, 2);
+                if (FRASER_TO_LATIN[slice2]) {
+                    output += FRASER_TO_LATIN[slice2];
+                    i += 2;
+                    continue;
+                }
+                
+                let char = text[i];
+                if (FRASER_TO_LATIN[char]) {
+                    output += FRASER_TO_LATIN[char];
+                } else {
+                    output += char;
+                }
+                i++;
+            }
+            return output;
+        }
+
+        function updateConversion() {
+            if (mode === 'LtoF') {
+                fraserOutput.value = convertLatinToFraser(latinInput.value);
+            } else {
+                latinInput.value = convertFraserToLatin(fraserOutput.value);
+            }
+        }
+
+        function showToast(msg) {
+            toast.textContent = msg;
+            toast.style.opacity = "1";
+            setTimeout(() => {
+                toast.style.opacity = "0";
+            }, 2000);
+        }
+
+        // Event Listeners
+        latinInput.addEventListener('input', () => {
+            if (mode === 'LtoF') updateConversion();
+        });
+
+        fraserOutput.addEventListener('input', () => {
+            if (mode === 'FtoL') updateConversion();
+        });
+
+        btnClear.addEventListener('click', () => {
+            latinInput.value = "";
+            fraserOutput.value = "";
+        });
+
+        btnCopy.addEventListener('click', () => {
+            const target = mode === 'LtoF' ? fraserOutput : latinInput;
+            if (!target.value) return;
+            
+            target.select();
+            document.execCommand('copy');
+            showToast("Hasil berhasil disalin ke clipboard!");
+        });
+
+        btnInfo.addEventListener('click', () => infoModal.classList.remove('hidden'));
+        btnCloseInfo.addEventListener('click', () => infoModal.classList.add('hidden'));
+        infoModal.addEventListener('click', (e) => {
+            if (e.target === infoModal) infoModal.classList.add('hidden');
+        });
+
+        modeLtoF.addEventListener('click', () => {
+            mode = 'LtoF';
+            modeLtoF.classList.add('bg-white', 'shadow-sm', 'text-blue-600');
+            modeLtoF.classList.remove('text-slate-600');
+            modeFtoL.classList.remove('bg-white', 'shadow-sm', 'text-blue-600');
+            modeFtoL.classList.add('text-slate-600');
+            latinInput.readOnly = false;
+            fraserOutput.readOnly = true;
+            fraserOutput.classList.add('bg-slate-50');
+            latinInput.classList.remove('bg-slate-50');
+        });
+
+        modeFtoL.addEventListener('click', () => {
+            mode = 'FtoL';
+            modeFtoL.classList.add('bg-white', 'shadow-sm', 'text-blue-600');
+            modeFtoL.classList.remove('text-slate-600');
+            modeLtoF.classList.remove('bg-white', 'shadow-sm', 'text-blue-600');
+            modeLtoF.classList.add('text-slate-600');
+            fraserOutput.readOnly = false;
+            latinInput.readOnly = true;
+            latinInput.classList.add('bg-slate-50');
+            fraserOutput.classList.remove('bg-slate-50');
+        });
+
+        // Initialize UI
+        modeLtoF.click();
+    </script>
+</body>
+</html>
