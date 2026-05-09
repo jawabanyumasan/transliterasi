@@ -1,0 +1,340 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Modi Script Converter</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+Modi&family=Noto+Serif+Modi&display=swap');
+        
+        .modi-font {
+            font-family: 'Noto Sans Modi', 'Noto Serif Modi', serif;
+        }
+
+        /* Animation for notification */
+        @keyframes bounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-5px); }
+        }
+        .animate-bounce-custom {
+            animation: bounce 0.5s infinite;
+        }
+
+        .modal-overlay {
+            background-color: rgba(0, 0, 0, 0.5);
+            backdrop-filter: blur(4px);
+        }
+    </style>
+</head>
+<body class="min-h-screen bg-amber-50 text-slate-900 font-sans p-4 md:p-8">
+
+    <div class="max-w-4xl mx-auto">
+        <!-- Header -->
+        <header class="flex justify-between items-center mb-8 border-b border-amber-200 pb-4">
+            <div>
+                <h1 class="text-3xl font-bold text-amber-900 flex items-center gap-2">
+                    Modi Converter <span class="font-normal opacity-70 modi-font">𑘦𑘻𑘚𑘲</span>
+                </h1>
+                <p class="text-amber-700">Transliterasi Cerdas (Cecak, Wignyan, & Virama)</p>
+            </div>
+            <button id="openGuide" class="p-2 hover:bg-amber-100 rounded-full transition-colors text-amber-800">
+                <i data-lucide="help-circle" size="28"></i>
+            </button>
+        </header>
+
+        <!-- Main Interface -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 relative">
+            <!-- Input Section -->
+            <div class="flex flex-col gap-2">
+                <label id="inputLabel" class="text-sm font-semibold text-amber-800 uppercase px-1">Latin</label>
+                <div class="relative">
+                    <textarea id="inputText" placeholder="Ketik 'kang', 'king', 'kah', 'wat'..." 
+                        class="w-full h-56 p-4 bg-white border-2 border-amber-200 rounded-2xl shadow-sm focus:border-amber-500 outline-none resize-none text-lg"></textarea>
+                    <button id="clearBtn" class="absolute bottom-3 right-3 p-2 text-slate-300 hover:text-red-500 transition-colors" title="Bersihkan">
+                        <i data-lucide="trash-2" size="20"></i>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Switch Button -->
+            <div class="flex items-center justify-center md:absolute md:left-1/2 md:top-1/2 md:-translate-x-1/2 md:-translate-y-1/2 z-10 my-4 md:my-0">
+                <button id="switchBtn" class="bg-amber-600 text-white p-3 rounded-full shadow-lg hover:bg-amber-700 transition-all">
+                    <i data-lucide="arrow-left-right" size="24"></i>
+                </button>
+            </div>
+
+            <!-- Result Section -->
+            <div class="flex flex-col gap-2">
+                <label id="outputLabel" class="text-sm font-semibold text-amber-800 uppercase px-1">Hasil Aksara Modi</label>
+                <div class="relative">
+                    <div id="outputText" class="w-full h-56 p-4 bg-amber-100/40 border-2 border-amber-200 rounded-2xl shadow-inner text-3xl overflow-y-auto whitespace-pre-wrap font-serif leading-relaxed modi-font">
+                        <span class="text-amber-300 italic text-lg">Hasil muncul di sini...</span>
+                    </div>
+                    
+                    <!-- Copy Notification -->
+                    <div id="copyNotice" class="hidden absolute top-2 right-12 bg-green-600 text-white text-xs py-1 px-3 rounded-full flex items-center gap-1 animate-bounce-custom">
+                        <i data-lucide="check-circle-2" size="12"></i> Teks Berhasil Disalin
+                    </div>
+
+                    <button id="copyBtn" class="absolute bottom-3 right-3 bg-white p-2 border border-amber-200 rounded-lg text-amber-700 hover:bg-amber-50 shadow-sm transition-all flex items-center gap-2">
+                        <i data-lucide="clipboard" size="18"></i>
+                        <span class="text-xs font-bold uppercase">Salin</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Info Papan -->
+        <div class="mt-8 bg-white/50 p-4 rounded-xl border border-amber-200 text-sm text-amber-900 grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div class="flex flex-col items-center p-2 border-r border-amber-100">
+                <span class="font-bold text-xs text-amber-600 uppercase">Contoh Cecak</span>
+                <span class="text-xl">kang → <span class="modi-font">𑘎𑘽</span></span>
+            </div>
+            <div class="flex flex-col items-center p-2 border-r border-amber-100">
+                <span class="font-bold text-xs text-amber-600 uppercase">Contoh Wignyan</span>
+                <span class="text-xl">kah → <span class="modi-font">𑘎𑘾</span></span>
+            </div>
+            <div class="flex flex-col items-center p-2">
+                <span class="font-bold text-xs text-amber-600 uppercase">Contoh Virama</span>
+                <span class="text-xl">wat → <span class="modi-font">𑘪𑘝𑘿</span></span>
+            </div>
+        </div>
+
+        <!-- Modal Guide -->
+        <div id="guideModal" class="hidden fixed inset-0 modal-overlay flex items-center justify-center p-4 z-50">
+            <div class="bg-white rounded-3xl shadow-2xl max-w-2xl w-full max-h-[85vh] overflow-hidden flex flex-col">
+                <div class="p-6 border-b flex justify-between items-center bg-amber-50">
+                    <h2 class="text-xl font-bold text-amber-900">Panduan Transliterasi Modi</h2>
+                    <button id="closeGuide" class="text-slate-400 hover:text-slate-900 font-bold text-2xl">✕</button>
+                </div>
+                <div class="p-6 overflow-y-auto space-y-6 text-slate-700">
+                    <section>
+                        <h3 class="font-bold text-amber-800 mb-2">1. Sistem Cecak (Anunāsika) & Wignyan (Visarga)</h3>
+                        <p class="text-sm">Berbeda dengan konsonan mati biasa, <code class="bg-amber-100 px-1">ng</code> dan <code class="bg-amber-100 px-1">h</code> di akhir suku kata setelah vokal akan otomatis berubah menjadi lambang khusus:</p>
+                        <ul class="list-disc ml-5 mt-2 text-sm space-y-1">
+                            <li><b>kang</b> : <span class="modi-font">𑘎</span> (ka) + <span class="modi-font">𑘽</span> (cecak) = <span class="modi-font">𑘎𑘽</span></li>
+                            <li><b>king</b> : <span class="modi-font">𑘎𑘱</span> (ki) + <span class="modi-font">𑘽</span> (cecak) = <span class="modi-font">𑘎𑘱𑘽</span></li>
+                            <li><b>kah</b> : <span class="modi-font">𑘎</span> (ka) + <span class="modi-font">𑘾</span> (wignyan) = <span class="modi-font">𑘎𑘾</span></li>
+                        </ul>
+                    </section>
+
+                    <section>
+                        <h3 className="font-bold text-amber-800 mb-2">2. Konsonan Mati (Virama)</h3>
+                        <p className="text-sm">Konsonan di akhir kata yang bukan 'ng' atau 'h' akan diberikan tanda Virama (seperti Pangkon):</p>
+                        <ul class="list-disc ml-5 mt-2 text-sm space-y-1">
+                            <li><b>wat</b> : <span class="modi-font">𑘪𑘝𑘿</span> (wa-ta-virama)</li>
+                            <li><b>ak</b> : <span class="modi-font">𑘀𑘎𑘿</span> (a-ka-virama)</li>
+                            <li><b>anirodham</b> : <span class="modi-font">𑘀𑘡𑘲𑘨𑘻𑘠𑘦𑘿</span></li>
+                        </ul>
+                    </section>
+
+                    <section>
+                        <h3 class="font-bold text-amber-800 mb-2">3. Padanan Huruf Tambahan</h3>
+                        <ul class="list-disc ml-5 text-sm space-y-1">
+                            <li><b>q / qa</b> : dipetakan ke <span class="modi-font">𑘎</span> (Ka).</li>
+                            <li><b>é / e</b> : menggunakan matra <span class="modi-font">𑘹</span> (Taling).</li>
+                            <li><b>f / v / w</b> : menggunakan <span class="modi-font">𑘪</span>.</li>
+                        </ul>
+                    </section>
+
+                    <div class="pt-4 flex justify-end">
+                        <button id="closeGuideBtn" class="bg-amber-800 text-white px-8 py-2 rounded-xl hover:bg-amber-900 transition-colors">
+                            Tutup Panduan
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // State
+        let isLatinToModi = true;
+
+        // Elements
+        const inputText = document.getElementById('inputText');
+        const outputText = document.getElementById('outputText');
+        const inputLabel = document.getElementById('inputLabel');
+        const outputLabel = document.getElementById('outputLabel');
+        const switchBtn = document.getElementById('switchBtn');
+        const clearBtn = document.getElementById('clearBtn');
+        const copyBtn = document.getElementById('copyBtn');
+        const copyNotice = document.getElementById('copyNotice');
+        const openGuide = document.getElementById('openGuide');
+        const closeGuide = document.getElementById('closeGuide');
+        const closeGuideBtn = document.getElementById('closeGuideBtn');
+        const guideModal = document.getElementById('guideModal');
+
+        // Mapping Configuration
+        const latinToModiMap = {
+            'a': '𑘀', 'i': '𑘂', 'u': '𑘄', 'e': '𑘊', 'é': '𑘊', 'o': '𑘌',
+            'k': '𑘎', 'kh': '𑘏', 'g': '𑘐', 'gh': '𑘑', 'ng': '𑘒',
+            'c': '𑘓', 'ch': '𑘔', 'j': '𑘕', 'jh': '𑘖', 'ny': '𑘗',
+            'th': '𑘘', 'thh': '𑘙', 'dh': '𑘚', 'dhh': '𑘛', 'n_retro': '𑘜',
+            't': '𑘝', 'th_asp': '𑘞', 'd': '𑘟', 'dh_asp': '𑘠', 'n': '𑘡',
+            'p': '𑘢', 'ph': '𑘣', 'f': '𑘣', 'b': '𑘤', 'bh': '𑘥', 'm': '𑘦',
+            'y': '𑘧', 'r': '𑘨', 'l': '𑘩', 'v': '𑘪', 'w': '𑘪',
+            'sh': '𑘫', 'sy': '𑘫', 'ss': '𑘬', 's': '𑘭', 'h': '𑘮', 'L': '𑘯',
+            'z': '𑘕', 'q': '𑘎'
+        };
+
+        const matraMap = {
+            'i': '𑘱', 'u': '𑘳', 'e': '𑘹', 'é': '𑘹', 'o': '𑘻', 'a': ''
+        };
+
+        const virama = '𑘿';
+        const anusvara = '𑘽';
+        const visarga = '𑘾';
+
+        // Logic
+        function convertToModi(text) {
+            let input = text.toLowerCase();
+            let result = '';
+            let i = 0;
+
+            const consonants = ['kh', 'gh', 'ng', 'ch', 'jh', 'ny', 'th', 'dh', 'sh', 'sy', 'ph', 'bh', 'k', 'g', 'c', 'j', 't', 'd', 'n', 'p', 'b', 'm', 'y', 'r', 'l', 'v', 'w', 's', 'h', 'z', 'f', 'q'];
+            const vowels = ['a', 'i', 'u', 'e', 'é', 'o'];
+
+            while (i < input.length) {
+                let char = input[i];
+
+                if (char === ' ' || char === '\n') {
+                    result += char;
+                    i++;
+                    continue;
+                }
+
+                if (vowels.includes(char) && (i === 0 || input[i-1] === ' ' || input[i-1] === '\n')) {
+                    result += latinToModiMap[char] || char;
+                    i++;
+                    continue;
+                }
+
+                let foundConsonant = false;
+                for (let len = 2; len >= 1; len--) {
+                    let chunk = input.substr(i, len);
+                    if (consonants.includes(chunk)) {
+                        let base = latinToModiMap[chunk];
+                        let nextChar = input[i + len];
+                        
+                        // Special Case: Cecak (ng) and Wignyan (h) after a vowel
+                        if ((chunk === 'ng' || chunk === 'h') && i > 0 && vowels.includes(input[i-1])) {
+                            if (!vowels.includes(nextChar)) {
+                                result += (chunk === 'ng' ? anusvara : visarga);
+                                i += len;
+                                foundConsonant = true;
+                                break;
+                            }
+                        }
+
+                        if (vowels.includes(nextChar)) {
+                            result += base + (matraMap[nextChar] || '');
+                            i += len + 1;
+                        } else {
+                            result += base + virama;
+                            i += len;
+                        }
+                        
+                        foundConsonant = true;
+                        break;
+                    }
+                }
+
+                if (!foundConsonant) {
+                    if (!vowels.includes(char)) result += char;
+                    i++;
+                }
+            }
+            return result.replace(/𑘿𑘽/g, '𑘽').replace(/𑘿𑘾/g, '𑘾');
+        }
+
+        function convertToLatin(modi) {
+            const reverseMap = Object.entries(latinToModiMap).reduce((acc, [k, v]) => ({ ...acc, [v]: k }), {});
+            const reverseMatra = Object.entries(matraMap).reduce((acc, [k, v]) => ({ ...acc, [v]: k }), {});
+            
+            let result = '';
+            for (let i = 0; i < modi.length; i++) {
+                let char = modi[i];
+                if (reverseMap[char]) {
+                    let base = reverseMap[char];
+                    let next = modi[i+1];
+                    if (reverseMatra[next]) {
+                        result += base + reverseMatra[next];
+                        i++;
+                    } else if (next === virama) {
+                        result += base;
+                        i++;
+                    } else {
+                        result += base + 'a';
+                    }
+                } else if (char === anusvara) {
+                    result += 'ng';
+                } else if (char === visarga) {
+                    result += 'h';
+                } else {
+                    result += char;
+                }
+            }
+            return result.replace(/aa/g, 'a');
+        }
+
+        // Event Handlers
+        function updateResult() {
+            const val = inputText.value;
+            if (isLatinToModi) {
+                const res = convertToModi(val);
+                outputText.innerHTML = res || '<span class="text-amber-300 italic text-lg">Hasil muncul di sini...</span>';
+            } else {
+                const res = convertToLatin(val);
+                outputText.innerHTML = res || '<span class="text-amber-300 italic text-lg">Result here...</span>';
+            }
+        }
+
+        inputText.addEventListener('input', updateResult);
+
+        switchBtn.addEventListener('click', () => {
+            isLatinToModi = !isLatinToModi;
+            inputLabel.innerText = isLatinToModi ? 'Latin' : 'Aksara Modi';
+            outputLabel.innerText = isLatinToModi ? 'Hasil Aksara Modi' : 'Hasil Latin';
+            inputText.placeholder = isLatinToModi ? "Ketik 'kang', 'king', 'kah', 'wat'..." : "Masukkan aksara...";
+            switchBtn.classList.toggle('rotate-180');
+            
+            // Swap values
+            const currentOutput = outputText.innerText === 'Hasil muncul di sini...' || outputText.innerText === 'Result here...' ? '' : outputText.innerText;
+            inputText.value = currentOutput;
+            updateResult();
+        });
+
+        clearBtn.addEventListener('click', () => {
+            inputText.value = '';
+            updateResult();
+        });
+
+        copyBtn.addEventListener('click', () => {
+            const textToCopy = outputText.innerText;
+            if (!textToCopy || textToCopy.includes('Hasil muncul di sini...') || textToCopy.includes('Result here...')) return;
+            
+            const temp = document.createElement('textarea');
+            temp.value = textToCopy;
+            document.body.appendChild(temp);
+            temp.select();
+            document.execCommand('copy');
+            document.body.removeChild(temp);
+
+            copyNotice.classList.remove('hidden');
+            setTimeout(() => copyNotice.classList.add('hidden'), 2000);
+        });
+
+        // Modal Logic
+        const toggleModal = () => guideModal.classList.toggle('hidden');
+        openGuide.addEventListener('click', toggleModal);
+        closeGuide.addEventListener('click', toggleModal);
+        closeGuideBtn.addEventListener('click', toggleModal);
+
+        // Initialize Icons
+        lucide.createIcons();
+    </script>
+</body>
+</html>
