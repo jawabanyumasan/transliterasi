@@ -1,0 +1,281 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Konverter Aksara Lepcha (Róng)</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Lepcha&family=Inter:wght@400;600&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Inter', sans-serif; }
+        .lepcha-font { font-family: 'Noto Sans Lepcha', serif; font-size: 1.8rem; }
+        .tab-active { border-bottom: 2px solid #4f46e5; color: #4f46e5; }
+    </style>
+</head>
+<body class="bg-slate-50 min-h-screen">
+
+    <div class="max-w-4xl mx-auto p-4 md:p-8">
+        <header class="text-center mb-8">
+            <h1 class="text-3xl font-bold text-slate-800 mb-2">ᰛᰩᰵᰛᰧᰵ (Aksara Lepcha)</h1>
+            <p class="text-slate-600">Konverter untuk penutur bahasa Jawa / Indonesia</p>
+        </header>
+
+        <div class="bg-white rounded-2xl shadow-xl overflow-hidden">
+            <!-- Navigation -->
+            <div class="flex border-b">
+                <button onclick="setMode('latin-to-lepcha')" id="btn-to-lepcha" class="flex-1 py-4 font-semibold text-center transition tab-active">Latin ➔ Lepcha</button>
+                <button onclick="setMode('lepcha-to-latin')" id="btn-to-latin" class="flex-1 py-4 font-semibold text-center transition text-slate-400">Lepcha ➔ Latin</button>
+            </div>
+
+            <div class="p-6">
+                <!-- Input Area -->
+                <div class="mb-6">
+                    <label class="block text-sm font-medium text-slate-500 mb-2" id="input-label">Teks Latin (Ketik di sini):</label>
+                    <textarea id="input-text" rows="4" 
+                        class="w-full p-4 border border-slate-200 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 text-lg transition"
+                        placeholder="Contoh: krasa, mangga, nyoba..."></textarea>
+                </div>
+
+                <!-- Action Buttons -->
+                <div class="flex flex-wrap gap-2 mb-6">
+                    <button onclick="clearText()" class="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-lg transition text-sm font-medium flex items-center">
+                        <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
+                        Bersihkan
+                    </button>
+                    <button onclick="copyResult()" class="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg transition text-sm font-medium flex items-center">
+                        <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2m0 0h2a2 2 0 012 2v3m2 4H10m0 0l3-3m-3 3l3 3"></path></svg>
+                        Salin Hasil
+                    </button>
+                    <button onclick="toggleInfo()" class="px-4 py-2 bg-amber-500 hover:bg-amber-600 text-white rounded-lg transition text-sm font-medium flex items-center">
+                        <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                        Panduan Aksara
+                    </button>
+                </div>
+
+                <!-- Result Area -->
+                <div class="relative">
+                    <label class="block text-sm font-medium text-slate-500 mb-2">Hasil:</label>
+                    <div id="output-text" class="w-full min-h-[120px] p-6 border-2 border-dashed border-slate-200 rounded-2xl bg-slate-50 transition-all duration-300 break-words lepcha-font">
+                        <!-- Transliteration result here -->
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Info Panel (Hidden by default) -->
+        <div id="info-panel" class="hidden mt-8 bg-white rounded-2xl shadow-lg p-6 border border-amber-100">
+            <div class="flex justify-between items-center mb-4">
+                <h2 class="text-xl font-bold text-slate-800">Panduan Perbandingan Lepcha - Jawa</h2>
+                <button onclick="toggleInfo()" class="text-slate-400 hover:text-slate-600">&times;</button>
+            </div>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 text-sm">
+                <div>
+                    <h3 class="font-semibold text-indigo-600 mb-2">Sistem Medial (Wyanjanasastra)</h3>
+                    <ul class="space-y-2 text-slate-600">
+                        <li><strong>Pengkal (-y-):</strong> ᰤ (Contoh: ᰀᰤ / kya)</li>
+                        <li><strong>Cakra (-r-):</strong> ᰥ (Contoh: ᰀᰥ / kra)</li>
+                        <li><strong>Gembung (-l-):</strong> ᰦ (Contoh: ᰀᰦ / kla)</li>
+                    </ul>
+                </div>
+                <div>
+                    <h3 class="font-semibold text-indigo-600 mb-2">Sistem Final (Panyigeg)</h3>
+                    <ul class="space-y-2 text-slate-600">
+                        <li><strong>Cecak (-ng):</strong> ᰴ (Contoh: ᰀᰴ / kang)</li>
+                        <li><strong>Layar (-r):</strong> ᰲ (Contoh: ᰣᰲ / ar)</li>
+                        <li><strong>Pangkon (Killed):</strong> ᰭ (Contoh: ᰣᰭ / ak)</li>
+                    </ul>
+                </div>
+                <div class="md:col-span-2 bg-slate-50 p-4 rounded-lg">
+                    <h3 class="font-semibold text-slate-800 mb-2">Aturan Khusus:</h3>
+                    <p class="mb-2">Aplikasi ini mendukung huruf serapan dengan Nukta (titik bawah):</p>
+                    <code class="bg-white px-2 py-1 rounded">f=ᰑ</code>, 
+                    <code class="bg-white px-2 py-1 rounded">v/w=ᰝ᰷</code>, 
+                    <code class="bg-white px-2 py-1 rounded">z=ᰈ᰷</code>, 
+                    <code class="bg-white px-2 py-1 rounded">kh=ᰂ᰷</code>,
+                    <code class="bg-white px-2 py-1 rounded">th=ᰳ</code>,
+                    <code class="bg-white px-2 py-1 rounded">dh=ᰌ</code>.
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const lepchaMap = {
+            // Consonants (Initial)
+            'k': '\u1C00', 'kh': '\u1C01', 'g': '\u1C02', 'ng': '\u1C03',
+            'c': '\u1C04', 'ch': '\u1C05', 'j': '\u1C06', 'ny': '\u1C07',
+            't': '\u1C08', 'th': '\u1C09', 'd': '\u1C0A', 'n': '\u1C0B',
+            'p': '\u1C0C', 'ph': '\u1C0D', 'f': '\u1C0E', 'b': '\u1C0F',
+            'm': '\u1C10', 'ts': '\u1C11', 'tsh': '\u1C12', 'dz': '\u1C13',
+            'w': '\u1C14', 'y': '\u1C15', 'r': '\u1C16', 'l': '\u1C17',
+            'sh': '\u1C18', 's': '\u1C19', 'h': '\u1C1A', 'v': '\u1C14',
+            'a': '\u1C23',
+
+            // Medials (Ran)
+            'y_med': '\u1C24', // kya
+            'r_med': '\u1C25', // kra
+            'l_med': '\u1C26', // kla
+
+            // Vowels
+            'i': '\u1C27',
+            'u': '\u1C28',
+            'e': '\u1C2A', // standard e
+            'é': '\u1C29', // taling style
+            'o': '\u1C2B',
+            'ó': '\u1C2C', // long o
+
+            // Finals (Keng)
+            'k_fin': '\u1C2D',
+            'm_fin': '\u1C2E',
+            'l_fin': '\u1C2F',
+            'n_fin': '\u1C30',
+            'p_fin': '\u1C31',
+            'r_fin': '\u1C32',
+            't_fin': '\u1C33',
+            'ng_fin': '\u1C34'
+        };
+
+        const nukta = '\u1C37'; // Lepcha Punctuation or modification mark
+
+        let mode = 'latin-to-lepcha';
+
+        function setMode(newMode) {
+            mode = newMode;
+            document.getElementById('btn-to-lepcha').classList.toggle('tab-active', mode === 'latin-to-lepcha');
+            document.getElementById('btn-to-lepcha').classList.toggle('text-slate-400', mode !== 'latin-to-lepcha');
+            document.getElementById('btn-to-latin').classList.toggle('tab-active', mode === 'lepcha-to-latin');
+            document.getElementById('btn-to-latin').classList.toggle('text-slate-400', mode !== 'lepcha-to-latin');
+            
+            const label = document.getElementById('input-label');
+            const output = document.getElementById('output-text');
+            const input = document.getElementById('input-text');
+
+            if(mode === 'latin-to-lepcha') {
+                label.innerText = "Teks Latin (Ketik di sini):";
+                output.classList.add('lepcha-font');
+                input.placeholder = "Contoh: krasa, mangga, nyoba...";
+            } else {
+                label.innerText = "Aksara Lepcha (Tempel di sini):";
+                output.classList.remove('lepcha-font');
+                input.placeholder = "Tempel aksara di sini...";
+            }
+            transliterate();
+        }
+
+        function clearText() {
+            document.getElementById('input-text').value = '';
+            document.getElementById('output-text').innerText = '';
+        }
+
+        function copyResult() {
+            const text = document.getElementById('output-text').innerText;
+            if(!text) return;
+            const textarea = document.createElement("textarea");
+            textarea.value = text;
+            document.body.appendChild(textarea);
+            textarea.select();
+            document.execCommand('copy');
+            document.body.removeChild(textarea);
+            
+            const btn = document.querySelector('button[onclick="copyResult()"]');
+            const originalText = btn.innerHTML;
+            btn.innerHTML = "Tersalin!";
+            setTimeout(() => btn.innerHTML = originalText, 2000);
+        }
+
+        function toggleInfo() {
+            const panel = document.getElementById('info-panel');
+            panel.classList.toggle('hidden');
+        }
+
+        function latinToLepcha(text) {
+            text = text.toLowerCase().normalize("NFD");
+            // Basic syllable parser logic
+            const syllables = text.match(/(kh|ng|ch|ny|th|sh|ts|tsh|dz|sy|ph|dh|kh|f|v|z|[kbgcdjtnpfsmyrlhawa])?([yrly])?([aeiouéó])?([kmlnprt]|ng)?/g) || [];
+            
+            let result = '';
+
+            for (let syl of syllables) {
+                if (!syl) continue;
+                
+                // Detailed parsing of the match
+                // This is a simplified Abugida engine
+                let match = syl.match(/(kh|ng|ch|ny|th|sh|ts|tsh|dz|sy|ph|dh|kh|f|v|z|[kbgcdjtnpfsmyrlhawa])?([yrl])?([aeiouéó])?([kmlnprt]|ng)?/);
+                if (!match) continue;
+
+                let [_, cons, medial, vowel, final] = match;
+
+                // Handle special Javanese mappings
+                if (cons === 'dh') cons = 'd';
+                if (cons === 'th') cons = 't';
+                if (cons === 'sy') cons = 'sh';
+                
+                // Consonant logic
+                let base = lepchaMap[cons] || lepchaMap['a'];
+                
+                // Nukta for special letters
+                let addon = '';
+                if (['f', 'v', 'z', 'kh', 'q'].includes(cons)) {
+                    if (cons === 'f') base = '\u1C0E';
+                    else if (cons === 'v') { base = '\u1C14'; addon = '\u1C37'; }
+                    else if (cons === 'z') { base = '\u1C06'; addon = '\u1C37'; }
+                    else if (cons === 'kh') { base = '\u1C01'; addon = '\u1C37'; }
+                }
+
+                result += base + addon;
+
+                // Medial logic (Pengkal/Cakra/Gembung)
+                if (medial === 'y') result += lepchaMap['y_med'];
+                if (medial === 'r') result += lepchaMap['r_med'];
+                if (medial === 'l') result += lepchaMap['l_med'];
+
+                // Vowel logic
+                if (vowel && vowel !== 'a') {
+                    result += lepchaMap[vowel] || '';
+                }
+
+                // Final logic (Panyigeg)
+                if (final) {
+                    if (final === 'ng') result += lepchaMap['ng_fin'];
+                    else if (lepchaMap[final + '_fin']) result += lepchaMap[final + '_fin'];
+                }
+            }
+            return result;
+        }
+
+        // Simplistic back-conversion for Lepcha to Latin
+        function lepchaToLatin(text) {
+            const reverseMap = {};
+            for (let key in lepchaMap) {
+                reverseMap[lepchaMap[key]] = key;
+            }
+
+            let result = '';
+            for (let char of text) {
+                if (reverseMap[char]) {
+                    let mapped = reverseMap[char];
+                    if (mapped.includes('_fin')) result += mapped.replace('_fin', '');
+                    else if (mapped.includes('_med')) result += mapped.replace('_med', '');
+                    else result += mapped;
+                } else {
+                    result += char;
+                }
+            }
+            return result;
+        }
+
+        function transliterate() {
+            const input = document.getElementById('input-text').value;
+            const output = document.getElementById('output-text');
+            
+            if (mode === 'latin-to-lepcha') {
+                output.innerText = latinToLepcha(input);
+            } else {
+                output.innerText = lepchaToLatin(input);
+            }
+        }
+
+        document.getElementById('input-text').addEventListener('input', transliterate);
+    </script>
+</body>
+</html>
