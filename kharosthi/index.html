@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kharosthi Script for Javanese</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Kharoshthi&family=Inter:wght@400;600&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f8fafc;
+        }
+        .kharosthi-font {
+            font-family: 'Noto Sans Kharoshthi', serif;
+            direction: rtl;
+            unicode-bidi: bidi-override;
+        }
+        .custom-scrollbar::-webkit-scrollbar {
+            width: 6px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-track {
+            background: #f1f1f1;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+            background: #cbd5e1;
+            border-radius: 10px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+            background: #94a3b8;
+        }
+    </style>
+</head>
+<body class="p-4 md:p-8">
+
+    <div class="max-w-4xl mx-auto">
+        <!-- Header -->
+        <header class="mb-8 text-center">
+            <h1 class="text-3xl font-bold text-slate-800 mb-2">Transliterasi Kharosthi 𐨑𐨪𐨆𐨮𐨿𐨛𐨁𐨌</h1>
+            <p class="text-slate-600">Adaptasi Khusus Fonetik Jawa</p>
+        </header>
+
+        <!-- Info Board (Hidden by default) -->
+        <div id="infoBoard" class="hidden mb-6 bg-blue-50 border-l-4 border-blue-500 p-4 rounded-r shadow-sm transition-all duration-300 overflow-hidden">
+            <div class="flex justify-between items-start">
+                <div>
+                    <h3 class="font-semibold text-blue-800 mb-2">Panduan Penggunaan</h3>
+                    <ul class="text-sm text-blue-700 space-y-1 list-disc ml-5">
+                        <li><b>Kharosthi (RTL):</b> Tulisan mengalir dari kanan ke kiri.</li>
+                        <li><b>Konsonan Mati:</b> Ditandai dengan tanda di bawah (virama), contoh: <i>k</i> → <b>𐨐𐨿</b>.</li>
+                        <li><b>Nga & Cecak:</b> Huruf <i>nga</i> menggunakan <b>𐨣</b>, sedangkan final <i>-ng</i> menggunakan <b>𐨎</b> (contoh: <i>ang</i> → <b>𐨀𐨎</b>).</li>
+                        <li><b>Wignyan:</b> Final <i>-h</i> menggunakan <b>𐨏</b> (contoh: <i>ah</i> → <b>𐨀𐨏</b>).</li>
+                        <li><b>Medial:</b> Mendukung <i>kya</i> (<b>𐨐𐨿𐨩</b>), <i>kra</i> (<b>𐨐𐨿𐨪</b>), dan <i>kla</i> (<b>𐨐𐨿𐨫</b>).</li>
+                        <li><b>Vokal:</b> Mendukung <b>é</b> (taling) dan <b>o</b>.</li>
+                    </ul>
+                </div>
+                <button onclick="toggleInfo()" class="text-blue-500 hover:text-blue-700 font-bold text-sm">Tutup</button>
+            </div>
+        </div>
+        
+        <div class="flex justify-center mb-6">
+            <button id="showInfoBtn" onclick="toggleInfo()" class="bg-slate-200 hover:bg-slate-300 text-slate-700 px-6 py-2 rounded-full text-xs font-semibold transition-all">
+                Tampilkan Panduan & Papan Info
+            </button>
+        </div>
+
+        <!-- Main App Container -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            
+            <!-- Latin Input -->
+            <div class="flex flex-col gap-2">
+                <label class="font-semibold text-slate-700 flex justify-between">
+                    Latin (Jawa)
+                    <span class="text-xs font-normal text-slate-400">Ketik di sini...</span>
+                </label>
+                <textarea id="latinInput" 
+                    class="w-full h-64 p-4 border border-slate-300 rounded-xl shadow-inner focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none transition-all custom-scrollbar text-lg"
+                    placeholder="Contoh: mangan, sega, thole, kla, kra..."></textarea>
+                <div class="flex gap-2 mt-2">
+                    <button onclick="copyText('latinInput')" class="flex-1 bg-slate-100 hover:bg-slate-200 text-slate-700 py-2 rounded-lg text-sm font-medium transition-colors">Salin</button>
+                    <button onclick="clearAll()" class="flex-1 bg-red-50 hover:bg-red-100 text-red-600 py-2 rounded-lg text-sm font-medium transition-colors">Bersihkan</button>
+                </div>
+            </div>
+
+            <!-- Kharosthi Output -->
+            <div class="flex flex-col gap-2">
+                <label class="font-semibold text-slate-700 flex justify-between">
+                    Aksara Kharosthi 
+                    <span class="text-xs font-normal text-slate-400 font-sans">Hasil (RTL)</span>
+                </label>
+                <textarea id="kharosthiOutput" 
+                    class="kharosthi-font w-full h-64 p-4 border border-slate-300 rounded-xl shadow-inner focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none transition-all custom-scrollbar text-4xl leading-relaxed"
+                    placeholder="𐨐𐨿𐨮𐨪𐨆𐨮𐨿𐨛𐨁"></textarea>
+                <div class="flex gap-2 mt-2">
+                    <button onclick="copyText('kharosthiOutput')" class="flex-1 bg-indigo-600 hover:bg-indigo-700 text-white py-2 rounded-lg text-sm font-medium transition-colors">Salin Aksara</button>
+                </div>
+            </div>
+
+        </div>
+
+        <!-- Feedback UI -->
+        <div id="toast" class="fixed bottom-8 left-1/2 transform -translate-x-1/2 bg-slate-800 text-white px-6 py-3 rounded-full shadow-lg opacity-0 transition-opacity pointer-events-none text-sm z-50">
+            Teks berhasil disalin!
+        </div>
+
+        <!-- Footer Info -->
+        <footer class="mt-12 text-center text-slate-400 text-sm">
+            <p>Referensi: <a href="https://www.aksharamukha.com/describe/Kharoshthi" class="underline hover:text-slate-600">Aksharamukha</a></p>
+            <p class="mt-2">&copy; 2025 Transliterasi Kharosthi-Jawa</p>
+        </footer>
+    </div>
+
+    <script>
+        const consonants = {
+            'kh': '𐨑', 'gh': '𐨓', 'ch': '𐨖', 'jh': '𐨙', 'th': '𐨚', 'dh': '𐨛', 'thd': '𐨜', 'dhd': '𐨝', 'ph': '𐨥', 'bh': '𐨧',
+            'ng': '𐨣', 'ny': '𐨙', 'sy': '𐨮', 'sh': '𐨭', 'ts': '𐨟𐨿𐨯',
+            'k': '𐨐', 'g': '𐨒', 'c': '𐨕', 'j': '𐨗', 't': '𐨟', 'd': '𐨡', 'n': '𐨣', 'p': '𐨤', 'b': '𐨦', 'm': '𐨨',
+            'y': '𐨩', 'r': '𐨪', 'l': '𐨫', 'v': '𐨝', 's': '𐨯', 'h': '𐨱', 'f': '𐨥', 'z': '𐨗𐨳'
+        };
+
+        const vowels = {
+            'i': '𐨁', 'u': '𐨂', 'e': '𐨅', 'é': '𐨅', 'o': '𐨆', 'a': ''
+        };
+
+        const medials = {
+            'y': '𐨿𐨩',
+            'r': '𐨿𐨪',
+            'l': '𐨿𐨫'
+        };
+
+        const virama = '𐨿';
+        const anusvara = '𐨎'; // Cecak -ng
+        const visarga = '𐨏';  // Wignyan -h
+
+        const latinInput = document.getElementById('latinInput');
+        const kharosthiOutput = document.getElementById('kharosthiOutput');
+        const infoBoard = document.getElementById('infoBoard');
+        const showInfoBtn = document.getElementById('showInfoBtn');
+
+        latinInput.addEventListener('input', () => {
+            kharosthiOutput.value = transliterateToKharosthi(latinInput.value.toLowerCase());
+        });
+
+        function transliterateToKharosthi(text) {
+            if (!text) return '';
+            
+            let result = '';
+            // Split by words to maintain spacing
+            const words = text.split(/(\s+)/);
+
+            return words.map(word => {
+                if (/\s+/.test(word)) return word;
+                
+                let out = '';
+                let j = 0;
+                while (j < word.length) {
+                    // 1. Handle Final -ng (Anusvara / Cecak)
+                    if (word.substring(j, j+2) === 'ng' && (j+2 === word.length || !vowels[word[j+2]])) {
+                        out += (out === '' ? '𐨀' : '') + anusvara;
+                        j += 2;
+                        continue;
+                    }
+
+                    // 2. Handle Final -h (Visarga / Wignyan)
+                    if (word[j] === 'h' && (j+1 === word.length || !vowels[word[j+1]])) {
+                        out += (out === '' ? '𐨀' : '') + visarga;
+                        j += 1;
+                        continue;
+                    }
+
+                    let char = '';
+                    let skip = 0;
+
+                    // 3. Consonant Detection
+                    if (j + 1 < word.length && consonants[word.substring(j, j + 2)]) {
+                        char = consonants[word.substring(j, j + 2)];
+                        skip = 2;
+                    } else if (consonants[word[j]]) {
+                        char = consonants[word[j]];
+                        skip = 1;
+                    } else {
+                        // Independent Vowel
+                        if (vowels[word[j]] !== undefined) {
+                            out += '𐨀' + vowels[word[j]];
+                        } else {
+                            out += word[j];
+                        }
+                        j++;
+                        continue;
+                    }
+
+                    // 4. Medial Detection (y, r, l)
+                    let medialMark = '';
+                    if (j + skip < word.length && medials[word[j + skip]]) {
+                        medialMark = medials[word[j + skip]];
+                        skip++;
+                    }
+
+                    // 5. Vowel or Virama (Mati) Detection
+                    let vowelMark = '';
+                    if (j + skip < word.length && vowels[word[j + skip]] !== undefined) {
+                        vowelMark = vowels[word[j + skip]];
+                        skip++;
+                    } else {
+                        // No vowel follows -> it's a dead consonant (mati)
+                        // If it's not a medial that was already processed
+                        vowelMark = virama;
+                    }
+
+                    out += char + medialMark + vowelMark;
+                    j += skip;
+                }
+                return out;
+            }).join('');
+        }
+
+        function toggleInfo() {
+            if (infoBoard.classList.contains('hidden')) {
+                infoBoard.classList.remove('hidden');
+                showInfoBtn.classList.add('hidden');
+            } else {
+                infoBoard.classList.add('hidden');
+                showInfoBtn.classList.remove('hidden');
+            }
+        }
+
+        function clearAll() {
+            latinInput.value = '';
+            kharosthiOutput.value = '';
+        }
+
+        function copyText(id) {
+            const el = document.getElementById(id);
+            if (!el.value) return;
+            el.select();
+            document.execCommand('copy');
+            
+            const toast = document.getElementById('toast');
+            toast.style.opacity = '1';
+            setTimeout(() => {
+                toast.style.opacity = '0';
+            }, 2000);
+        }
+    </script>
+</body>
+</html>
