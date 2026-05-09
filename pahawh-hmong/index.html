@@ -1,0 +1,326 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Transliterasi Pahawh Hmong - Jawa</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f8fafc;
+        }
+        .pahawh-text {
+            font-family: serif; /* Pahawh Hmong uses standard unicode range */
+            font-size: 1.5rem;
+            line-height: 2rem;
+        }
+        .custom-scrollbar::-webkit-scrollbar {
+            width: 6px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-track {
+            background: #f1f1f1;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+            background: #cbd5e1;
+            border-radius: 10px;
+        }
+        .modal-overlay {
+            background-color: rgba(0, 0, 0, 0.5);
+            backdrop-filter: blur(4px);
+        }
+    </style>
+</head>
+<body class="min-h-screen p-4 md:p-8">
+
+    <div class="max-w-4xl mx-auto bg-white rounded-3xl shadow-xl overflow-hidden border border-slate-100">
+        <!-- Header -->
+        <div class="bg-indigo-600 p-6 text-white text-center relative">
+            <h1 class="text-2xl md:text-3xl font-bold mb-1">Aksara Pahawh Hmong 𖬖𖬰𖬝𖬵</h1>
+            <p class="text-indigo-100 text-sm">Adaptasi untuk Penutur Javanese | Kreator: Shong Lue Yang</p>
+            
+            <button onclick="toggleGuide()" class="absolute right-4 top-1/2 -translate-y-1/2 bg-white/20 hover:bg-white/30 p-2 rounded-full transition-all">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="Open Info" />
+                    <circle cx="12" cy="12" r="10" stroke-width="2"/>
+                    <path d="M12 16v-4m0-4h.01" stroke-width="2"/>
+                </svg>
+            </button>
+        </div>
+
+        <div class="p-6 space-y-6">
+            <!-- Mode Switcher -->
+            <div class="flex items-center justify-center space-x-4 mb-4">
+                <span id="label-latin" class="font-semibold text-indigo-600">Latin</span>
+                <button onclick="toggleMode()" id="toggle-btn" class="bg-slate-200 p-2 rounded-xl hover:bg-slate-300 transition-colors">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-slate-600 rotate-0 transition-transform duration-300" id="swap-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4" />
+                    </svg>
+                </button>
+                <span id="label-pahawh" class="font-semibold text-slate-400">Pahawh</span>
+            </div>
+
+            <!-- Input Area -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div class="space-y-2">
+                    <label id="input-title" class="text-sm font-bold text-slate-500 uppercase tracking-wider">Teks Latin / Jawa</label>
+                    <textarea id="input-text" class="w-full h-48 p-4 rounded-2xl border-2 border-slate-100 focus:border-indigo-500 focus:ring-0 outline-none transition-all resize-none custom-scrollbar" placeholder="Ketik di sini... (contoh: Sugeng enjang)"></textarea>
+                </div>
+
+                <div class="space-y-2">
+                    <label id="output-title" class="text-sm font-bold text-slate-500 uppercase tracking-wider">Hasil Aksara</label>
+                    <div id="output-container" class="relative group">
+                        <div id="output-text" class="w-full h-48 p-4 rounded-2xl bg-slate-50 border-2 border-dashed border-slate-200 overflow-y-auto pahawh-text custom-scrollbar"></div>
+                        <div class="absolute bottom-3 right-3 flex space-x-2">
+                            <button onclick="clearText()" class="p-2 bg-white shadow-md rounded-lg text-slate-400 hover:text-red-500 transition-colors tooltip" title="Bersihkan">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                                </svg>
+                            </button>
+                            <button onclick="copyToClipboard()" class="p-2 bg-indigo-600 shadow-md rounded-lg text-white hover:bg-indigo-700 transition-colors" title="Salin">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2m-3 8.5V11a.5.5 0 00-1 0v2.5a.5.5 0 01-1 0V12a.5.5 0 00-1 0v1.5a.5.5 0 001 0m4 0V11a.5.5 0 00-1 0v2.5a.5.5 0 01-1 0V12a.5.5 0 00-1 0v1.5a.5.5 0 001 0" />
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2" />
+                                </svg>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Notification -->
+            <div id="toast" class="fixed bottom-10 left-1/2 -translate-x-1/2 bg-slate-800 text-white px-6 py-3 rounded-full shadow-2xl transform translate-y-20 opacity-0 transition-all duration-300 pointer-events-none z-50">
+                Aksara Berhasil Disalin
+            </div>
+        </div>
+    </div>
+
+    <!-- Info Modal -->
+    <div id="guide-modal" class="fixed inset-0 z-50 flex items-center justify-center p-4 hidden">
+        <div class="modal-overlay absolute inset-0" onclick="toggleGuide()"></div>
+        <div class="bg-white rounded-3xl w-full max-w-2xl max-h-[90vh] overflow-y-auto relative shadow-2xl p-6 md:p-8 custom-scrollbar">
+            <button onclick="toggleGuide()" class="absolute top-4 right-4 text-slate-400 hover:text-slate-600">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l18 18" />
+                </svg>
+            </button>
+            
+            <h2 class="text-2xl font-bold text-indigo-600 mb-6">Panduan Aksara Pahawh Hmong</h2>
+            
+            <div class="space-y-6 text-slate-600 text-sm md:text-base leading-relaxed">
+                <section>
+                    <h3 class="font-bold text-slate-800 border-b pb-2 mb-3">1. Sistem Penulisan Unik</h3>
+                    <p>Aksara Pahawh Hmong memiliki aturan unik: **Vokal (Kevtsheej) ditulis mendahului Konsonan (Txwv)** dalam satu suku kata, meskipun bunyinya diucapkan setelah konsonan.</p>
+                </section>
+
+                <section>
+                    <h3 class="font-bold text-slate-800 border-b pb-2 mb-3">2. Adaptasi Fonetik Jawa</h3>
+                    <ul class="list-disc pl-5 space-y-2">
+                        <li><strong>e taling (é)</strong>: Menggunakan vokal "ee" atau "e" dengan penanda khusus.</li>
+                        <li><strong>e pepet (e)</strong>: Menggunakan vokal dasar "e" tanpa tanda.</li>
+                        <li><strong>th / dh</strong>: Diadaptasi menggunakan kluster konsonan Pahawh yang setara dengan fonem dental/retroflex.</li>
+                        <li><strong>ng / ny</strong>: Menggunakan huruf nasal khusus Pahawh Hmong.</li>
+                        <li><strong>Serapan</strong>: f, v, z, kh, sy memiliki padanan khusus dalam daftar fonem tambahan Pahawh.</li>
+                    </ul>
+                </section>
+
+                <section>
+                    <h3 class="font-bold text-slate-800 border-b pb-2 mb-3">3. Medial & Final</h3>
+                    <p>Seperti sistem *Sandhangan* pada aksara Jawa:</p>
+                    <ul class="list-disc pl-5 space-y-2">
+                        <li><strong>Medial (Pengkal/Cakra)</strong>: Ditangani melalui kluster konsonan (misal: p+r, k+y).</li>
+                        <li><strong>Final (Cecak/Wignyan/Layar)</strong>: Dalam Pahawh Hmong, suku kata umumnya terbuka. Bunyi akhir -ng, -h, -r dipetakan ke penanda nada atau konsonan akhir jika tersedia.</li>
+                    </ul>
+                </section>
+
+                <div class="bg-indigo-50 p-4 rounded-2xl border border-indigo-100">
+                    <p class="text-indigo-800 font-semibold mb-2">Pencipta:</p>
+                    <p><strong>Shong Lue Yang</strong> (The Mother of Writing). Beliau menciptakan aksara ini pada tahun 1959 untuk menyatukan orang-orang Hmong.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Data Mapping (Pahawh Hmong Unicode)
+        // Note: Pahawh script is complex. This is a simplified phonetic mapping for Javanese users.
+        const VOWELS = {
+            'a': '\uD81A\uDF00', 'au': '\uD81A\uDF01', 'ai': '\uD81A\uDF02', 'aa': '\uD81A\uDF03', 
+            'i': '\uD81A\uDF04', 'ia': '\uD81A\uDF05', 'u': '\uD81A\uDF06', 'ua': '\uD81A\uDF07', 
+            'o': '\uD81A\uDF08', 'oo': '\uD81A\uDF09', 'e': '\uD81A\uDF0A', 'ee': '\uD81A\uDF0B',
+            'é': '\uD81A\uDF0C', 'aw': '\uD81A\uDF0D', 'ay': '\uD81A\uDF0E', 'oy': '\uD81A\uDF0F'
+        };
+
+        const CONSONANTS = {
+            'k': '\uD81A\uDF10', 'kh': '\uD81A\uDF11', 'g': '\uD81A\uDF12', 'n': '\uD81A\uDF13',
+            'ng': '\uD81A\uDF14', 'c': '\uD81A\uDF15', 'ch': '\uD81A\uDF16', 'j': '\uD81A\uDF17',
+            'ny': '\uD81A\uDF18', 't': '\uD81A\uDF19', 'th': '\uD81A\uDF1A', 'd': '\uD81A\uDF1B',
+            'dh': '\uD81A\uDF1C', 'p': '\uD81A\uDF1D', 'ph': '\uD81A\uDF1E', 'b': '\uD81A\uDF1F',
+            'm': '\uD81A\uDF20', 'f': '\uD81A\uDF21', 'v': '\uD81A\uDF22', 's': '\uD81A\uDF23',
+            'sh': '\uD81A\uDF24', 'sy': '\uD81A\uDF24', 'z': '\uD81A\uDF25', 'y': '\uD81A\uDF26',
+            'w': '\uD81A\uDF27', 'l': '\uD81A\uDF28', 'r': '\uD81A\uDF29', 'h': '\uD81A\uDF2A',
+            'q': '\uD81A\uDF2B'
+        };
+
+        const TONEMARKS = {
+            'neutral': '\uD81A\uDF30',
+            'high': '\uD81A\uDF31',
+            'low': '\uD81A\uDF32'
+        };
+
+        let currentMode = 'latin-to-pahawh';
+
+        const inputField = document.getElementById('input-text');
+        const outputField = document.getElementById('output-text');
+        const swapIcon = document.getElementById('swap-icon');
+        const labelLatin = document.getElementById('label-latin');
+        const labelPahawh = document.getElementById('label-pahawh');
+
+        inputField.addEventListener('input', () => {
+            if (currentMode === 'latin-to-pahawh') {
+                translateToPahawh(inputField.value);
+            } else {
+                translateToLatin(inputField.value);
+            }
+        });
+
+        function toggleMode() {
+            currentMode = currentMode === 'latin-to-pahawh' ? 'pahawh-to-latin' : 'latin-to-pahawh';
+            
+            // Animation & UI Update
+            swapIcon.classList.toggle('rotate-180');
+            if (currentMode === 'latin-to-pahawh') {
+                labelLatin.className = 'font-semibold text-indigo-600';
+                labelPahawh.className = 'font-semibold text-slate-400';
+                inputField.placeholder = "Ketik di sini... (contoh: Sugeng enjang)";
+            } else {
+                labelLatin.className = 'font-semibold text-slate-400';
+                labelPahawh.className = 'font-semibold text-indigo-600';
+                inputField.placeholder = "Tempel Aksara Pahawh di sini...";
+            }
+            
+            // Clear fields on mode swap
+            inputField.value = "";
+            outputField.innerText = "";
+        }
+
+        function translateToPahawh(text) {
+            if (!text) {
+                outputField.innerText = "";
+                return;
+            }
+
+            // Simple Syllabifier (Simplified for Prototype)
+            // Rules: Vowel must come before consonant in Pahawh encoding
+            const words = text.toLowerCase().split(/\s+/);
+            let result = "";
+
+            words.forEach(word => {
+                let i = 0;
+                while (i < word.length) {
+                    let sylConsonant = "";
+                    let sylVowel = "a"; // default
+
+                    // 1. Try to find consonant clusters (th, dh, ng, ny, sy, kh, ph)
+                    if (i + 1 < word.length && CONSONANTS[word.substring(i, i + 2)]) {
+                        sylConsonant = CONSONANTS[word.substring(i, i + 2)];
+                        i += 2;
+                    } else if (CONSONANTS[word[i]]) {
+                        sylConsonant = CONSONANTS[word[i]];
+                        i++;
+                    }
+
+                    // 2. Try to find vowel clusters
+                    if (i + 1 < word.length && VOWELS[word.substring(i, i + 2)]) {
+                        sylVowel = VOWELS[word.substring(i, i + 2)];
+                        i += 2;
+                    } else if (VOWELS[word[i]]) {
+                        sylVowel = VOWELS[word[i]];
+                        i++;
+                    } else if (word[i] === 'é') {
+                        sylVowel = VOWELS['é'];
+                        i++;
+                    } else {
+                        sylVowel = VOWELS['a'];
+                    }
+
+                    // PAHAWH RULE: VOWEL + CONSONANT
+                    result += sylVowel + sylConsonant;
+                }
+                result += " "; // Word space
+            });
+
+            outputField.innerText = result;
+        }
+
+        // Simple reverse lookup for Pahawh to Latin
+        function translateToLatin(text) {
+            // Reverse maps
+            const REV_VOWELS = Object.fromEntries(Object.entries(VOWELS).map(([k, v]) => [v, k]));
+            const REV_CONS = Object.fromEntries(Object.entries(CONSONANTS).map(([k, v]) => [v, k]));
+
+            let result = "";
+            // Pahawh characters are Surrogate Pairs in JS
+            const chars = [...text];
+            
+            let i = 0;
+            while (i < chars.length) {
+                let char = chars[i];
+                if (char === " ") {
+                    result += " ";
+                    i++;
+                    continue;
+                }
+
+                // Check for vowel then consonant
+                let v = REV_VOWELS[char] || "";
+                let c = "";
+                if (i + 1 < chars.length && REV_CONS[chars[i+1]]) {
+                    c = REV_CONS[chars[i+1]];
+                    i += 2;
+                } else {
+                    i++;
+                }
+                result += c + v;
+            }
+            outputField.innerText = result;
+        }
+
+        function clearText() {
+            inputField.value = "";
+            outputField.innerText = "";
+        }
+
+        function copyToClipboard() {
+            const text = outputField.innerText;
+            if (!text) return;
+
+            const tempInput = document.createElement("textarea");
+            tempInput.value = text;
+            document.body.appendChild(tempInput);
+            tempInput.select();
+            document.execCommand("copy");
+            document.body.removeChild(tempInput);
+
+            showToast();
+        }
+
+        function showToast() {
+            const toast = document.getElementById('toast');
+            toast.style.opacity = '1';
+            toast.style.transform = 'translate(-50%, 0)';
+            
+            setTimeout(() => {
+                toast.style.opacity = '0';
+                toast.style.transform = 'translate(-50%, 20px)';
+            }, 2500);
+        }
+
+        function toggleGuide() {
+            const modal = document.getElementById('guide-modal');
+            modal.classList.toggle('hidden');
+        }
+    </script>
+</body>
+</html>
