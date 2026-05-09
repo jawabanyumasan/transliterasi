@@ -1,0 +1,400 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bhaiksuki Script Converter for Javanese</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f8fafc;
+        }
+        .bhaiksuki-text {
+            font-family: serif; /* Bhaiksuki renders best with standard serif fallback if specific font not installed */
+            font-size: 1.5rem;
+            line-height: 2rem;
+        }
+        .modal {
+            transition: opacity 0.25s ease;
+        }
+        body.modal-active {
+            overflow: hidden;
+        }
+    </style>
+</head>
+<body class="min-h-screen p-4 md:p-8">
+
+    <div class="max-w-4xl mx-auto bg-white rounded-2xl shadow-xl overflow-hidden border border-slate-200">
+        <!-- Header -->
+        <div class="bg-indigo-700 p-6 text-white text-center">
+            <h1 class="text-2xl md:text-3xl font-bold mb-2">Transliterasi Aksara Bhaiksuki</h1>
+            <p class="text-indigo-100 opacity-90">Versi Penyesuaian Fonetik Jawa (𑰥𑰹𑰎𑰿𑰬𑰲𑰎𑰱)</p>
+        </div>
+
+        <!-- Main Content -->
+        <div class="p-6">
+            <!-- Mode Selector -->
+            <div class="flex items-center justify-center space-x-4 mb-6">
+                <button id="toggleBtn" class="flex items-center space-x-2 bg-indigo-50 text-indigo-700 px-4 py-2 rounded-full font-semibold border border-indigo-200 hover:bg-indigo-100 transition">
+                    <span id="modeLabel">Latin ➔ Bhaiksuki</span>
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4" />
+                    </svg>
+                </button>
+                <button id="guideBtn" class="p-2 text-slate-500 hover:text-indigo-600 transition" title="Panduan">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                </button>
+            </div>
+
+            <!-- Input Areas -->
+            <div class="grid grid-cols-1 gap-6">
+                <div>
+                    <label class="block text-sm font-semibold text-slate-700 mb-2" id="inputLabel">Input (Latin)</label>
+                    <textarea id="inputText" rows="5" class="w-full p-4 border border-slate-300 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none transition text-lg" placeholder="Ketik di sini... (contoh: kang, arka, kya, wa)"></textarea>
+                </div>
+
+                <div class="flex justify-center space-x-3">
+                    <button id="clearBtn" class="px-6 py-2 bg-slate-100 text-slate-600 rounded-lg font-medium hover:bg-slate-200 transition">Bersihkan</button>
+                    <button id="copyBtn" class="px-6 py-2 bg-indigo-600 text-white rounded-lg font-medium hover:bg-indigo-700 transition">Salin Hasil</button>
+                </div>
+
+                <div>
+                    <label class="block text-sm font-semibold text-slate-700 mb-2" id="outputLabel">Hasil (Bhaiksuki)</label>
+                    <div id="outputText" class="w-full min-h-[150px] p-4 bg-slate-50 border border-slate-200 rounded-xl bhaiksuki-text break-all"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Footer -->
+        <div class="bg-slate-50 p-4 text-center text-slate-400 text-xs">
+            Berdasarkan Standar Unicode Bhaiksuki (U+11C00–U+11C6F)
+        </div>
+    </div>
+
+    <!-- Modal Panduan -->
+    <div id="modal" class="modal fixed w-full h-full top-0 left-0 flex items-center justify-center opacity-0 pointer-events-none z-50">
+        <div class="modal-overlay absolute w-full h-full bg-black opacity-50"></div>
+        
+        <div class="modal-container bg-white w-11/12 md:max-w-2xl mx-auto rounded-2xl shadow-2xl z-50 overflow-y-auto max-h-[90vh]">
+            <div class="p-6 text-left">
+                <div class="flex justify-between items-center pb-4 border-b">
+                    <p class="text-2xl font-bold text-slate-800">Panduan Aksara Bhaiksuki</p>
+                    <button id="closeModal" class="text-slate-500 hover:text-slate-800">
+                        <svg class="fill-current text-black" xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 18 18">
+                            <path d="M14.53 4.53l-1.06-1.06L9 7.94 4.53 3.47 3.47 4.53 7.94 9l-4.47 4.47 1.06 1.06L9 10.06l4.47 4.47 1.06-1.06L10.06 9z"></path>
+                        </svg>
+                    </button>
+                </div>
+
+                <div class="py-4 space-y-4">
+                    <section>
+                        <h3 class="font-bold text-indigo-700 mb-2 underline">Vokal & Diftong</h3>
+                        <p class="text-sm text-slate-600">Mendukung vokal mandiri (awal kata) dan tanda vokal (setelah konsonan).</p>
+                        <div class="grid grid-cols-2 gap-2 text-sm mt-1">
+                            <div class="p-2 bg-slate-50 rounded">a, ā, i, ī, u, ū</div>
+                            <div class="p-2 bg-slate-50 rounded">e (é), ai, o, au</div>
+                        </div>
+                    </section>
+
+                    <section>
+                        <h3 class="font-bold text-indigo-700 mb-2 underline">Konsonan Khusus Jawa</h3>
+                        <div class="grid grid-cols-2 gap-x-4 gap-y-1 text-sm">
+                            <span><strong>th</strong> (Retroflex ṭ): 𑰘</span>
+                            <span><strong>dh</strong> (Retroflex ḍ): 𑰚</span>
+                            <span><strong>ny</strong> (Nya): 𑰗</span>
+                            <span><strong>ng</strong> (Nga): 𑰒 / 𑰽</span>
+                            <span><strong>w / v</strong> (Wa): 𑰪</span>
+                        </div>
+                    </section>
+
+                    <section>
+                        <h3 class="font-bold text-indigo-700 mb-2 underline">Medial & Final (Sandhangan)</h3>
+                        <ul class="list-disc list-inside text-sm text-slate-600 space-y-1">
+                            <li><strong>Anusvara (Cecak):</strong> "kang" → 𑰎𑰽</li>
+                            <li><strong>Visarga (Wignyan):</strong> "kah" → 𑰎𑰾</li>
+                            <li><strong>Virama (Pangkon/Medial):</strong> Menggabungkan konsonan atau mematikan vokal.</li>
+                            <li><strong>Contoh Medial:</strong> "kya" (𑰎𑰿𑰧), "kra" (𑰎𑰿𑰨).</li>
+                        </ul>
+                    </section>
+
+                    <section>
+                        <h3 class="font-bold text-indigo-700 mb-2 underline">Konsonan Serapan</h3>
+                        <div class="grid grid-cols-2 gap-x-4 gap-y-1 text-sm">
+                            <span>f → 𑰣 (ph)</span>
+                            <span>v/w → 𑰪</span>
+                            <span>z → 𑰕 (j) / 𑰭 (s)</span>
+                            <span>kh → 𑰏</span>
+                            <span>sy → 𑰫</span>
+                        </div>
+                    </section>
+                </div>
+
+                <div class="flex justify-end pt-4 border-t">
+                    <button id="closeModalBtn" class="px-6 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition">Mengerti</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        /**
+         * Mapping Data for Bhaiksuki
+         */
+        const MAPPING = {
+            vowels: {
+                'a': '', 'ā': '𑰯', 'i': '𑰰', 'ī': '𑰱', 'u': '𑰲', 'ū': '𑰳', 'e': '𑰸', 'é': '𑰸', 'ai': '𑰹', 'o': '𑰺', 'au': '𑰻'
+            },
+            vowelsIndependent: {
+                'a': '𑰀', 'ā': '𑰁', 'i': '𑰂', 'ī': '𑰃', 'u': '𑰄', 'ū': '𑰅', 'e': '𑰊', 'é': '𑰊', 'ai': '𑰋', 'o': '𑰌', 'au': '𑰍'
+            },
+            consonants: {
+                'k': '𑰎', 'kh': '𑰏', 'g': '𑰐', 'gh': '𑰑', 'ng': '𑰒',
+                'c': '𑰓', 'ch': '𑰔', 'j': '𑰕', 'jh': '𑰖', 'ny': '𑰗',
+                'ṭ': '𑰘', 'ṭh': '𑰙', 'ḍ': '𑰚', 'ḍh': '𑰛', 'ṇ': '𑰜',
+                't': '𑰝', 'th': '𑰞', 'd': '𑰟', 'dh': '𑰠', 'n': '𑰡',
+                'p': '𑰢', 'ph': '𑰣', 'b': '𑰤', 'bh': '𑰥', 'm': '𑰦',
+                'y': '𑰧', 'r': '𑰨', 'l': '𑰩', 'v': '𑰪', 'w': '𑰪', // Added 'w' mapping
+                'ś': '𑰫', 'ṣ': '𑰬', 's': '𑰭', 'h': '𑰮',
+                'f': '𑰣', 'z': '𑰕', 'sy': '𑰫'
+            },
+            special: {
+                'virama': '𑰿',
+                'anusvara': '𑰽',
+                'visarga': '𑰾'
+            }
+        };
+
+        // UI State
+        let currentMode = 'latin-to-bhaiksuki'; 
+
+        // Elements
+        const inputText = document.getElementById('inputText');
+        const outputText = document.getElementById('outputText');
+        const modeLabel = document.getElementById('modeLabel');
+        const inputLabel = document.getElementById('inputLabel');
+        const outputLabel = document.getElementById('outputLabel');
+        const toggleBtn = document.getElementById('toggleBtn');
+        const clearBtn = document.getElementById('clearBtn');
+        const copyBtn = document.getElementById('copyBtn');
+        const guideBtn = document.getElementById('guideBtn');
+        const modal = document.getElementById('modal');
+
+        /**
+         * Transliteration Logic: Latin to Bhaiksuki
+         */
+        function latinToBhaiksuki(text) {
+            let result = '';
+            let i = 0;
+            text = text.toLowerCase().normalize('NFC');
+
+            // Pre-process common digraphs and Javanese specifics
+            text = text.replace(/th/g, 'ṭ');
+            text = text.replace(/dh/g, 'ḍ');
+
+            while (i < text.length) {
+                let char = text[i];
+                let nextChar = text[i + 1] || '';
+
+                // Handle space/newlines
+                if (/\s/.test(char)) {
+                    result += char;
+                    i++;
+                    continue;
+                }
+
+                // Look for consonant (greedy match for 2-char)
+                let foundConsonant = '';
+                if (MAPPING.consonants[char + nextChar]) {
+                    foundConsonant = char + nextChar;
+                    i += 2;
+                } else if (MAPPING.consonants[char]) {
+                    foundConsonant = char;
+                    i++;
+                }
+
+                if (foundConsonant) {
+                    let base = MAPPING.consonants[foundConsonant];
+                    
+                    // Check for Final 'ng' (Anusvara) or 'h' (Visarga)
+                    let isEndOfWord = (i >= text.length || /\s/.test(text[i]));
+                    let isBeforeConsonant = (i < text.length && !MAPPING.vowels[text[i]] && text[i] !== 'a' && text[i] !== 'ā');
+
+                    if (foundConsonant === 'ng' && (isEndOfWord || isBeforeConsonant)) {
+                        result += MAPPING.special.anusvara;
+                        continue;
+                    }
+                    if (foundConsonant === 'h' && (isEndOfWord || isBeforeConsonant)) {
+                        result += MAPPING.special.visarga;
+                        continue;
+                    }
+
+                    // Look for vowel
+                    let foundVowel = '';
+                    if (MAPPING.vowels[text[i] + text[i+1]]) {
+                        foundVowel = text[i] + text[i+1];
+                        i += 2;
+                    } else if (MAPPING.vowels[text[i]] || text[i] === 'a' || text[i] === 'ā') {
+                        foundVowel = text[i];
+                        i++;
+                    }
+
+                    if (foundVowel) {
+                        result += base + MAPPING.vowels[foundVowel];
+                    } else {
+                        // Dead consonant (Virama)
+                        result += base + MAPPING.special.virama;
+                    }
+                } else {
+                    // Look for independent vowel
+                    let foundVowelInd = '';
+                    if (MAPPING.vowelsIndependent[char + nextChar]) {
+                        foundVowelInd = char + nextChar;
+                        i += 2;
+                    } else if (MAPPING.vowelsIndependent[char]) {
+                        foundVowelInd = char;
+                        i++;
+                    }
+
+                    if (foundVowelInd) {
+                        result += MAPPING.vowelsIndependent[foundVowelInd];
+                    } else {
+                        result += char;
+                        i++;
+                    }
+                }
+            }
+
+            return result; 
+        }
+
+        /**
+         * Transliteration Logic: Bhaiksuki to Latin
+         */
+        function bhaiksukiToLatin(text) {
+            let result = '';
+            const revConsonants = Object.fromEntries(Object.entries(MAPPING.consonants).map(([k, v]) => [v, k]));
+            const revVowels = Object.fromEntries(Object.entries(MAPPING.vowels).map(([k, v]) => [v, k]));
+            const revIndVowels = Object.fromEntries(Object.entries(MAPPING.vowelsIndependent).map(([k, v]) => [v, k]));
+
+            let i = 0;
+            while (i < text.length) {
+                let charCode = text.codePointAt(i);
+                let charFull = String.fromCodePoint(charCode);
+                i += charFull.length;
+
+                if (revIndVowels[charFull]) {
+                    result += revIndVowels[charFull];
+                } else if (revConsonants[charFull]) {
+                    let base = revConsonants[charFull];
+                    let nextCharCode = i < text.length ? text.codePointAt(i) : null;
+                    let nextFull = nextCharCode ? String.fromCodePoint(nextCharCode) : null;
+
+                    if (nextFull && revVowels[nextFull]) {
+                        result += base + revVowels[nextFull];
+                        i += nextFull.length;
+                    } else if (nextFull === MAPPING.special.virama) {
+                        result += base;
+                        i += nextFull.length;
+                    } else if (nextFull === MAPPING.special.anusvara) {
+                        result += base + 'ang'; 
+                        i += nextFull.length;
+                    } else if (nextFull === MAPPING.special.visarga) {
+                        result += base + 'ah';
+                        i += nextFull.length;
+                    } else {
+                        result += base + 'a'; 
+                    }
+                } else if (charFull === MAPPING.special.anusvara) {
+                    result += 'ng';
+                } else if (charFull === MAPPING.special.visarga) {
+                    result += 'h';
+                } else {
+                    result += charFull;
+                }
+            }
+            
+            return result.replace(/ṭ/g, 'th').replace(/ḍ/g, 'dh').replace(/aa/g, 'a');
+        }
+
+        function handleInput() {
+            const input = inputText.value;
+            if (!input) {
+                outputText.innerText = '';
+                return;
+            }
+            if (currentMode === 'latin-to-bhaiksuki') {
+                outputText.innerText = latinToBhaiksuki(input);
+            } else {
+                outputText.innerText = bhaiksukiToLatin(input);
+            }
+        }
+
+        function toggleMode() {
+            if (currentMode === 'latin-to-bhaiksuki') {
+                currentMode = 'bhaiksuki-to-latin';
+                modeLabel.innerText = 'Bhaiksuki ➔ Latin';
+                inputLabel.innerText = 'Input (Bhaiksuki)';
+                outputLabel.innerText = 'Hasil (Latin)';
+                inputText.placeholder = 'Paste aksara Bhaiksuki di sini...';
+            } else {
+                currentMode = 'latin-to-bhaiksuki';
+                modeLabel.innerText = 'Latin ➔ Bhaiksuki';
+                inputLabel.innerText = 'Input (Latin)';
+                outputLabel.innerText = 'Hasil (Bhaiksuki)';
+                inputText.placeholder = 'Ketik di sini... (contoh: kang, arka, kya, wa)';
+            }
+            const temp = inputText.value;
+            inputText.value = outputText.innerText;
+            handleInput();
+        }
+
+        function copyResult() {
+            const text = outputText.innerText;
+            if (!text) return;
+            const el = document.createElement('textarea');
+            el.value = text;
+            document.body.appendChild(el);
+            el.select();
+            document.execCommand('copy');
+            document.body.removeChild(el);
+            const originalText = copyBtn.innerText;
+            copyBtn.innerText = 'Tersalin!';
+            copyBtn.classList.replace('bg-indigo-600', 'bg-green-600');
+            setTimeout(() => {
+                copyBtn.innerText = originalText;
+                copyBtn.classList.replace('bg-green-600', 'bg-indigo-600');
+            }, 2000);
+        }
+
+        function clearAll() {
+            inputText.value = '';
+            outputText.innerText = '';
+        }
+
+        function toggleModal(show) {
+            if (show) {
+                modal.classList.remove('opacity-0', 'pointer-events-none');
+                document.body.classList.add('modal-active');
+            } else {
+                modal.classList.add('opacity-0', 'pointer-events-none');
+                document.body.classList.remove('modal-active');
+            }
+        }
+
+        inputText.addEventListener('input', handleInput);
+        toggleBtn.addEventListener('click', toggleMode);
+        clearBtn.addEventListener('click', clearAll);
+        copyBtn.addEventListener('click', copyResult);
+        guideBtn.addEventListener('click', () => toggleModal(true));
+        document.getElementById('closeModal').addEventListener('click', () => toggleModal(false));
+        document.getElementById('closeModalBtn').addEventListener('click', () => toggleModal(false));
+        modal.querySelector('.modal-overlay').addEventListener('click', () => toggleModal(false));
+
+        window.onload = handleInput;
+    </script>
+</body>
+</html>
