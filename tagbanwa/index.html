@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Konverter Aksara Tagbanwa - Jawa</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+Tagbanwa&family=Inter:wght@400;600&display=swap');
+        
+        .tagbanwa-font {
+            font-family: 'Noto Sans Tagbanwa', sans-serif;
+            font-size: 2.5rem;
+            line-height: 1.5;
+        }
+        
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f8fafc;
+        }
+
+        .glass-card {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(226, 232, 240, 1);
+        }
+    </style>
+</head>
+<body class="min-h-screen p-4 md:p-8">
+
+    <div class="max-w-4xl mx-auto">
+        <!-- Header -->
+        <header class="text-center mb-10">
+            <h1 class="text-3xl font-bold text-slate-800 mb-2">ᝦᝪᝯ Tagbanwa ⇄ Latin</h1>
+            <p class="text-slate-600 italic">Disesuaikan untuk fonologi Jawa (th, dh, ng, ny, é)</p>
+        </header>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            
+            <!-- Input Section -->
+            <div class="glass-card p-6 rounded-2xl shadow-sm">
+                <div class="flex justify-between items-center mb-4">
+                    <label class="font-semibold text-slate-700">Latin / Jawa</label>
+                    <button id="clearBtn" class="text-xs bg-slate-100 hover:bg-slate-200 px-2 py-1 rounded transition">Hapus</button>
+                </div>
+                <textarea id="latinInput" placeholder="Ketik di sini (contoh: madyang, thole, sego...)" 
+                    class="w-full h-48 p-4 border border-slate-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none resize-none transition"></textarea>
+                <div class="mt-4 text-xs text-slate-500">
+                    Tips: Gunakan 'é' untuk taling. Konsonan mati di akhir kata otomatis disembunyikan (Tradisional).
+                </div>
+            </div>
+
+            <!-- Output Section -->
+            <div class="glass-card p-6 rounded-2xl shadow-sm">
+                <div class="flex justify-between items-center mb-4">
+                    <label class="font-semibold text-slate-700">Aksara Tagbanwa</label>
+                    <button id="copyBtn" class="bg-blue-600 hover:bg-blue-700 text-white text-xs px-3 py-1.5 rounded-lg transition flex items-center gap-2">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="14" height="14" x="8" y="8" rx="2" ry="2"/><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"/></svg>
+                        Salin
+                    </button>
+                </div>
+                <div id="tagbanwaOutput" class="tagbanwa-font w-full h-48 p-4 border border-slate-200 rounded-xl bg-slate-50 overflow-y-auto break-words select-all"></div>
+                <div class="mt-4 flex items-center gap-4">
+                    <label class="flex items-center gap-2 text-xs text-slate-600 cursor-pointer">
+                        <input type="checkbox" id="showVirama" class="rounded border-slate-300">
+                        Tampilkan Konsonan Mati (Modern)
+                    </label>
+                </div>
+            </div>
+
+        </div>
+
+        <!-- Educational Section -->
+        <div class="mt-12 glass-card p-8 rounded-2xl shadow-sm leading-relaxed text-slate-700">
+            <h2 class="text-xl font-bold mb-4 border-b pb-2">Analisis Sistem Tagbanwa vs Jawa</h2>
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-8 text-sm">
+                <div>
+                    <h3 class="font-semibold text-blue-800 mb-2">1. Sistem Medial (Cakra/Pengkal)</h3>
+                    <p>Berbeda dengan Aksara Jawa yang memiliki <b>Cakra</b> (r) dan <b>Pengkal</b> (y), Tagbanwa tradisional <b>tidak mengenal pasangan atau bentuk medial</b>.</p>
+                    <ul class="list-disc ml-5 mt-2 space-y-1">
+                        <li>Kata "Priya" dalam Tagbanwa ditulis sebagai <span class="tagbanwa-font text-base">ᝩ᝭ᝬ</span> (Pa-La-Ya) karena huruf 'R' dipetakan ke 'L' dan ditulis utuh.</li>
+                        <li>"Setya" ditulis <span class="tagbanwa-font text-base">ᝯᝦᝬ</span> (Sa-Ta-Ya).</li>
+                    </ul>
+                </div>
+                <div>
+                    <h3 class="font-semibold text-blue-800 mb-2">2. Sistem Final (Panyigeg)</h3>
+                    <p>Tagbanwa tradisional bersifat <i>Defective</i>. Konsonan akhir (seperti <b>Cecak, Wignyan, Layar</b> atau Pangkon) <b>tidak ditulis sama sekali</b>.</p>
+                    <ul class="list-disc ml-5 mt-2 space-y-1">
+                        <li>"Mangan" ditulis <span class="tagbanwa-font text-base">ᝫᝨ</span> (Ma-Na). Pembaca harus menebak konteksnya.</li>
+                        <li>Dalam konverter ini, mode "Modern" menggunakan tanda <i>Pamudpod</i> (᜴) dari Hanunoo sebagai virama bantuan agar terbaca jelas oleh orang Jawa.</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="mt-6 p-4 bg-amber-50 rounded-lg border border-amber-100 text-xs">
+                <strong>Catatan Pemetaan:</strong><br>
+                - <b>th/dh</b> dipetakan ke <b>Ta/Da</b> (ᝦ/ᝧ).<br>
+                - <b>f/v</b> dipetakan ke <b>Pa</b> (ᝩ).<br>
+                - <b>z</b> dipetakan ke <b>Sa</b> (ᝯ).<br>
+                - <b>kh</b> dipetakan ke <b>Ka</b> (ᝣ).<br>
+                - <b>sy</b> dipetakan ke <b>Sa</b> (ᝯ).<br>
+                - <b>é/è</b> (Taling) menggunakan <i>Kudlit</i> atas (ᝲ), sama dengan 'i'.
+            </div>
+        </div>
+
+        <footer class="mt-8 text-center text-slate-400 text-xs">
+            Referensi: Aksharamukha & Wikipedia Tagbanwa Script
+        </footer>
+    </div>
+
+    <script>
+        const LATIN_TO_TAGBANWA = {
+            // Vowels
+            'a': 'ᝠ', 'i': 'ᝡ', 'u': 'ᝢ', 'e': 'ᝡ', 'o': 'ᝢ', 'é': 'ᝡ', 'è': 'ᝡ',
+            // Consonants (Syllables)
+            'ka': 'ᝣ', 'ga': 'ᝤ', 'nga': 'ᝥ',
+            'ta': 'ᝦ', 'da': 'ᝧ', 'na': 'ᝨ',
+            'pa': 'ᝩ', 'ba': 'ᝪ', 'ma': 'ᝫ',
+            'ya': 'ᝬ', 'la': '᝭', 'wa': 'ᝮ', 'sa': 'ᝯ',
+            // Javanese extensions (mapping)
+            'tha': 'ᝦ', 'dha': 'ᝧ', 'nya': 'ᝨᝬ', // Nya often as Ni-Ya in scripts lacking it
+            'ra': '᝭', // Tagbanwa uses L for R
+            'fa': 'ᝩ', 'va': 'ᝩ', 'za': 'ᝯ', 'kha': 'ᝣ', 'sya': 'ᝯ'
+        };
+
+        const VOWEL_MARKS = {
+            'i': 'ᝲ', 'e': 'ᝲ', 'é': 'ᝲ', 'è': 'ᝲ',
+            'u': 'ᝳ', 'o': 'ᝳ'
+        };
+
+        const CONSONANT_ONLY = {
+            'k': 'ᝣ', 'g': 'ᝤ', 'ng': 'ᝥ', 't': 'ᝦ', 'd': 'ᝧ', 'n': 'ᝨ',
+            'p': 'ᝩ', 'b': 'ᝪ', 'm': 'ᝫ', 'y': 'ᝬ', 'l': '᝭', 'w': 'ᝮ', 's': 'ᝯ',
+            'r': '᝭', 'th': 'ᝦ', 'dh': 'ᝧ', 'ny': 'ᝨᝬ', 'h': '' // h often silent/dropped
+        };
+
+        const latinInput = document.getElementById('latinInput');
+        const tagbanwaOutput = document.getElementById('tagbanwaOutput');
+        const showVirama = document.getElementById('showVirama');
+        const copyBtn = document.getElementById('copyBtn');
+        const clearBtn = document.getElementById('clearBtn');
+
+        function transliterate(text) {
+            text = text.toLowerCase();
+            let result = '';
+            let i = 0;
+
+            while (i < text.length) {
+                let char = text[i];
+                let next = text[i + 1] || '';
+                let nextNext = text[i + 2] || '';
+
+                // Handle multi-char consonants: ng, ny, th, dh
+                let syllable = '';
+                let consumed = 1;
+
+                if (char === 'n' && next === 'g') {
+                    syllable = 'ng';
+                    consumed = 2;
+                } else if (char === 'n' && next === 'y') {
+                    syllable = 'ny';
+                    consumed = 2;
+                } else if (char === 't' && next === 'h') {
+                    syllable = 'th';
+                    consumed = 2;
+                } else if (char === 'd' && next === 'h') {
+                    syllable = 'dh';
+                    consumed = 2;
+                } else if (char === 'k' && next === 'h') {
+                    syllable = 'kh';
+                    consumed = 2;
+                } else if (char === 's' && next === 'y') {
+                    syllable = 'sy';
+                    consumed = 2;
+                } else {
+                    syllable = char;
+                }
+
+                // Check for vowel after the syllable
+                let vowel = text[i + consumed] || '';
+                
+                if (['a', 'i', 'u', 'e', 'o', 'é', 'è'].includes(syllable)) {
+                    // Independent Vowel
+                    if (syllable === 'a') result += 'ᝠ';
+                    else if (['i', 'e', 'é', 'è'].includes(syllable)) result += 'ᝡ';
+                    else if (['u', 'o'].includes(syllable)) result += 'ᝢ';
+                    i += 1;
+                } else if (syllable === ' ') {
+                    result += ' ';
+                    i += 1;
+                } else if (['a', 'i', 'u', 'e', 'o', 'é', 'è'].includes(vowel)) {
+                    // Consonant + Vowel
+                    let base = LATIN_TO_TAGBANWA[syllable + 'a'] || 'ᝯ';
+                    result += base;
+                    if (vowel !== 'a') {
+                        result += VOWEL_MARKS[vowel];
+                    }
+                    i += consumed + 1;
+                } else {
+                    // Consonant without vowel (Final or just consonant cluster)
+                    if (showVirama.checked) {
+                        let base = CONSONANT_ONLY[syllable] || '';
+                        result += base + (base ? '᜴' : ''); // Using Hanunoo Pamudpod as helper virama
+                    } else {
+                        // Traditional: Skip final consonants
+                    }
+                    i += consumed;
+                }
+            }
+
+            return result;
+        }
+
+        latinInput.addEventListener('input', () => {
+            tagbanwaOutput.textContent = transliterate(latinInput.value);
+        });
+
+        showVirama.addEventListener('change', () => {
+            tagbanwaOutput.textContent = transliterate(latinInput.value);
+        });
+
+        copyBtn.addEventListener('click', () => {
+            const text = tagbanwaOutput.textContent;
+            if (!text) return;
+            
+            const el = document.createElement('textarea');
+            el.value = text;
+            document.body.appendChild(el);
+            el.select();
+            document.execCommand('copy');
+            document.body.removeChild(el);
+
+            const originalText = copyBtn.innerHTML;
+            copyBtn.innerHTML = 'Tersalin!';
+            setTimeout(() => copyBtn.innerHTML = originalText, 2000);
+        });
+
+        clearBtn.addEventListener('click', () => {
+            latinInput.value = '';
+            tagbanwaOutput.textContent = '';
+            latinInput.focus();
+        });
+
+        // Placeholder initial text
+        window.onload = () => {
+            latinInput.value = "madyang neng thole";
+            tagbanwaOutput.textContent = transliterate(latinInput.value);
+        };
+    </script>
+</body>
+</html>
