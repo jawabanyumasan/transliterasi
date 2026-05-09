@@ -1,0 +1,357 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Konverter Aksara Tai Tham (Lue Tham)</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Tai+Tham&family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f8fafc;
+        }
+        .tai-tham {
+            font-family: 'Noto Sans Tai Tham', serif;
+            font-size: 1.8rem;
+            line-height: 2.5rem;
+        }
+        .custom-scrollbar::-webkit-scrollbar {
+            width: 6px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+            background-color: #cbd5e1;
+            border-radius: 10px;
+        }
+        /* Mobile optimization */
+        @media (max-width: 640px) {
+            .tai-tham { font-size: 1.5rem; }
+        }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col items-center p-4 sm:p-8">
+
+    <div class="w-full max-w-4xl bg-white rounded-2xl shadow-xl overflow-hidden border border-slate-200">
+        <!-- Header -->
+        <div class="bg-indigo-600 p-6 text-white text-center">
+            <h1 class="text-2xl sm:text-3xl font-bold">ᨲ᩠ᩅᩫᨵᩢᨾ᩠ᨾ᩼ Tai Tham</h1>
+            <p class="text-indigo-100 mt-1 opacity-90">Konverter Aksara Tai Tham untuk Penutur Jawa (Lue Tham)</p>
+        </div>
+
+        <div class="p-6 space-y-6">
+            <!-- Latin Input Area -->
+            <div class="space-y-2">
+                <div class="flex justify-between items-center">
+                    <label class="text-sm font-semibold text-slate-600">Latin (Jawa/Indonesia)</label>
+                    <div class="flex gap-2">
+                        <button onclick="clearText()" class="text-xs bg-slate-100 hover:bg-slate-200 text-slate-600 py-1 px-3 rounded-full transition">Bersihkan</button>
+                        <button onclick="copyToClipboard('latin-input')" class="text-xs bg-indigo-50 hover:bg-indigo-100 text-indigo-600 py-1 px-3 rounded-full transition">Salin</button>
+                    </div>
+                </div>
+                <textarea id="latin-input" 
+                    placeholder="Ketik Latin di sini (contoh: kang, kah, kya, kra, kla, éna)..."
+                    class="w-full h-32 p-4 rounded-xl border border-slate-200 focus:ring-2 focus:ring-indigo-500 focus:border-transparent outline-none transition resize-none text-lg custom-scrollbar"
+                    oninput="convertToTaiTham()"></textarea>
+            </div>
+
+            <!-- Arrow Divider -->
+            <div class="flex justify-center -my-4 relative z-10">
+                <div class="bg-white p-2 rounded-full border border-slate-200 shadow-sm">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-indigo-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16V4m0 0L3 8m4-4l4 4m6 0v12m0 0l4-4m-4 4l-4-4" />
+                    </svg>
+                </div>
+            </div>
+
+            <!-- Tai Tham Output Area -->
+            <div class="space-y-2">
+                <div class="flex justify-between items-center">
+                    <label class="text-sm font-semibold text-slate-600">Aksara Tai Tham</label>
+                    <div class="flex gap-2">
+                        <button onclick="copyToClipboard('taitham-output')" class="text-xs bg-indigo-50 hover:bg-indigo-100 text-indigo-600 py-1 px-3 rounded-full transition">Salin</button>
+                    </div>
+                </div>
+                <textarea id="taitham-output" 
+                    placeholder="ᨲ᩠ᩅᩫᨵᩢᨾ᩠ᨾ᩼"
+                    class="tai-tham w-full h-32 p-4 rounded-xl border border-slate-200 bg-slate-50 focus:ring-2 focus:ring-indigo-500 focus:border-transparent outline-none transition resize-none custom-scrollbar"
+                    oninput="convertToLatin()"></textarea>
+            </div>
+
+            <!-- Info Buttons -->
+            <div class="flex justify-center pt-4">
+                <button onclick="toggleModal('info-modal')" class="flex items-center gap-2 bg-slate-800 text-white px-6 py-2 rounded-full hover:bg-slate-700 transition shadow-md">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                        <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd" />
+                    </svg>
+                    Panduan & Info
+                </button>
+            </div>
+        </div>
+        
+        <div id="status-msg" class="hidden fixed bottom-10 left-1/2 -translate-x-1/2 bg-slate-900 text-white px-4 py-2 rounded-lg text-sm shadow-2xl z-50">
+            Teks disalin!
+        </div>
+    </div>
+
+    <!-- Info Modal -->
+    <div id="info-modal" class="hidden fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+        <div class="bg-white rounded-2xl w-full max-w-2xl max-h-[90vh] overflow-hidden flex flex-col shadow-2xl">
+            <div class="p-6 border-b border-slate-100 flex justify-between items-center bg-indigo-50">
+                <h2 class="text-xl font-bold text-slate-800">Panduan Aksara Tai Tham</h2>
+                <button onclick="toggleModal('info-modal')" class="text-slate-400 hover:text-slate-600">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                </button>
+            </div>
+            <div class="p-6 overflow-y-auto custom-scrollbar space-y-6 text-slate-700">
+                <div>
+                    <h3 class="font-bold text-indigo-600 mb-2">Prinsip Dasar</h3>
+                    <ul class="list-disc ml-5 space-y-1">
+                        <li><strong>Vokal 'é' (e taling):</strong> Ketik 'é' atau 'e' (program akan mendeteksi sebagai ᩮ yang diletakkan di depan).</li>
+                        <li><strong>Medial:</strong> Mendukung <em>y</em> (Pengkal ᩠ᨿ), <em>r</em> (Cakra ᩕ), dan <em>l</em> (ᩖ). Contoh: <em>kya, kra, kla</em>.</li>
+                        <li><strong>Final:</strong> <em>-ng</em> otomatis menjadi Cecak (Mai Kang ᩴ), <em>-h</em> menjadi Wignyan (Visarga ᩡ).</li>
+                        <li><strong>Pangkon (Virama):</strong> Konsonan mati di akhir kata otomatis mendapatkan ᩺. Contoh: <em>ak</em> &rarr; ᩋᨠ᩺.</li>
+                    </ul>
+                </div>
+
+                <div class="grid grid-cols-2 gap-4">
+                    <div class="bg-slate-50 p-4 rounded-xl border border-slate-200">
+                        <h4 class="font-bold text-sm mb-2 text-slate-500 uppercase">Konsonan Khusus</h4>
+                        <div class="grid grid-cols-2 gap-x-2 text-sm">
+                            <span>th : ᨳ</span> <span>dh : ᨴ / ᨵ</span>
+                            <span>ng : ᨦ</span> <span>ny : ᨩ / ᨿ</span>
+                            <span>f : ᨼ</span> <span>v : ᩅ</span>
+                            <span>kh : ᨣ</span> <span>sy : ᩆ</span>
+                            <span>z : ᩔ</span>
+                        </div>
+                    </div>
+                    <div class="bg-slate-50 p-4 rounded-xl border border-slate-200">
+                        <h4 class="font-bold text-sm mb-2 text-slate-500 uppercase">Contoh Ketik</h4>
+                        <div class="grid grid-cols-2 gap-x-2 text-sm font-mono">
+                            <span>kang</span> <span class="tai-tham text-base">ᨠᩴ</span>
+                            <span>kah</span> <span class="tai-tham text-base">ᨠᩡ</span>
+                            <span>kya</span> <span class="tai-tham text-base">ᨠ᩠ᨿ</span>
+                            <span>kra</span> <span class="tai-tham text-base">ᨠᩕ</span>
+                            <span>arka</span> <span class="tai-tham text-base">ᩋᩁ᩠ᨠ</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <p class="text-xs text-slate-400 italic">Referensi: Wikipedia Tai Tham & Aksharamukha Lue Tham mapping.</p>
+            </div>
+            <div class="p-4 border-t border-slate-100 text-center">
+                <button onclick="toggleModal('info-modal')" class="bg-indigo-600 text-white px-8 py-2 rounded-full hover:bg-indigo-700 transition">Mengerti</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Mapping Data
+        const consonants = {
+            'kh': 'ᨣ', 'ng': 'ᨦ', 'ch': 'ᨨ', 'ny': 'ᨿ',
+            'th': 'ᨳ', 'dh': 'ᨴ', 'ph': 'ᨹ', 'sy': 'ᩆ',
+            'k': 'ᨠ', 'g': 'ᨣ', 'c': 'ᨧ', 'j': 'ᨩ',
+            't': 'ᨲ', 'd': 'ᨴ', 'n': 'ᨶ', 'p': 'ᨷ',
+            'b': 'ᨻ', 'm': 'ᨾ', 'y': 'ᨿ', 'r': 'ᩁ',
+            'l': 'ᩃ', 'w': 'ᩅ', 's': 'ᩈ', 'h': 'ᩉ',
+            'f': 'ᨼ', 'v': 'ᩅ', 'z': 'ᩔ'
+        };
+
+        const vowels = {
+            'aa': 'ᩤ', 'a': '', 'ii': 'ᩦ', 'i': 'ᩥ',
+            'uu': 'ᩪ', 'u': 'ᩩ', 'é': 'ᩮ', 'e': 'ᩮ',
+            'o': 'ᩰ', 'ai': '᩠ᨿ'
+        };
+
+        // UI Helpers
+        function toggleModal(id) {
+            document.getElementById(id).classList.toggle('hidden');
+        }
+
+        function clearText() {
+            document.getElementById('latin-input').value = '';
+            document.getElementById('taitham-output').value = '';
+        }
+
+        function showToast(msg) {
+            const toast = document.getElementById('status-msg');
+            toast.innerText = msg;
+            toast.classList.remove('hidden');
+            setTimeout(() => toast.classList.add('hidden'), 2000);
+        }
+
+        function copyToClipboard(id) {
+            const text = document.getElementById(id).value;
+            if (!text) return;
+            
+            const el = document.createElement('textarea');
+            el.value = text;
+            document.body.appendChild(el);
+            el.select();
+            document.execCommand('copy');
+            document.body.removeChild(el);
+            showToast("Teks disalin!");
+        }
+
+        // Transliteration Logic: Latin to Tai Tham
+        function convertToTaiTham() {
+            let latin = document.getElementById('latin-input').value.toLowerCase();
+            if (!latin) {
+                document.getElementById('taitham-output').value = '';
+                return;
+            }
+
+            let result = '';
+            let i = 0;
+
+            // Simple Tokenizer
+            const words = latin.split(/(\s+)/);
+            
+            const processedWords = words.map(word => {
+                if (/\s+/.test(word)) return word;
+                
+                let out = '';
+                let cursor = 0;
+                
+                while (cursor < word.length) {
+                    let char = word[cursor];
+                    let next = word[cursor + 1];
+                    let next2 = word[cursor + 2];
+                    let matched = false;
+
+                    // 1. Check for 'é' or 'e' (pre-posed)
+                    if (char === 'é' || char === 'e') {
+                        // In Tai Tham, 'e' is written BEFORE the consonant
+                        // We'll skip for now and handle it when we find the consonant
+                        cursor++;
+                        continue;
+                    }
+
+                    // 2. Base Consonant check (prioritize 2 chars like 'kh', 'th')
+                    let c = '';
+                    let c_len = 0;
+                    if (cursor + 1 < word.length && consonants[word.substr(cursor, 2)]) {
+                        c = word.substr(cursor, 2);
+                        c_len = 2;
+                    } else if (consonants[char]) {
+                        c = char;
+                        c_len = 1;
+                    } else if (char === 'a' || char === 'i' || char === 'u' || char === 'o') {
+                        // Independent vowel or starting vowel
+                        out += 'ᩋ'; // Use placeholder Alif/A
+                        c = '';
+                        c_len = 0;
+                    }
+
+                    if (c) {
+                        let base = consonants[c];
+                        let medial = '';
+                        let vowelSign = '';
+                        let tempCursor = cursor + c_len;
+
+                        // Check for Medials (y, r, l)
+                        if (word[tempCursor] === 'y') {
+                            medial = '᩠ᨿ'; // Pengkal
+                            tempCursor++;
+                        } else if (word[tempCursor] === 'r') {
+                            medial = 'ᩕ'; // Cakra
+                            tempCursor++;
+                        } else if (word[tempCursor] === 'l') {
+                            medial = 'ᩖ';
+                            tempCursor++;
+                        }
+
+                        // Check for Vowels
+                        let foundVowel = '';
+                        if (word.substr(tempCursor, 2) === 'aa') { foundVowel = 'aa'; tempCursor += 2; }
+                        else if (['a', 'i', 'u', 'e', 'é', 'o'].includes(word[tempCursor])) {
+                            foundVowel = word[tempCursor];
+                            tempCursor++;
+                        }
+
+                        // Handle pre-posed vowel logic (if 'e' or 'é' was found before or here)
+                        // If we had a previous 'e' that we skipped
+                        let isPreposed = (foundVowel === 'e' || foundVowel === 'é');
+                        if (isPreposed) out += 'ᩮ';
+                        
+                        out += base + medial;
+
+                        // Post-consonant vowels
+                        if (foundVowel && !isPreposed) {
+                            out += vowels[foundVowel] || '';
+                        }
+
+                        // Check for finals (ng, h) or kill the consonant if at end
+                        // If next is a space or end of word and no vowel was found
+                        if (!foundVowel && tempCursor === word.length) {
+                             // consonant mati at end
+                             out += '᩺';
+                        }
+                        
+                        // Special case: final 'ng' and 'h' as signs
+                        if (tempCursor < word.length) {
+                            if (word.substr(tempCursor, 2) === 'ng' && (tempCursor + 2 === word.length)) {
+                                out += 'ᩴ'; // Mai Kang
+                                tempCursor += 2;
+                            } else if (word[tempCursor] === 'h' && (tempCursor + 1 === word.length)) {
+                                out += 'ᩡ'; // Visarga
+                                tempCursor += 1;
+                            }
+                        }
+
+                        cursor = tempCursor;
+                        matched = true;
+                    }
+
+                    if (!matched) {
+                        out += char;
+                        cursor++;
+                    }
+                }
+                return out;
+            });
+
+            document.getElementById('taitham-output').value = processedWords.join('');
+        }
+
+        // Inverse mapping: Tai Tham to Latin (Basic Implementation)
+        function convertToLatin() {
+            let tham = document.getElementById('taitham-output').value;
+            if (!tham) {
+                document.getElementById('latin-input').value = '';
+                return;
+            }
+
+            // Simple reversal for demonstration (heuristic)
+            const reverseCons = Object.fromEntries(Object.entries(consonants).map(([k, v]) => [v, k]));
+            
+            let result = '';
+            for (let i = 0; i < tham.length; i++) {
+                let char = tham[i];
+                if (reverseCons[char]) {
+                    result += reverseCons[char];
+                } else if (char === 'ᩴ') result += 'ng';
+                else if (char === 'ᩡ') result += 'h';
+                else if (char === 'ᩮ') {
+                    // Logic for preposed would need lookahead, keeping it simple
+                    result += 'é';
+                }
+                else if (char === '᩠' && tham[i+1] === 'ᨿ') { result += 'y'; i++; }
+                else if (char === 'ᩕ') result += 'r';
+                else if (char === 'ᩖ') result += 'l';
+                else if (char === '᩺') {} // Virama ignore
+                else if (char === ' ') result += ' ';
+            }
+            // Note: Full reverse transliteration is complex due to orthography.
+            // Using placeholder logic for now.
+            document.getElementById('latin-input').value = result;
+        }
+
+        // Initialize
+        window.onload = () => {
+            // Optional: load text from storage
+        };
+    </script>
+</body>
+</html>
