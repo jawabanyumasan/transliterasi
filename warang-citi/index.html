@@ -1,0 +1,304 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Warang Citi Transliterasi</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700&display=swap');
+        
+        body {
+            font-family: 'Plus+Jakarta+Sans', sans-serif;
+        }
+
+        .warang-font {
+            font-family: serif;
+        }
+
+        /* Custom scrollbar for textareas */
+        textarea::-webkit-scrollbar {
+            width: 8px;
+        }
+        textarea::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        textarea::-webkit-scrollbar-thumb {
+            background: #e2e8f0;
+            border-radius: 10px;
+        }
+        textarea::-webkit-scrollbar-thumb:hover {
+            background: #cbd5e1;
+        }
+
+        .modal-enter {
+            animation: modalFade 0.2s ease-out forwards;
+        }
+
+        @keyframes modalFade {
+            from { opacity: 0; transform: scale(0.95); }
+            to { opacity: 1; transform: scale(1); }
+        }
+    </style>
+</head>
+<body class="min-h-screen bg-slate-50 p-4 md:p-8 text-slate-800">
+
+    <div class="max-w-4xl mx-auto">
+        <!-- Header -->
+        <header class="flex justify-between items-center mb-8 bg-white p-6 rounded-2xl shadow-sm border border-slate-100">
+            <div>
+                <h1 class="text-2xl font-bold text-indigo-700 flex items-center gap-2">
+                    <span class="bg-indigo-100 p-2 rounded-lg">𑢹𑣗𑣁𑣜𑣊</span>
+                    Warang Citi Transliterasi
+                </h1>
+                <p class="text-slate-500 text-sm mt-1">Konversi Aksara Warang Citi untuk Bahasa Jawa</p>
+            </div>
+            <button onclick="toggleModal(true)" class="p-2 hover:bg-slate-100 rounded-full transition-colors" title="Panduan Aksara">
+                <i data-lucide="info" class="text-slate-400"></i>
+            </button>
+        </header>
+
+        <!-- Converter Area -->
+        <div class="grid grid-cols-1 gap-6">
+            <div class="relative">
+                <label id="inputLabel" class="block text-sm font-semibold text-slate-600 mb-2 ml-1">Input Latin</label>
+                <textarea id="inputText" 
+                    class="w-full h-40 p-5 rounded-2xl border border-slate-200 focus:ring-2 focus:ring-indigo-500 focus:border-transparent outline-none transition-all resize-none shadow-sm text-lg"
+                    placeholder="Ketik teks Latin di sini..."></textarea>
+                <div class="absolute right-4 bottom-4 flex gap-2">
+                    <button onclick="clearText()" class="p-2 bg-white text-slate-400 hover:text-red-500 border border-slate-100 rounded-xl shadow-sm transition-colors" title="Hapus">
+                        <i data-lucide="trash-2"></i>
+                    </button>
+                </div>
+            </div>
+
+            <div class="flex justify-center -my-3 z-10">
+                <button onclick="toggleMode()" class="bg-indigo-600 text-white p-3 rounded-full shadow-lg hover:bg-indigo-700 transition-transform active:scale-95">
+                    <i data-lucide="arrow-right-left"></i>
+                </button>
+            </div>
+
+            <div class="relative">
+                <label id="outputLabel" class="block text-sm font-semibold text-slate-600 mb-2 ml-1">Hasil Warang Citi</label>
+                <div id="outputText" class="w-full min-h-[160px] p-5 rounded-2xl bg-white border border-slate-200 shadow-sm text-2xl break-words whitespace-pre-wrap warang-font">
+                    <span class="text-slate-300 italic text-lg">Hasil muncul di sini...</span>
+                </div>
+                
+                <div class="mt-4 flex justify-end">
+                    <button id="copyBtn" onclick="copyResult()" class="flex items-center gap-2 px-6 py-3 rounded-xl font-semibold transition-all shadow-md bg-indigo-600 text-white hover:bg-indigo-700">
+                        <i data-lucide="copy" id="copyIcon"></i>
+                        <span id="copyText">Salin Hasil</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Info Modal -->
+        <div id="infoModal" class="hidden fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+            <div class="bg-white rounded-3xl max-w-2xl w-full max-h-[90vh] overflow-y-auto p-8 shadow-2xl modal-enter">
+                <div class="flex justify-between items-center mb-6">
+                    <h2 class="text-2xl font-bold text-slate-800">Panduan Warang Citi</h2>
+                    <button onclick="toggleModal(false)" class="text-slate-400 hover:text-slate-600 text-3xl">&times;</button>
+                </div>
+                
+                <div class="space-y-6">
+                    <section>
+                        <h3 class="font-bold text-indigo-600 mb-2">Vokal & Dasar</h3>
+                        <div class="grid grid-cols-3 sm:grid-cols-5 gap-3">
+                            <div class="p-3 bg-slate-50 rounded-xl text-center"><div class="text-2xl mb-1">𑣁</div><div class="text-xs text-slate-500 uppercase">a</div></div>
+                            <div class="p-3 bg-slate-50 rounded-xl text-center"><div class="text-2xl mb-1">𑣂</div><div class="text-xs text-slate-500 uppercase">i</div></div>
+                            <div class="p-3 bg-slate-50 rounded-xl text-center"><div class="text-2xl mb-1">𑣃</div><div class="text-xs text-slate-500 uppercase">u</div></div>
+                            <div class="p-3 bg-slate-50 rounded-xl text-center"><div class="text-2xl mb-1">𑣈</div><div class="text-xs text-slate-500 uppercase">e / é</div></div>
+                            <div class="p-3 bg-slate-50 rounded-xl text-center"><div class="text-2xl mb-1">𑣉</div><div class="text-xs text-slate-500 uppercase">o</div></div>
+                        </div>
+                    </section>
+
+                    <section>
+                        <h3 class="font-bold text-indigo-600 mb-2">Sistem Medial & Final (Jawa)</h3>
+                        <div class="bg-slate-50 p-4 rounded-2xl space-y-2 text-sm leading-relaxed">
+                            <p>• <strong>Final NG (Cecak):</strong> Otomatis menjadi <span class="text-lg">𑣀</span> jika berada di akhir suku kata.</p>
+                            <p>• <strong>Final H (Wignyan):</strong> Otomatis menjadi <span class="text-lg">𑣄</span> jika berada di akhir kata.</p>
+                            <p>• <strong>Medial (Pengkal/Cakra):</strong> Menggunakan ZWJ untuk menyambung konsonan dengan semivokal (contoh: 𑣌‍𑣅 untuk 'kya').</p>
+                            <p>• <strong>E Taling:</strong> Karakter <span class="text-lg">𑣈</span> digunakan untuk 'e' maupun 'é'.</p>
+                        </div>
+                    </section>
+
+                    <section>
+                        <h3 class="font-bold text-indigo-600 mb-2">Contoh Penulisan</h3>
+                        <div class="overflow-x-auto">
+                            <table class="w-full text-sm border-collapse">
+                                <thead>
+                                    <tr class="border-b border-slate-100">
+                                        <th class="text-left py-2 px-1">Latin</th>
+                                        <th class="text-left py-2 px-1">Warang Citi</th>
+                                        <th class="text-left py-2 px-1">Keterangan</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr class="border-b border-slate-50"><td class="py-2 px-1">Ka</td><td class="py-2 px-1 text-lg">𑣌𑣁</td><td class="py-2 px-1 text-slate-500 italic">K + A</td></tr>
+                                    <tr class="border-b border-slate-50"><td class="py-2 px-1">Kang</td><td class="py-2 px-1 text-lg">𑣌𑣀</td><td class="py-2 px-1 text-slate-500 italic">K + Cecak</td></tr>
+                                    <tr class="border-b border-slate-50"><td class="py-2 px-1">Kah</td><td class="py-2 px-1 text-lg">𑣌𑣄</td><td class="py-2 px-1 text-slate-500 italic">K + Wignyan</td></tr>
+                                    <tr class="border-b border-slate-50"><td class="py-2 px-1">Kra</td><td class="py-2 px-1 text-lg">𑣌‍𑣜</td><td class="py-2 px-1 text-slate-500 italic">K + ZWJ + R</td></tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </section>
+                </div>
+
+                <button onclick="toggleModal(false)" class="w-full mt-8 bg-slate-800 text-white py-3 rounded-xl font-bold hover:bg-slate-900 transition-colors">Tutup Panduan</button>
+            </div>
+        </div>
+
+        <!-- Footer -->
+        <footer class="mt-12 text-center text-slate-400 text-sm">
+            <p>© 2024 Warang Citi Transliterasi • Disesuaikan untuk Pengguna Aksara Jawa</p>
+        </footer>
+    </div>
+
+    <script>
+        // State Management
+        let isLatinToWarang = true;
+        const ZWJ = '\u200D';
+        const ANUSVARA = '𑣀';
+        const VISARGA = '𑣄';
+
+        const warangMap = {
+            'a': '𑣁', 'i': '𑣂', 'u': '𑣃', 'e': '𑣈', 'é': '𑣈', 'o': '𑣉',
+            'k': '𑣌', 'g': '𑣓', 'ng': '𑣊', 'c': '𑣏', 'j': '𑣔', 'ny': '𑣙',
+            't': '𑣕', 'd': '𑣖', 'n': '𑣗', 'th': '𑣜', 'dh': '𑣝',
+            'p': '𑣘', 'b': '𑣙', 'm': '𑣚', 'y': '𑣅', 'r': '𑣜', 'l': '𑣚', 'w': '𑣟',
+            's': '𑣛', 'h': '𑣄', 'f': '𑣘', 'v': '𑣟', 'z': '𑣛', 'q': '𑣌', 'kh': '𑣌', 'sy': '𑣛',
+            '0': '𑣠', '1': '𑣡', '2': '𑣢', '3': '𑣣', '4': '𑣤', '5': '𑣥', '6': '𑣦', '7': '𑣧', '8': '𑣨', '9': '𑣩'
+        };
+
+        const reverseMap = {};
+        for (const [key, value] of Object.entries(warangMap)) {
+            if (!reverseMap[value]) reverseMap[value] = key;
+        }
+
+        // Functions
+        function transliterateToWarang(text) {
+            let result = '';
+            let i = 0;
+            const t = text.toLowerCase();
+            const vowels = 'aiueoé';
+
+            while (i < t.length) {
+                let found2 = false;
+                const twoChars = t.substr(i, 2);
+
+                if (['ng', 'ny', 'th', 'dh', 'kh', 'sy'].includes(twoChars)) {
+                    // Final NG (Cecak) check
+                    if (twoChars === 'ng' && (i + 2 === t.length || !vowels.includes(t[i+2]) && t[i+2] !== ' ')) {
+                        result += ANUSVARA;
+                    } else {
+                        result += warangMap[twoChars];
+                    }
+                    i += 2;
+                    found2 = true;
+                }
+
+                if (!found2) {
+                    const char = t[i];
+                    // Final H (Wignyan) check
+                    if (char === 'h' && i > 0 && (i + 1 === t.length || !vowels.includes(t[i+1]) && t[i+1] !== ' ')) {
+                        result += VISARGA;
+                    }
+                    // Medial logic
+                    else if (i > 0 && !vowels.includes(t[i-1]) && t[i-1] !== ' ' && ['r', 'y', 'w', 'l'].includes(char)) {
+                        result += ZWJ + (warangMap[char] || char);
+                    }
+                    else {
+                        result += warangMap[char] || char;
+                    }
+                    i++;
+                }
+            }
+            return result;
+        }
+
+        function transliterateToLatin(text) {
+            let result = '';
+            for (let char of text) {
+                if (char === ZWJ) continue;
+                if (char === ANUSVARA) { result += 'ng'; continue; }
+                if (char === VISARGA) { result += 'h'; continue; }
+                result += reverseMap[char] || char;
+            }
+            return result;
+        }
+
+        const inputEl = document.getElementById('inputText');
+        const outputEl = document.getElementById('outputText');
+
+        function updateOutput() {
+            const text = inputEl.value;
+            if (!text) {
+                outputEl.innerHTML = '<span class="text-slate-300 italic text-lg">Hasil muncul di sini...</span>';
+                return;
+            }
+            const result = isLatinToWarang ? transliterateToWarang(text) : transliterateToLatin(text);
+            outputEl.textContent = result;
+        }
+
+        inputEl.addEventListener('input', updateOutput);
+
+        function toggleMode() {
+            isLatinToWarang = !isLatinToWarang;
+            const currentResult = outputEl.textContent;
+            
+            document.getElementById('inputLabel').textContent = isLatinToWarang ? 'Input Latin' : 'Input Warang Citi';
+            document.getElementById('outputLabel').textContent = isLatinToWarang ? 'Hasil Warang Citi' : 'Hasil Latin';
+            inputEl.placeholder = isLatinToWarang ? "Ketik teks Latin di sini..." : "𑣌𑣈𑣕𑣂𑣌 𑣁𑣌𑣛𑣁𑣜𑣁 𑣛𑣈𑣘𑣈𑣜𑣕𑣂 𑣂𑣗𑣂...";
+            
+            inputEl.value = currentResult === 'Hasil muncul di sini...' ? '' : currentResult;
+            updateOutput();
+        }
+
+        function clearText() {
+            inputEl.value = '';
+            updateOutput();
+        }
+
+        function copyResult() {
+            const text = outputEl.textContent;
+            if (!text || text === 'Hasil muncul di sini...') return;
+
+            const textArea = document.createElement("textarea");
+            textArea.value = text;
+            document.body.appendChild(textArea);
+            textArea.select();
+            try {
+                document.execCommand('copy');
+                const btn = document.getElementById('copyBtn');
+                const btnText = document.getElementById('copyText');
+                const btnIcon = document.getElementById('copyIcon');
+                
+                btn.classList.replace('bg-indigo-600', 'bg-green-500');
+                btnText.textContent = 'Aksara Berhasil Disalin';
+                
+                setTimeout(() => {
+                    btn.classList.replace('bg-green-500', 'bg-indigo-600');
+                    btnText.textContent = 'Salin Hasil';
+                }, 2000);
+            } catch (err) {
+                console.error('Gagal menyalin: ', err);
+            }
+            document.body.removeChild(textArea);
+        }
+
+        function toggleModal(show) {
+            const modal = document.getElementById('infoModal');
+            if (show) {
+                modal.classList.remove('hidden');
+            } else {
+                modal.classList.add('hidden');
+            }
+        }
+
+        // Initialize Icons
+        lucide.createIcons();
+    </script>
+</body>
+</html>
