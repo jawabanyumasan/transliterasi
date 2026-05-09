@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NPH Hmong x Jawa Converter</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Inter', sans-serif; }
+        /* Font fallback jika sistem tidak mendukung NPH secara native */
+        .nph-text {
+            line-break: anywhere;
+        }
+        .custom-scrollbar::-webkit-scrollbar {
+            width: 6px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-track {
+            background: #f1f1f1;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+            background: #888;
+            border-radius: 10px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+            background: #555;
+        }
+    </style>
+</head>
+<body class="bg-slate-50 min-h-screen text-slate-800">
+
+    <div class="max-w-4xl mx-auto p-4 md:p-8">
+        <!-- Header -->
+        <header class="text-center mb-8">
+            <h1 class="text-3xl md:text-4xl font-bold text-indigo-700 mb-2">Transliterasi 𞄐𞄦𞄲𞄤𞄎𞄫𞄰𞄚𞄧𞄲𞄤𞄔𞄬𞄱</h1>
+            <p class="text-slate-600">Nyiakeng Puachue Hmong untuk Lidah Jawa</p>
+        </header>
+
+        <!-- Main Converter Area -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+            <!-- Latin Input -->
+            <div class="bg-white p-5 rounded-2xl shadow-sm border border-slate-200">
+                <div class="flex justify-between items-center mb-3">
+                    <label class="font-semibold text-slate-700 uppercase text-xs tracking-wider">Latin / Jawa</label>
+                    <button onclick="clearText('latin')" class="text-rose-500 hover:text-rose-700 text-sm font-medium transition">Bersihkan</button>
+                </div>
+                <textarea id="latinInput" 
+                    placeholder="Ketik bahasa Jawa di sini (contoh: dhahar, sega, nyepi...)"
+                    class="w-full h-48 p-4 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:outline-none transition resize-none text-lg"
+                    oninput="convertToNPH()"></textarea>
+            </div>
+
+            <!-- NPH Output -->
+            <div class="bg-white p-5 rounded-2xl shadow-sm border border-slate-200">
+                <div class="flex justify-between items-center mb-3">
+                    <label class="font-semibold text-slate-700 uppercase text-xs tracking-wider">Aksara NPH</label>
+                    <div class="flex gap-3">
+                        <button onclick="copyToClipboard('nphOutput')" class="text-indigo-600 hover:text-indigo-800 text-sm font-medium transition">Salin</button>
+                        <button onclick="clearText('nph')" class="text-rose-500 hover:text-rose-700 text-sm font-medium transition">Bersihkan</button>
+                    </div>
+                </div>
+                <textarea id="nphOutput" 
+                    placeholder="𞄀𞄤𞄎𞄤𞄅..."
+                    class="w-full h-48 p-4 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:outline-none transition resize-none text-2xl nph-text"
+                    oninput="convertToLatin()"></textarea>
+            </div>
+        </div>
+
+        <!-- Action Buttons & Info -->
+        <div class="flex flex-wrap justify-center gap-4 mb-12">
+            <button onclick="toggleModal('infoModal')" class="bg-indigo-600 hover:bg-indigo-700 text-white px-6 py-3 rounded-full font-semibold shadow-md transition-all flex items-center gap-2">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                    <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd" />
+                </svg>
+                Panduan & Info Script
+            </button>
+        </div>
+
+        <!-- Footer Info -->
+        <footer class="text-center text-slate-400 text-sm">
+            Dibuat terinspirasi oleh alfabet Ibrani & Chervang Kong<br>
+            <a href="https://en.wikipedia.org/wiki/Nyiakeng_Puachue_Hmong" target="_blank" class="underline hover:text-indigo-500 transition">Referensi Wikipedia</a>
+        </footer>
+    </div>
+
+    <!-- Notification Toast -->
+    <div id="toast" class="fixed bottom-10 left-1/2 -translate-x-1/2 bg-slate-800 text-white px-6 py-3 rounded-full shadow-2xl opacity-0 transition-opacity pointer-events-none z-50">
+        Aksara Berhasil Disalin
+    </div>
+
+    <!-- Info Modal -->
+    <div id="infoModal" class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm hidden flex items-center justify-center p-4 z-50">
+        <div class="bg-white rounded-3xl w-full max-w-2xl max-h-[90vh] overflow-hidden flex flex-col shadow-2xl">
+            <div class="p-6 border-b border-slate-100 flex justify-between items-center">
+                <h2 class="text-xl font-bold text-slate-800">Panduan Aksara NPH-Jawa</h2>
+                <button onclick="toggleModal('infoModal')" class="text-slate-400 hover:text-slate-600">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                </button>
+            </div>
+            <div class="p-6 overflow-y-auto custom-scrollbar text-slate-600 space-y-4">
+                <section>
+                    <h3 class="font-bold text-indigo-600 mb-2 uppercase text-xs tracking-widest">Tentang Script</h3>
+                    <p>Nyiakeng Puachue Hmong (NPH) adalah sistem penulisan alfabetis (bukan abugida seperti Jawa). Artinya, vokal ditulis secara sejajar dengan konsonan, mirip alfabet Latin atau Ibrani.</p>
+                </section>
+
+                <section>
+                    <h3 class="font-bold text-indigo-600 mb-2 uppercase text-xs tracking-widest">Sistem Medial & Final (Konsep Jawa)</h3>
+                    <ul class="list-disc pl-5 space-y-2">
+                        <li><strong>Medial (Pengkal & Cakra):</strong> Karena NPH alfabetis, Pengkal (-y-) dan Cakra (-r-) ditulis dengan menambahkan huruf YA (𞄘) atau RA (𞄖) setelah konsonan utama. Contoh: <em>Praba</em> ditulis P-R-A-B-A.</li>
+                        <li><strong>Final (Cecak, Wignyan, Layar):</strong> Tidak ada penanda khusus seperti di aksara Jawa. Gunakan huruf konsonan NPH di akhir kata.
+                            <ul class="list-circle pl-5 mt-1 opacity-80">
+                                <li>Cecak (ng) ➔ QA (𞄗)</li>
+                                <li>Wignyan (h) ➔ HAH (𞄟)</li>
+                                <li>Layar (r) ➔ RA (𞄖)</li>
+                            </ul>
+                        </li>
+                    </ul>
+                </section>
+
+                <section>
+                    <h3 class="font-bold text-indigo-600 mb-2 uppercase text-xs tracking-widest">Pemetaan Fonetik Khusus</h3>
+                    <div class="grid grid-cols-2 gap-4 bg-slate-50 p-4 rounded-xl text-sm">
+                        <div>
+                            <p class="font-bold border-b mb-1">Vokal</p>
+                            <p>e (pepet) ➔ 𞄪 (E)</p>
+                            <p>é (taling) ➔ 𞄫 (EE)</p>
+                            <p>o (taling tarung) ➔ 𞄨 (O)</p>
+                        </div>
+                        <div>
+                            <p class="font-bold border-b mb-1">Konsonan Jawa</p>
+                            <p>th ➔ 𞄃 (TA)</p>
+                            <p>dh ➔ 𞄏 (DA)</p>
+                            <p>ny ➔ 𞄐 (NYA)</p>
+                            <p>ng ➔ 𞄗 (QA)</p>
+                        </div>
+                    </div>
+                </section>
+            </div>
+            <div class="p-6 border-t border-slate-100 flex justify-end">
+                <button onclick="toggleModal('infoModal')" class="bg-slate-100 hover:bg-slate-200 text-slate-700 px-6 py-2 rounded-xl font-medium transition">Tutup</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Mapping Tables
+        const L_TO_N = {
+            // Consonants (Complex first)
+            'nts': '𞄍', 'ntx': '𞄓', 'npl': '𞄞', 'nka': '𞄇', 'nca': '𞄌', 'nra': '𞄑', 'nqa': '𞄙', 'npa': '𞄜',
+            'mla': '𞄠', 'pla': '𞄡', 'rra': '𞄣', 'dla': '𞄝', 'nt': '𞄂', 'ts': '𞄁', 'tx': '𞄔',
+            'kh': '𞄎', 'sy': '𞄛', 'xy': '𞄛', 'ng': '𞄗', 'ny': '𞄐', 'th': '𞄃', 'dh': '𞄏',
+            'm': '𞄀', 't': '𞄃', 'h': '𞄄', 'n': '𞄅', 'x': '𞄆', 'c': '𞄈', 'l': '𞄉', 's': '𞄊', 'z': '𞄋',
+            'k': '𞄎', 'd': '𞄏', 'v': '𞄒', 'f': '𞄕', 'r': '𞄖', 'q': '𞄗', 'y': '𞄘', 'p': '𞄚', 'g': '𞄢', 'b': '𞄚', 'w': '𞄬',
+            // Vowels
+            'aa': '𞄥', 'ee': '𞄫', 'oo': '𞄩', 'a': '𞄤', 'i': '𞄦', 'u': '𞄧', 'o': '𞄨', 'e': '𞄪', 'é': '𞄫', 'w': '𞄬'
+        };
+
+        const N_TO_L = Object.entries(L_TO_N).reduce((acc, [k, v]) => {
+            if (!acc[v]) acc[v] = k;
+            return acc;
+        }, {});
+
+        // Specific order for parsing multi-char strings
+        const complexKeys = Object.keys(L_TO_N).sort((a, b) => b.length - a.length);
+
+        function convertToNPH() {
+            let input = document.getElementById('latinInput').value.toLowerCase();
+            let result = "";
+            let i = 0;
+
+            while (i < input.length) {
+                let found = false;
+                for (let key of complexKeys) {
+                    if (input.startsWith(key, i)) {
+                        result += L_TO_N[key];
+                        i += key.length;
+                        found = true;
+                        break;
+                    }
+                }
+                if (!found) {
+                    result += input[i];
+                    i++;
+                }
+            }
+            document.getElementById('nphOutput').value = result;
+        }
+
+        function convertToLatin() {
+            let input = document.getElementById('nphOutput').value;
+            let result = "";
+            for (let char of input) {
+                if (N_TO_L[char]) {
+                    result += N_TO_L[char];
+                } else {
+                    result += char;
+                }
+            }
+            document.getElementById('latinInput').value = result;
+        }
+
+        function clearText(type) {
+            if (type === 'latin') {
+                document.getElementById('latinInput').value = "";
+                convertToNPH();
+            } else {
+                document.getElementById('nphOutput').value = "";
+                convertToLatin();
+            }
+        }
+
+        function copyToClipboard(elementId) {
+            const textArea = document.getElementById(elementId);
+            if (!textArea.value) return;
+            
+            textArea.select();
+            document.execCommand('copy');
+            
+            // Show toast
+            const toast = document.getElementById('toast');
+            toast.style.opacity = '1';
+            setTimeout(() => {
+                toast.style.opacity = '0';
+            }, 2000);
+        }
+
+        function toggleModal(id) {
+            const modal = document.getElementById(id);
+            modal.classList.toggle('hidden');
+        }
+
+        // Handle Escape to close modal
+        window.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') {
+                const modals = ['infoModal'];
+                modals.forEach(id => document.getElementById(id).classList.add('hidden'));
+            }
+        });
+    </script>
+</body>
+</html>
