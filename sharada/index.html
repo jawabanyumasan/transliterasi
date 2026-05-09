@@ -1,0 +1,387 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Transliterasi Aksara Sharada (Jawa)</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Sharada&family=Inter:wght@400;600&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f8fafc;
+        }
+        .sharada-font {
+            font-family: 'Noto Sans Sharada', serif;
+            font-size: 1.8rem;
+            line-height: 1.6;
+        }
+        .custom-scrollbar::-webkit-scrollbar {
+            width: 6px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+            background-color: #cbd5e1;
+            border-radius: 10px;
+        }
+        .toast {
+            visibility: hidden;
+            min-width: 250px;
+            margin-left: -125px;
+            background-color: #334155;
+            color: #fff;
+            text-align: center;
+            border-radius: 8px;
+            padding: 16px;
+            position: fixed;
+            z-index: 100;
+            left: 50%;
+            bottom: 30px;
+            transition: visibility 0s, opacity 0.5s linear;
+            opacity: 0;
+        }
+        .toast.show {
+            visibility: visible;
+            opacity: 1;
+        }
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 50;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.5);
+            backdrop-filter: blur(4px);
+        }
+    </style>
+</head>
+<body class="p-4 md:p-8">
+
+    <div class="max-w-4xl mx-auto">
+        <!-- Header -->
+        <header class="text-center mb-8">
+            <h1 class="text-3xl font-bold text-slate-800 mb-2">𑆯𑆳𑆫𑆢𑆳 Sharada Script</h1>
+            <p class="text-slate-600">Alat Transliterasi Latin ke Aksara Sharada untuk Penutur Jawa</p>
+        </header>
+
+        <!-- Main Interface -->
+        <div class="bg-white rounded-2xl shadow-xl overflow-hidden border border-slate-200">
+            <div class="grid grid-cols-1 md:grid-cols-2 divide-y md:divide-y-0 md:divide-x divide-slate-200">
+                
+                <!-- Latin Input -->
+                <div class="p-6">
+                    <div class="flex justify-between items-center mb-4">
+                        <label class="font-semibold text-slate-700 flex items-center gap-2">
+                            Latin (A-Z)
+                            <span class="text-xs font-normal bg-slate-100 px-2 py-1 rounded">Input</span>
+                        </label>
+                        <button onclick="clearText()" class="text-slate-400 hover:text-red-500 transition-colors" title="Bersihkan Teks">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/></svg>
+                        </button>
+                    </div>
+                    <textarea id="latinInput" 
+                        class="w-full h-48 md:h-64 p-4 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-transparent outline-none resize-none transition-all"
+                        placeholder="Ketik Latin di sini... (contoh: arka, bawaan, ké, th, dh, ng, ny)"></textarea>
+                </div>
+
+                <!-- Sharada Output -->
+                <div class="p-6 bg-slate-50/50">
+                    <div class="flex justify-between items-center mb-4">
+                        <label class="font-semibold text-slate-700 flex items-center gap-2">
+                            Aksara Sharada
+                            <span class="text-xs font-normal bg-indigo-100 text-indigo-700 px-2 py-1 rounded">Hasil</span>
+                        </label>
+                        <button onclick="copyToClipboard()" class="flex items-center gap-1 text-indigo-600 hover:text-indigo-800 font-medium transition-colors">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="14" height="14" x="8" y="8" rx="2" ry="2"/><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"/></svg>
+                            Salin
+                        </button>
+                    </div>
+                    <textarea id="sharadaOutput" 
+                        class="sharada-font w-full h-48 md:h-64 p-4 bg-white border border-slate-200 rounded-xl focus:ring-2 focus:ring-indigo-500 outline-none resize-none shadow-inner"
+                        placeholder="𑆯𑆳𑆫𑆢𑆳..." readonly></textarea>
+                </div>
+            </div>
+        </div>
+
+        <!-- Action Buttons -->
+        <div class="mt-6 flex flex-wrap gap-4 justify-center">
+            <button onclick="openModal()" class="flex items-center gap-2 px-6 py-2.5 bg-slate-800 text-white rounded-full hover:bg-slate-700 transition-all shadow-md">
+                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/></svg>
+                Panduan Aksara
+            </button>
+        </div>
+
+        <!-- Footer Info -->
+        <footer class="mt-12 text-center text-slate-500 text-sm">
+            <p>© 2024 Transliterasi Sharada - Konfigurasi Fonem Jawa</p>
+        </footer>
+    </div>
+
+    <!-- Info Modal -->
+    <div id="infoModal" class="modal flex items-center justify-center p-4">
+        <div class="bg-white rounded-2xl max-w-2xl w-full max-h-[80vh] overflow-hidden flex flex-col shadow-2xl">
+            <div class="p-6 border-b border-slate-100 flex justify-between items-center bg-indigo-600 text-white">
+                <h2 class="text-xl font-bold">Panduan Penulisan Sharada</h2>
+                <button onclick="closeModal()" class="hover:bg-indigo-700 p-1 rounded-full transition-colors">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
+                </button>
+            </div>
+            <div class="p-6 overflow-y-auto custom-scrollbar text-slate-700">
+                <div class="space-y-6">
+                    <section>
+                        <h3 class="font-bold text-slate-800 border-b pb-1 mb-2">Fonem Khusus & Asing</h3>
+                        <div class="grid grid-cols-2 gap-2 text-sm">
+                            <div class="p-2 bg-slate-50 rounded">qa = 𑆑𑇊</div>
+                            <div class="p-2 bg-slate-50 rounded">kha = 𑆒𑇊</div>
+                            <div class="p-2 bg-slate-50 rounded">za = 𑆘𑇊</div>
+                            <div class="p-2 bg-slate-50 rounded">fa = 𑆦𑇊</div>
+                            <div class="p-2 bg-slate-50 rounded">v/wa = 𑆮</div>
+                            <div class="p-2 bg-slate-50 rounded">sy = 𑆯</div>
+                        </div>
+                    </section>
+                    <section>
+                        <h3 class="font-bold text-slate-800 border-b pb-1 mb-2">Vokal & Sandhangan</h3>
+                        <div class="grid grid-cols-2 gap-2 text-sm">
+                            <div class="p-2 bg-slate-50 rounded">a, i, u, e, o</div>
+                            <div class="p-2 bg-slate-50 rounded">é (taling) = 𑆑𑆼𑇌</div>
+                            <div class="p-2 bg-slate-50 rounded">kang (cecak) = 𑆑𑆁</div>
+                            <div class="p-2 bg-slate-50 rounded">kah (wignyan) = 𑆑𑆂</div>
+                            <div class="p-2 bg-slate-50 rounded">bawaan (hiatus) = 𑆧𑆮𑆃𑆤𑇀</div>
+                        </div>
+                    </section>
+                    <section>
+                        <h3 class="font-bold text-slate-800 border-b pb-1 mb-2">Medial & Final</h3>
+                        <div class="grid grid-cols-2 gap-2 text-sm">
+                            <div class="p-2 bg-slate-50 rounded">kya (pengkal) = 𑆑𑇀𑆪</div>
+                            <div class="p-2 bg-slate-50 rounded">kra (cakra) = 𑆑𑇀𑆫</div>
+                            <div class="p-2 bg-slate-50 rounded">kla = 𑆑𑇀𑆬</div>
+                            <div class="p-2 bg-slate-50 rounded">kwa = 𑆑𑇀𑆮</div>
+                            <div class="p-2 bg-slate-50 rounded">arka (layar) = 𑆃𑆫𑇀𑆑</div>
+                            <div class="p-2 bg-slate-50 rounded">ak (pangkon) = 𑆃𑆑𑇀</div>
+                        </div>
+                    </section>
+                </div>
+            </div>
+            <div class="p-4 bg-slate-50 border-t border-slate-100 text-center">
+                <button onclick="closeModal()" class="px-6 py-2 bg-slate-800 text-white rounded-lg font-semibold">Tutup</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast Notification -->
+    <div id="toast" class="toast shadow-2xl">Aksara Berhasil Disalin</div>
+
+    <script>
+        // Mapping Tables
+        const DIGRAPHS = {
+            'kh': '𑆒𑇊',
+            'th': '𑆛', 
+            'dh': '𑆝', 
+            'ng': '𑆕', 
+            'ny': '𑆚',
+            'sy': '𑆯',
+            'ph': '𑆦',
+            'gh': '𑆔',
+            'jh': '𑆙',
+            'bh': '𑆨',
+            'ch': '𑆗',
+            'sh': '𑆰',
+            'ai': '𑆎',
+            'au': '𑆐',
+        };
+
+        const CONSONANTS = {
+            'k': '𑆑', 'g': '𑆓', 'c': '𑆖', 'j': '𑆘',
+            't': '𑆠', 'd': '𑆢', 'n': '𑆤', 'p': '𑆥',
+            'b': '𑆧', 'm': '𑆩', 'y': '𑆪', 'r': '𑆫',
+            'l': '𑆬', 'w': '𑆮', 'v': '𑆮', 's': '𑆱',
+            'h': '𑆲', 'q': '𑆑𑇊', 'f': '𑆦𑇊', 'z': '𑆘𑇊'
+        };
+
+        const VOWELS_MATRA = {
+            'a': '',
+            'i': '𑆴',
+            'u': '𑆶',
+            'e': '𑆼',
+            'é': '𑆼𑇌',
+            'o': '𑆾',
+            'ai': '𑆽',
+            'au': '𑆿'
+        };
+
+        const INDEPENDENT_VOWELS = {
+            'a': '𑆃', 'i': '𑆅', 'u': '𑆇', 'e': '𑆍', 'o': '𑆏',
+            'é': '𑆍', 
+            'ai': '𑆎', 'au': '𑆐'
+        };
+
+        const VIRAMA = '𑇀';
+
+        const latinArea = document.getElementById('latinInput');
+        const sharadaArea = document.getElementById('sharadaOutput');
+
+        function isVowel(c) {
+            return c && 'aiueoé'.includes(c.toLowerCase());
+        }
+
+        latinArea.addEventListener('input', () => {
+            sharadaArea.value = latinToSharada(latinArea.value);
+        });
+
+        function latinToSharada(text) {
+            if (!text) return "";
+            let input = text.toLowerCase();
+            let result = "";
+            let i = 0;
+
+            while (i < input.length) {
+                let char = input[i];
+                let next = input[i + 1];
+
+                // 1. Handle Whitespace and Punctuation
+                if (/\s|[0-9]|[^\w\sé]/.test(char)) {
+                    result += char;
+                    i++;
+                    continue;
+                }
+
+                // 2. Handle Special Javanese Finals (Anusvara & Visarga)
+                // Cecak (ng) at end of syllable
+                if (char === 'n' && next === 'g' && (i + 2 === input.length || !isVowel(input[i+2]))) {
+                    result += '𑆁';
+                    i += 2;
+                    continue;
+                }
+                // Wignyan (h) at end of syllable
+                if (char === 'h' && (i + 1 === input.length || (!isVowel(input[i+1]) && input[i+1] !== ' '))) {
+                    result += '𑆂';
+                    i += 1;
+                    continue;
+                }
+
+                // 3. Handle Independent Vowels (Start of word or after another vowel)
+                if (isVowel(char)) {
+                    const prevChar = input[i-1];
+                    // If start of text, or after space, or after another vowel -> use Independent Form
+                    if (i === 0 || prevChar === ' ' || isVowel(prevChar)) {
+                        if (char === 'a' && (next === 'i' || next === 'u')) {
+                            result += INDEPENDENT_VOWELS[char + next];
+                            i += 2;
+                        } else {
+                            result += INDEPENDENT_VOWELS[char] || char;
+                            i += 1;
+                        }
+                        continue;
+                    }
+                }
+
+                // 4. Handle Digraphs (Consonants)
+                let foundDigraph = false;
+                for (let dg in DIGRAPHS) {
+                    if (input.startsWith(dg, i)) {
+                        let base = DIGRAPHS[dg];
+                        i += dg.length;
+                        
+                        let nextChar = input[i];
+                        if (isVowel(nextChar)) {
+                            if (nextChar === 'a' && (input[i+1] === 'i' || input[i+1] === 'u')) {
+                                result += base + VOWELS_MATRA[nextChar + input[i+1]];
+                                i += 2;
+                            } else {
+                                result += base + (VOWELS_MATRA[nextChar] || '');
+                                i += 1;
+                            }
+                        } else {
+                            result += base + VIRAMA;
+                        }
+                        foundDigraph = true;
+                        break;
+                    }
+                }
+                if (foundDigraph) continue;
+
+                // 5. Handle Single Consonants
+                if (CONSONANTS[char]) {
+                    let base = CONSONANTS[char];
+                    i += 1;
+
+                    // Special: Repha (r before consonant)
+                    if (char === 'r' && input[i] && !isVowel(input[i]) && input[i] !== ' ') {
+                        result += '𑆫' + VIRAMA;
+                        continue;
+                    }
+
+                    let nextChar = input[i];
+                    if (isVowel(nextChar)) {
+                        if (nextChar === 'a' && (input[i+1] === 'i' || input[i+1] === 'u')) {
+                            result += base + VOWELS_MATRA[nextChar + input[i+1]];
+                            i += 2;
+                        } else {
+                            result += base + (VOWELS_MATRA[nextChar] || '');
+                            i += 1;
+                        }
+                    } else if (nextChar === 'y' || nextChar === 'r' || nextChar === 'l' || nextChar === 'w') {
+                        // Medial starts, keep base and add Virama
+                        result += base + VIRAMA;
+                    } else {
+                        // Dead consonant (Pangkon)
+                        result += base + VIRAMA;
+                    }
+                } else {
+                    // Fallback for any unhandled chars
+                    result += char;
+                    i++;
+                }
+            }
+            return result;
+        }
+
+        function clearText() {
+            latinArea.value = "";
+            sharadaArea.value = "";
+            latinArea.focus();
+        }
+
+        function copyToClipboard() {
+            const textToCopy = sharadaArea.value;
+            if (!textToCopy) return;
+            
+            const textArea = document.createElement("textarea");
+            textArea.value = textToCopy;
+            document.body.appendChild(textArea);
+            textArea.select();
+            try {
+                document.execCommand('copy');
+                showToast();
+            } catch (err) {
+                console.error('Gagal menyalin', err);
+            }
+            document.body.removeChild(textArea);
+        }
+
+        function showToast() {
+            const toast = document.getElementById("toast");
+            toast.className = "toast show shadow-2xl";
+            setTimeout(() => { 
+                toast.className = toast.className.replace("show", ""); 
+            }, 3000);
+        }
+
+        function openModal() {
+            document.getElementById('infoModal').style.display = 'flex';
+        }
+
+        function closeModal() {
+            document.getElementById('infoModal').style.display = 'none';
+        }
+
+        window.onclick = function(event) {
+            const modal = document.getElementById('infoModal');
+            if (event.target == modal) {
+                closeModal();
+            }
+        }
+    </script>
+</body>
+</html>
