@@ -1,0 +1,311 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ancient Arabian Pro - Transliterasi</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Old+South_Arabian&family=Noto+Sans+Old+North_Arabian&display=swap" rel="stylesheet">
+    <style>
+        .font-ancient {
+            font-family: 'Noto Sans Old South Arabian', 'Noto Sans Old North Arabian', serif;
+        }
+        /* Fix for RTL placeholder alignment */
+        [dir="rtl"]::placeholder {
+            text-align: right;
+        }
+        .modal-enter {
+            animation: modalIn 0.2s ease-out;
+        }
+        @keyframes modalIn {
+            from { opacity: 0; transform: scale(0.95); }
+            to { opacity: 1; transform: scale(1); }
+        }
+        .toast-enter {
+            animation: toastIn 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+        @keyframes toastIn {
+            from { opacity: 0; transform: translate(-50%, 20px); }
+            to { opacity: 1; transform: translate(-50%, 0); }
+        }
+    </style>
+</head>
+<body class="min-h-screen bg-slate-50 p-4 md:p-8 font-sans text-slate-900">
+
+    <div class="max-w-4xl mx-auto space-y-6">
+        
+        <!-- Header & Switcher -->
+        <header class="bg-white p-6 rounded-[2.5rem] shadow-sm border border-slate-200 flex flex-col md:flex-row justify-between items-center gap-4">
+            <div class="flex items-center gap-4">
+                <div class="p-3 bg-indigo-600 text-white rounded-2xl">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 2 7 12 12 22 7 12 2"/><polyline points="2 17 12 22 22 17"/><polyline points="2 12 12 17 22 12"/></svg>
+                </div>
+                <div>
+                    <h1 class="text-xl font-black text-slate-800 tracking-tight leading-none">Ancient Arabian Pro</h1>
+                    <p class="text-xs text-slate-500 font-medium uppercase mt-1 tracking-widest">Multi-Script Transliteration</p>
+                </div>
+            </div>
+
+            <div class="flex bg-slate-100 p-1.5 rounded-2xl border border-slate-200">
+                <button 
+                    id="btnSouth"
+                    onclick="setScriptType('south')"
+                    class="px-4 py-2 rounded-xl text-sm font-bold transition-all bg-white text-indigo-600 shadow-sm"
+                >
+                    Arab Selatan (Musnad)
+                </button>
+                <button 
+                    id="btnNorth"
+                    onclick="setScriptType('north')"
+                    class="px-4 py-2 rounded-xl text-sm font-bold transition-all text-slate-500 hover:text-slate-700"
+                >
+                    Arab Utara (Safaitic)
+                </button>
+            </div>
+        </header>
+
+        <!-- Input Card -->
+        <div class="bg-white rounded-[2rem] shadow-xl border border-slate-200 overflow-hidden transition-all">
+            <div class="px-6 py-4 bg-slate-50 border-b border-slate-100 flex justify-between items-center">
+                <span class="text-xs font-bold uppercase tracking-widest text-slate-400">Input Latin / Jawa</span>
+                <button onclick="clearText()" class="p-2 hover:bg-red-50 text-slate-400 hover:text-red-500 rounded-full transition-colors" title="Bersihkan">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/><line x1="10" y1="11" x2="10" y2="17"/><line x1="14" y1="11" x2="14" y2="17"/></svg>
+                </button>
+            </div>
+            <textarea
+                id="latinInput"
+                oninput="handleInput()"
+                placeholder="Ketik kalimat Jawa di sini..."
+                class="w-full min-h-[140px] p-6 text-xl border-none focus:ring-0 outline-none resize-none placeholder-slate-300"
+            ></textarea>
+        </div>
+
+        <!-- Output Card -->
+        <div class="bg-white rounded-[2rem] shadow-xl border border-slate-200 overflow-hidden relative">
+            <div class="px-6 py-4 bg-slate-50 border-b border-slate-100 flex justify-between items-center">
+                 <div class="flex items-center gap-2">
+                    <span id="outputLabel" class="text-xs font-bold uppercase tracking-widest text-slate-400">
+                      Hasil: Arab Selatan
+                    </span>
+                    <span class="bg-indigo-100 text-indigo-700 text-[10px] px-2 py-0.5 rounded-full font-bold uppercase tracking-tighter">RTL Mode</span>
+                 </div>
+                 <button 
+                  onclick="toggleModal(true)"
+                  class="text-slate-400 hover:text-indigo-600 transition-colors"
+                 >
+                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
+                 </button>
+            </div>
+            <textarea
+                id="outputArea"
+                readonly
+                dir="rtl"
+                placeholder="𐩣𐩯𐩬𐩵"
+                class="w-full min-h-[180px] p-6 text-5xl border-none focus:ring-0 outline-none resize-none font-ancient leading-[1.4] bg-white"
+            ></textarea>
+            <div class="p-6 pt-0 flex justify-end">
+                <button 
+                    id="copyBtn"
+                    onclick="copyToClipboard()"
+                    disabled
+                    class="flex items-center gap-2 px-10 py-4 rounded-2xl font-black text-sm transition-all shadow-lg active:scale-95 bg-slate-200 text-slate-400 cursor-not-allowed"
+                >
+                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+                    SALIN AKSARA
+                </button>
+            </div>
+        </div>
+
+        <!-- Info Modal -->
+        <div id="infoModal" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/40 backdrop-blur-sm">
+            <div class="bg-white rounded-[2rem] w-full max-w-2xl max-h-[85vh] overflow-hidden shadow-2xl flex flex-col modal-enter">
+                <div class="p-6 border-b border-slate-100 flex justify-between items-center bg-indigo-50">
+                    <h2 class="text-xl font-black text-slate-800">Panduan Aksara Kuno</h2>
+                    <button onclick="toggleModal(false)" class="p-2 hover:bg-white rounded-full transition-colors shadow-sm">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+                    </button>
+                </div>
+                <div class="p-8 overflow-y-auto space-y-6">
+                    <section class="bg-slate-50 p-5 rounded-2xl border border-slate-100">
+                        <h3 class="font-bold text-indigo-600 mb-2">Arab Selatan (Musnad)</h3>
+                        <p class="text-sm text-slate-600">Digunakan di Yaman kuno. Karakteristiknya sangat geometris dan kaku. Menggunakan pemisah kata (𐩿).</p>
+                    </section>
+                    <section class="bg-slate-50 p-5 rounded-2xl border border-slate-100">
+                        <h3 class="font-bold text-indigo-600 mb-2">Arab Utara (Safaitic/Thamudic)</h3>
+                        <p class="text-sm text-slate-600">Digunakan oleh suku-suku nomaden di utara Jazirah Arab. Bentuknya lebih bervariasi dan merupakan leluhur dari gaya penulisan yang lebih fleksibel.</p>
+                    </section>
+                    <section>
+                        <h4 class="font-bold text-slate-800 mb-3 text-sm uppercase tracking-wider">Perbandingan Huruf Utama</h4>
+                        <div class="grid grid-cols-4 gap-2 text-center">
+                            <div class="p-2 border rounded-lg bg-indigo-50/50">
+                                <div class="text-[10px] text-slate-400 uppercase">Latin</div>
+                                <div class="font-bold">B</div>
+                            </div>
+                            <div class="p-2 border rounded-lg">
+                                <div class="text-[10px] text-slate-400 uppercase">Selatan</div>
+                                <div class="text-xl">𐩨</div>
+                            </div>
+                            <div class="p-2 border rounded-lg">
+                                <div class="text-[10px] text-slate-400 uppercase">Utara</div>
+                                <div class="text-xl">𐪇</div>
+                            </div>
+                            <div class="p-2 border rounded-lg bg-slate-50">
+                                <div class="text-[10px] text-slate-400 uppercase">Jawa</div>
+                                <div class="font-bold text-xs">ꦧ</div>
+                            </div>
+                        </div>
+                    </section>
+                </div>
+            </div>
+        </div>
+
+        <!-- Toast -->
+        <div id="toast" class="hidden fixed bottom-10 left-1/2 -translate-x-1/2 z-[100] flex items-center gap-3 px-8 py-4 bg-indigo-900 text-white rounded-2xl shadow-2xl toast-enter">
+            <svg xmlns="http://www.w3.org/2000/svg" class="text-green-400" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+            <span class="font-bold">Aksara Berhasil Disalin</span>
+        </div>
+    </div>
+
+    <script>
+        let scriptType = 'south';
+
+        const southMap = {
+            'ng': '𐩬𐩴', 'ny': '𐩬𐩺', 'th': '𐩷', 'dh': '𐩳', 'kh': '𐩭', 'sy': '𐩦', 'ch': '𐩮',
+            'a': '𐩱', 'b': '𐩨', 'c': '𐩯', 'd': '𐩵', 'e': '𐩺', 'é': '𐩺', 'è': '𐩺', 'f': '𐩰',
+            'g': '𐩴', 'h': '𐩠', 'i': '𐩺', 'j': '𐩴', 'k': '𐩫', 'l': '𐩡', 'm': '𐩣', 'n': '𐩬',
+            'o': '𐩥', 'u': '𐩥', 'v': '𐩥', 'w': '𐩥', 'p': '𐩰', 'q': '𐩤', 'r': '𐩧', 's': '𐩯',
+            't': '𐩩', 'x': '𐩭', 'y': '𐩺', 'z': '𐩸', ' ': '𐩿'
+        };
+
+        const northMap = {
+            'ng': '𐪋𐪓', 'ny': '𐪋𐪙', 'th': '𐪖', 'dh': '𐪒', 'kh': '𐪌', 'sy': '𐪎', 'ch': '𐪝',
+            'a': '𐪐', 'b': '𐪇', 'c': '𐪉', 'd': '𐪔', 'e': '𐪙', 'é': '𐪙', 'è': '𐪙', 'f': '𐪏',
+            'g': '𐪓', 'h': '𐪀', 'i': '𐪙', 'j': '𐪓', 'k': '𐪊', 'l': '𐪁', 'm': '𐪃', 'n': '𐪋',
+            'o': '𐪅', 'u': '𐪅', 'v': '𐪅', 'w': '𐪅', 'p': '𐪏', 'q': '𐪄', 'r': '𐪆', 's': '𐪉',
+            't': '𐪈', 'x': '𐪌', 'y': '𐪙', 'z': '𐪗', ' ': ' '
+        };
+
+        const southNumbers = { '1': '𐩽', '2': '𐩽𐩽', '3': '𐩽𐩽𐩽', '4': '𐩽𐩽𐩽𐩽', '5': '𐩮', '6': '𐩮𐩽', '7': '𐩮𐩽𐩽', '8': '𐩮𐩽𐩽𐩽', '9': '𐩮𐩽𐩽𐩽𐩽', '0': '𐩿' };
+        const northNumbers = { '1': '𐩽', '2': '𐩽𐩽', '3': '𐩽𐩽𐩽', '4': '𐩽𐩽𐩽𐩽', '5': '𐩮', '6': '𐩮𐩽', '7': '𐩮𐩽𐩽', '8': '𐩮𐩽𐩽𐩽', '9': '𐩮𐩽𐩽𐩽𐩽', '0': ' ' };
+
+        function convertText(text, type) {
+            let input = text.toLowerCase();
+            let result = '';
+            let i = 0;
+            const currentMap = type === 'south' ? southMap : northMap;
+            const currentNum = type === 'south' ? southNumbers : northNumbers;
+
+            while (i < input.length) {
+                if (/\d/.test(input[i])) {
+                    result += currentNum[input[i]] || input[i];
+                    i++;
+                    continue;
+                }
+
+                let char2 = input.substring(i, i + 2);
+                if (currentMap[char2]) {
+                    result += currentMap[char2];
+                    i += 2;
+                } else {
+                    let char1 = input[i];
+                    if (currentMap[char1]) {
+                        result += currentMap[char1];
+                    } else {
+                        result += char1;
+                    }
+                    i++;
+                }
+            }
+            return result;
+        }
+
+        function handleInput() {
+            const input = document.getElementById('latinInput').value;
+            const outputArea = document.getElementById('outputArea');
+            const copyBtn = document.getElementById('copyBtn');
+            
+            const converted = convertText(input, scriptType);
+            outputArea.value = converted;
+
+            if (converted) {
+                copyBtn.disabled = false;
+                copyBtn.classList.remove('bg-slate-200', 'text-slate-400', 'cursor-not-allowed');
+                copyBtn.classList.add('bg-indigo-600', 'text-white', 'hover:bg-indigo-700');
+            } else {
+                copyBtn.disabled = true;
+                copyBtn.classList.add('bg-slate-200', 'text-slate-400', 'cursor-not-allowed');
+                copyBtn.classList.remove('bg-indigo-600', 'text-white', 'hover:bg-indigo-700');
+            }
+        }
+
+        function setScriptType(type) {
+            scriptType = type;
+            const btnSouth = document.getElementById('btnSouth');
+            const btnNorth = document.getElementById('btnNorth');
+            const outputLabel = document.getElementById('outputLabel');
+            const outputArea = document.getElementById('outputArea');
+
+            if (type === 'south') {
+                btnSouth.classList.add('bg-white', 'text-indigo-600', 'shadow-sm');
+                btnSouth.classList.remove('text-slate-500');
+                btnNorth.classList.remove('bg-white', 'text-indigo-600', 'shadow-sm');
+                btnNorth.classList.add('text-slate-500');
+                outputLabel.innerText = 'Hasil: Arab Selatan';
+                outputArea.placeholder = '𐩣𐩯𐩬𐩵';
+            } else {
+                btnNorth.classList.add('bg-white', 'text-indigo-600', 'shadow-sm');
+                btnNorth.classList.remove('text-slate-500');
+                btnSouth.classList.remove('bg-white', 'text-indigo-600', 'shadow-sm');
+                btnSouth.classList.add('text-slate-500');
+                outputLabel.innerText = 'Hasil: Arab Utara';
+                outputArea.placeholder = '𐪀𐪁𐪂';
+            }
+            handleInput();
+        }
+
+        function clearText() {
+            document.getElementById('latinInput').value = '';
+            handleInput();
+        }
+
+        function copyToClipboard() {
+            const output = document.getElementById('outputArea').value;
+            if (!output) return;
+
+            const textArea = document.createElement("textarea");
+            textArea.value = output;
+            document.body.appendChild(textArea);
+            textArea.select();
+            try {
+                document.execCommand('copy');
+                showToast();
+            } catch (err) {
+                console.error('Gagal menyalin:', err);
+            }
+            document.body.removeChild(textArea);
+        }
+
+        function showToast() {
+            const toast = document.getElementById('toast');
+            toast.classList.remove('hidden');
+            setTimeout(() => {
+                toast.classList.add('hidden');
+            }, 3000);
+        }
+
+        function toggleModal(show) {
+            const modal = document.getElementById('infoModal');
+            if (show) {
+                modal.classList.remove('hidden');
+            } else {
+                modal.classList.add('hidden');
+            }
+        }
+
+        // Close modal on escape key
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') toggleModal(false);
+        });
+    </script>
+</body>
+</html>
