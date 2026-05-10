@@ -1,0 +1,304 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Aksara Fenisia untuk Jawa</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+Phoenician&family=Inter:wght@400;600;800&display=swap');
+        
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f1f5f9;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        .phoenician-font {
+            font-family: 'Noto Sans Phoenician', 'Segoe UI Historic', 'Arial Unicode MS', serif;
+        }
+
+        .modal-active {
+            display: flex !important;
+        }
+
+        .toast-active {
+            transform: translateY(0) translateX(-50%) !important;
+            opacity: 1 !important;
+        }
+
+        /* Memastikan kontras area output terlihat jelas di HP */
+        #text-output {
+            min-height: 160px;
+            background-color: #0f172a !important; /* Slate 900 */
+            color: #ffffff !important;
+        }
+    </style>
+</head>
+<body class="p-4 md:p-8">
+
+    <div class="max-w-2xl mx-auto space-y-6">
+        <!-- Header -->
+        <header class="bg-gradient-to-br from-amber-800 to-amber-950 rounded-[2rem] p-6 shadow-xl text-white flex justify-between items-center border-b-4 border-amber-600/30">
+            <div>
+                <h1 class="text-2xl font-extrabold tracking-tight italic flex items-center gap-2">
+                    <span class="phoenician-font">𐤀𐤊𐤔𐤓𐤀</span> JAWA
+                </h1>
+                <p class="text-amber-200 text-[10px] font-bold tracking-widest uppercase opacity-80 mt-1">Aksara Fenisia x Wong Jowo</p>
+            </div>
+            <button id="btn-info" class="p-3 bg-white/10 hover:bg-white/20 rounded-2xl transition-all active:scale-90">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg>
+            </button>
+        </header>
+
+        <!-- Main Card -->
+        <div class="bg-white rounded-[2.5rem] shadow-2xl border border-slate-200 overflow-hidden">
+            <div class="p-6 md:p-10 space-y-6">
+                
+                <!-- Input Panel -->
+                <div class="space-y-3">
+                    <div class="flex justify-between items-center px-2">
+                        <span id="label-input" class="text-[10px] font-black text-slate-400 uppercase tracking-widest">Input: Latin Jawa</span>
+                        <span id="badge-input" class="text-[10px] bg-slate-100 text-slate-500 px-3 py-1 rounded-full font-bold">LTR</span>
+                    </div>
+                    <textarea id="text-input" 
+                        class="w-full min-h-[140px] p-6 rounded-3xl bg-slate-50 border-2 border-slate-100 focus:border-amber-500 focus:bg-white transition-all outline-none text-xl resize-none shadow-inner"
+                        placeholder="Ketik 'Sugeng Rawuh'..."
+                    ></textarea>
+                </div>
+
+                <!-- Swap Mode -->
+                <div class="flex justify-center -my-3 relative z-10">
+                    <button id="btn-swap" class="bg-amber-600 text-white p-5 rounded-full shadow-xl hover:bg-amber-500 hover:rotate-180 active:scale-95 transition-all duration-300 border-4 border-white">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="16 3 21 3 21 8"></polyline><line x1="4" y1="20" x2="21" y2="3"></line><polyline points="21 16 21 21 16 21"></polyline><line x1="15" y1="15" x2="21" y2="21"></line><line x1="4" y1="4" x2="9" y2="9"></line></svg>
+                    </button>
+                </div>
+
+                <!-- Output Panel -->
+                <div class="space-y-3">
+                    <div class="flex justify-between items-center px-2">
+                        <span id="label-output" class="text-[10px] font-black text-amber-700 uppercase tracking-widest">Hasil: Aksara Fenisia</span>
+                    </div>
+                    <div id="text-output" 
+                        class="w-full p-8 rounded-3xl break-words overflow-y-auto shadow-2xl transition-all text-right text-4xl leading-relaxed phoenician-font"
+                        dir="rtl"
+                    >
+                        <span class="text-slate-500 italic text-base font-sans font-normal opacity-50">Hasil transliterasi...</span>
+                    </div>
+                </div>
+
+                <!-- Actions -->
+                <div class="grid grid-cols-2 gap-4">
+                    <button id="btn-copy" class="flex items-center justify-center gap-3 bg-slate-800 text-white p-5 rounded-2xl font-bold hover:bg-slate-700 active:scale-95 transition-all shadow-lg">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
+                        Salin
+                    </button>
+                    <button id="btn-clear" class="flex items-center justify-center gap-3 bg-slate-100 text-slate-500 p-5 rounded-2xl font-bold hover:bg-slate-200 active:scale-95 transition-all border border-slate-200">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>
+                        Hapus
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Info Modal -->
+    <div id="modal-info" class="fixed inset-0 z-50 bg-slate-900/80 backdrop-blur-sm hidden items-center justify-center p-6">
+        <div class="bg-white w-full max-w-xl max-h-[85vh] rounded-[2.5rem] shadow-2xl flex flex-col overflow-hidden animate-in fade-in duration-200">
+            <div class="p-8 bg-amber-50 flex justify-between items-center border-b border-amber-100">
+                <h2 class="text-2xl font-black text-amber-900">PANDUAN AKSARA</h2>
+                <button id="btn-close-modal" class="text-amber-900 p-2 hover:bg-amber-200 rounded-full transition-colors">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+                </button>
+            </div>
+            <div class="p-8 overflow-y-auto space-y-8 text-sm">
+                <div class="bg-amber-100/50 p-5 rounded-3xl text-amber-900 leading-relaxed border border-amber-200/50 italic">
+                    Aksara Fenisia adalah sistem <b>Abjad</b> (hanya konsonan). Adaptasi ini menggunakan <i>Matres Lectionis</i> (huruf saksi) untuk vokal Jawa.
+                </div>
+                
+                <section class="space-y-4">
+                    <h3 class="text-xs font-black text-slate-400 uppercase tracking-widest border-l-4 border-amber-500 pl-3">Fonem Spesial</h3>
+                    <div class="grid grid-cols-2 gap-3" id="guide-phonemes">
+                        <!-- Filled by JS -->
+                    </div>
+                </section>
+
+                <section class="space-y-4 text-slate-600">
+                    <h3 class="text-xs font-black text-slate-400 uppercase tracking-widest border-l-4 border-amber-500 pl-3">Aturan Penulisan</h3>
+                    <ul class="space-y-2 list-none">
+                        <li class="flex items-center gap-2"><div class="w-1.5 h-1.5 bg-amber-500 rounded-full"></div> <b>é (taling):</b> Menggunakan 𐤉 (Yodh).</li>
+                        <li class="flex items-center gap-2"><div class="w-1.5 h-1.5 bg-amber-500 rounded-full"></div> <b>Cecak/Ng:</b> Menggunakan 𐤏 (Ayin).</li>
+                        <li class="flex items-center gap-2"><div class="w-1.5 h-1.5 bg-amber-500 rounded-full"></div> <b>Arah:</b> Kanan ke Kiri (RTL).</li>
+                    </ul>
+                </section>
+            </div>
+            <div class="p-5 bg-slate-50 text-center text-[10px] text-slate-400 border-t font-bold tracking-widest uppercase">
+                Arah Penulisan: RTL
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast -->
+    <div id="toast" class="fixed bottom-12 left-1/2 -translate-x-1/2 z-[100] bg-slate-900 text-white px-10 py-5 rounded-full shadow-2xl flex items-center gap-4 border border-white/10 opacity-0 transform translate-y-10 transition-all duration-300 pointer-events-none">
+        <div class="w-2.5 h-2.5 bg-green-500 rounded-full shadow-[0_0_10px_rgba(34,197,94,0.8)]"></div>
+        <span class="font-bold text-sm tracking-tight uppercase">Aksara Berhasil Disalin</span>
+    </div>
+
+    <script>
+        // Mapping karakter menggunakan karakter literal untuk menghindari error escape
+        const PHOENICIAN_MAP = {
+            'h': '𐤄', 'n': '𐤍', 'c': '𐤑', 'r': '𐤓', 'k': '𐤊',
+            'd': '𐤃', 't': '𐤕', 's': '𐤎', 'w': '𐤅', 'l': '𐤋',
+            'p': '𐤐', 'dh': '𐤃', 'j': '𐤂', 'y': '𐤉', 'ny': '𐤍𐤉',
+            'm': '𐤌', 'g': '𐤂', 'b': '𐤁', 'th': '𐤈', 'ng': '𐤏',
+            'f': '𐤐', 'v': '𐤁', 'z': '𐤆', 'kh': '𐤇', 'sy': '𐤔', 'q': '𐤒',
+            'a': '𐤀', 'i': '𐤉', 'u': '𐤅', 'é': '𐤉', 'o': '𐤅', 'e': '',
+            '?': '؟', '.': '𐤟', ',': '𐤟', ' ': ' '
+        };
+
+        const NUM_MAP = {
+            '1': '𐤖', '2': '𐤖𐤖', '3': '𐤖𐤖𐤖', '4': '𐤗', '5': '𐤗𐤖',
+            '6': '𐤗𐤖𐤖', '7': '𐤗𐤖𐤖𐤖', '8': '𐤗𐤗', '9': '𐤗𐤗𐤖', '0': ' '
+        };
+
+        const REV_MAP = {};
+        for (let k in PHOENICIAN_MAP) {
+            if (PHOENICIAN_MAP[k] && k.length === 1 && !REV_MAP[PHOENICIAN_MAP[k]]) {
+                REV_MAP[PHOENICIAN_MAP[k]] = k;
+            }
+        }
+        REV_MAP['𐤍𐤉'] = 'ny';
+        REV_MAP['؟'] = '?';
+
+        let mode = 'latinToPh';
+        const inputEl = document.getElementById('text-input');
+        const outputEl = document.getElementById('text-output');
+        const btnSwap = document.getElementById('btn-swap');
+        const btnClear = document.getElementById('btn-clear');
+        const btnCopy = document.getElementById('btn-copy');
+        const btnInfo = document.getElementById('btn-info');
+        const modal = document.getElementById('modal-info');
+        const btnCloseModal = document.getElementById('btn-close-modal');
+        const toast = document.getElementById('toast');
+
+        function transliterate() {
+            const val = inputEl.value;
+            if (!val) {
+                outputEl.innerHTML = '<span class="text-slate-500 italic text-base font-sans font-normal opacity-50">Hasil transliterasi...</span>';
+                return;
+            }
+
+            if (mode === 'latinToPh') {
+                let res = val.toLowerCase();
+                // Urutan penggantian sangat penting: multis dulu
+                const multis = ['ng', 'ny', 'th', 'dh', 'kh', 'sy'];
+                multis.forEach(m => {
+                    const regex = new RegExp(m, 'g');
+                    res = res.replace(regex, PHOENICIAN_MAP[m]);
+                });
+                // Numbers
+                for (let n in NUM_MAP) { 
+                    const regex = new RegExp(n, 'g');
+                    res = res.replace(regex, NUM_MAP[n]); 
+                }
+                // Singles
+                let final = '';
+                for (let char of res) {
+                    if (PHOENICIAN_MAP[char] !== undefined) final += PHOENICIAN_MAP[char];
+                    else final += char;
+                }
+                outputEl.textContent = final;
+            } else {
+                let res = val;
+                res = res.replace(/𐤍𐤉/g, 'ny');
+                for (let n in NUM_MAP) { 
+                    const regex = new RegExp(NUM_MAP[n], 'g');
+                    res = res.replace(regex, n); 
+                }
+                let final = '';
+                const chars = Array.from(res);
+                chars.forEach(c => { final += REV_MAP[c] || c; });
+                outputEl.textContent = final;
+            }
+        }
+
+        inputEl.addEventListener('input', transliterate);
+
+        btnSwap.addEventListener('click', () => {
+            const currentContent = outputEl.textContent;
+            if (currentContent.includes('Hasil transliterasi')) {
+                mode = mode === 'latinToPh' ? 'phToLatin' : 'latinToPh';
+            } else {
+                inputEl.value = currentContent;
+                mode = mode === 'latinToPh' ? 'phToLatin' : 'latinToPh';
+            }
+
+            // Update UI Styling
+            if (mode === 'latinToPh') {
+                document.getElementById('label-input').textContent = 'Input: Latin Jawa';
+                document.getElementById('badge-input').textContent = 'LTR';
+                inputEl.dir = 'ltr';
+                inputEl.classList.remove('text-right', 'phoenician-font');
+                document.getElementById('label-output').textContent = 'Hasil: Aksara Fenisia';
+                outputEl.dir = 'rtl';
+                outputEl.classList.add('text-right', 'phoenician-font');
+            } else {
+                document.getElementById('label-input').textContent = 'Input: Aksara Fenisia';
+                document.getElementById('badge-input').textContent = 'RTL';
+                inputEl.dir = 'rtl';
+                inputEl.classList.add('text-right', 'phoenician-font');
+                document.getElementById('label-output').textContent = 'Hasil: Latin Jawa';
+                outputEl.dir = 'ltr';
+                outputEl.classList.remove('text-right', 'phoenician-font');
+                outputEl.classList.add('text-amber-400', 'font-bold');
+            }
+            transliterate();
+        });
+
+        btnClear.addEventListener('click', () => {
+            inputEl.value = '';
+            transliterate();
+        });
+
+        btnCopy.addEventListener('click', () => {
+            const text = outputEl.textContent;
+            if (text.includes('Hasil transliterasi')) return;
+            
+            // Method fallback yang lebih kuat untuk Mobile Iframe
+            try {
+                const temp = document.createElement('textarea');
+                temp.value = text;
+                temp.style.position = 'fixed';
+                temp.style.opacity = '0';
+                document.body.appendChild(temp);
+                temp.select();
+                temp.setSelectionRange(0, 99999);
+                document.execCommand('copy');
+                document.body.removeChild(temp);
+
+                toast.classList.add('toast-active');
+                setTimeout(() => toast.classList.remove('toast-active'), 2000);
+            } catch (err) {
+                console.error('Gagal menyalin:', err);
+            }
+        });
+
+        btnInfo.addEventListener('click', () => modal.classList.add('modal-active'));
+        btnCloseModal.addEventListener('click', () => modal.classList.remove('modal-active'));
+
+        // Fill Guide Grid
+        window.addEventListener('load', () => {
+            const guideData = [
+                ['th', '𐤈'], ['dh', '𐤃'], ['ng', '𐤏'], ['ny', '𐤍𐤉'], ['c', '𐤑'], ['é', '𐤉']
+            ];
+            const guideContainer = document.getElementById('guide-phonemes');
+            guideData.forEach(([l, c]) => {
+                const div = document.createElement('div');
+                div.className = "bg-neutral-50 p-4 rounded-2xl flex justify-between items-center border border-neutral-100 shadow-sm";
+                div.innerHTML = `<span class="font-bold text-neutral-500 text-xs">${l}</span><span class="text-3xl phoenician-font text-amber-700">${c}</span>`;
+                guideContainer.appendChild(div);
+            });
+        });
+    </script>
+</body>
+</html>
