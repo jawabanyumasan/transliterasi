@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Penerjemah Hieroglif Mesir - Versi Jawa</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&family=Quicksand:wght@400;500;600&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Quicksand', sans-serif;
+            background-color: #fdf6e3;
+            background-image: url('https://www.transparenttextures.com/patterns/papyrus-dark.png');
+        }
+        .hieroglyph-font {
+            font-family: serif; /* Browser rendering standard unicode */
+            font-size: 1.8rem;
+        }
+        .header-title {
+            font-family: 'Cinzel', serif;
+        }
+        .custom-shadow {
+            box-shadow: 0 10px 25px -5px rgba(184, 134, 11, 0.3);
+        }
+        .btn-egypt {
+            background: linear-gradient(135deg, #b8860b 0%, #8b4513 100%);
+            transition: all 0.3s ease;
+        }
+        .btn-egypt:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(139, 69, 19, 0.4);
+        }
+        .notification {
+            transform: translateX(-50%);
+            transition: opacity 0.3s, bottom 0.3s;
+        }
+    </style>
+</head>
+<body class="min-h-screen p-4 md:p-8">
+
+    <div class="max-w-3xl mx-auto">
+        <!-- Header -->
+        <header class="text-center mb-8">
+            <h1 class="header-title text-3xl md:text-4xl font-bold text-[#8b4513] mb-2 uppercase tracking-widest">
+                Aksara Hieroglif Jawa
+            </h1>
+            <p class="text-gray-700 italic">Konversi teks Latin ke simbol Mesir Kuno dengan dukungan fonetik Jawa.</p>
+        </header>
+
+        <!-- Main Card -->
+        <div class="bg-white/90 backdrop-blur-sm rounded-2xl p-6 custom-shadow border border-yellow-200">
+            
+            <!-- Input Area -->
+            <div class="mb-6">
+                <label class="block text-sm font-bold text-[#8b4513] mb-2 uppercase tracking-wider">Teks Latin (Input)</label>
+                <textarea id="latinInput" 
+                    class="w-full h-32 p-4 rounded-xl border-2 border-yellow-100 focus:border-yellow-500 focus:ring-0 resize-none text-lg transition-all"
+                    placeholder="Ketik kata atau kalimat di sini (contoh: Sugeng enjang, thole...)"></textarea>
+            </div>
+
+            <!-- Interaction Buttons -->
+            <div class="flex flex-wrap gap-3 mb-6">
+                <button id="clearBtn" class="px-6 py-2 bg-gray-200 text-gray-700 rounded-lg font-bold hover:bg-gray-300 transition-colors">
+                    Bersihkan
+                </button>
+                <button id="copyBtn" class="flex-1 btn-egypt text-white py-2 rounded-lg font-bold uppercase tracking-widest">
+                    Salin Aksara
+                </button>
+                <button id="infoBtn" class="px-4 py-2 bg-blue-100 text-blue-700 rounded-lg font-bold hover:bg-blue-200 transition-colors">
+                    ℹ️ Panduan
+                </button>
+            </div>
+
+            <!-- Result Area -->
+            <div class="mb-2">
+                <label class="block text-sm font-bold text-[#8b4513] mb-2 uppercase tracking-wider">Aksara Hieroglif (Output)</label>
+                <div id="hieroOutput" 
+                    class="hieroglyph-font w-full min-h-[120px] p-4 bg-yellow-50 rounded-xl border-2 border-dashed border-yellow-300 flex flex-wrap gap-1 items-start leading-relaxed break-all">
+                </div>
+            </div>
+            
+            <p class="text-xs text-gray-500 mt-4 text-center">
+                Mendukung: th, dh, ng, ny, é, f, v, z, kh, sy, q, dan angka.
+            </p>
+        </div>
+
+        <!-- Info Modal -->
+        <div id="infoModal" class="fixed inset-0 bg-black/50 hidden z-50 flex items-center justify-center p-4">
+            <div class="bg-white rounded-2xl max-w-lg w-full max-h-[80vh] overflow-y-auto p-6 relative">
+                <button id="closeInfo" class="absolute top-4 right-4 text-gray-400 hover:text-black text-2xl">&times;</button>
+                <h2 class="header-title text-2xl font-bold text-[#8b4513] mb-4">Panduan Transliterasi</h2>
+                <div class="space-y-4 text-sm text-gray-700">
+                    <section>
+                        <h3 class="font-bold border-b border-yellow-200 mb-2">Fonetik Jawa & Khusus</h3>
+                        <ul class="grid grid-cols-2 gap-2">
+                            <li><span class="font-mono bg-gray-100 px-1">ng</span> → 𓈎 (Q/Ng)</li>
+                            <li><span class="font-mono bg-gray-100 px-1">ny</span> → 𓇓 (Sw/Ny)</li>
+                            <li><span class="font-mono bg-gray-100 px-1">th</span> → 𓍿 (Tj/Th)</li>
+                            <li><span class="font-mono bg-gray-100 px-1">dh</span> → 𓂦 (Dj/Dh)</li>
+                            <li><span class="font-mono bg-gray-100 px-1">é</span> → 𓇋 (E Taling)</li>
+                            <li><span class="font-mono bg-gray-100 px-1">sy</span> → 𓈙 (Sh)</li>
+                            <li><span class="font-mono bg-gray-100 px-1">kh</span> → 𓐍 (Kh)</li>
+                        </ul>
+                    </section>
+                    <section>
+                        <h3 class="font-bold border-b border-yellow-200 mb-2">Alfabet Standar</h3>
+                        <p>A: 𓄿, B: 𓃀, D: 𓂧, F/V: 𓆑, G: 𓎼, H: 𓉔, I: 𓇋, J: 𓆄, K: 𓎡, L/R: 𓂋, M: 𓅓, N: 𓈖, P: 𓊪, S: 𓋴, T: 𓏏, W/U/O: 𓅱, Y: 𓇋𓇋, Z: 𓊃.</p>
+                    </section>
+                    <section>
+                        <h3 class="font-bold border-b border-yellow-200 mb-2">Angka</h3>
+                        <p>Sistem desimal Mesir: 1 (𓏇), 10 (𓎆), dst. Aplikasi ini memetakan angka 0-9 untuk kemudahan visual.</p>
+                    </section>
+                </div>
+            </div>
+        </div>
+
+        <!-- Custom Notification -->
+        <div id="toast" class="notification fixed bottom-[-100px] left-1/2 bg-green-600 text-white px-6 py-3 rounded-full font-bold shadow-lg opacity-0 z-50">
+            Aksara Berhasil Disalin
+        </div>
+    </div>
+
+    <script>
+        // Mapping Dictionary
+        // We use an array of objects for multi-char patterns to ensure 'ng' is caught before 'n'
+        const patterns = [
+            // Multi-characters first
+            { latin: 'ng', hiero: '𓈎' },
+            { latin: 'ny', hiero: '𓇓' },
+            { latin: 'th', hiero: '𓍿' },
+            { latin: 'dh', hiero: '𓂦' },
+            { latin: 'kh', hiero: '𓐍' },
+            { latin: 'sy', hiero: '𓈙' },
+            // Single characters
+            { latin: 'a', hiero: '𓄿' },
+            { latin: 'b', hiero: '𓃀' },
+            { latin: 'c', hiero: '𓋴' }, // C usually map to S or K, using S (bolt)
+            { latin: 'd', hiero: '𓂧' },
+            { latin: 'e', hiero: '𓇋' },
+            { latin: 'é', hiero: '𓇋' },
+            { latin: 'f', hiero: '𓆑' },
+            { latin: 'g', hiero: '𓎼' },
+            { latin: 'h', hiero: '𓉔' },
+            { latin: 'i', hiero: '𓇋' },
+            { latin: 'j', hiero: '𓆄' },
+            { latin: 'k', hiero: '𓎡' },
+            { latin: 'l', hiero: '𓂋' }, // Egyptian R and L often shared
+            { latin: 'm', hiero: '𓅓' },
+            { latin: 'n', hiero: '𓈖' },
+            { latin: 'o', hiero: '𓅱' },
+            { latin: 'p', hiero: '𓊪' },
+            { latin: 'q', hiero: '𓈓' },
+            { latin: 'r', hiero: '𓂋' },
+            { latin: 's', hiero: '𓋴' },
+            { latin: 't', hiero: '𓏏' },
+            { latin: 'u', hiero: '𓅱' },
+            { latin: 'v', hiero: '𓆑' },
+            { latin: 'w', hiero: '𓅱' },
+            { latin: 'x', hiero: '𓎡𓋴' },
+            { latin: 'y', hiero: '𓇋𓇋' },
+            { latin: 'z', hiero: '𓊃' },
+            // Numbers
+            { latin: '1', hiero: '𓏇' },
+            { latin: '2', hiero: '𓏈' },
+            { latin: '3', hiero: '𓏉' },
+            { latin: '4', hiero: '𓏊' },
+            { latin: '5', hiero: '𓏋' },
+            { latin: '6', hiero: '𓏌' },
+            { latin: '7', hiero: '𓏍' },
+            { latin: '8', hiero: '𓏎' },
+            { latin: '9', hiero: '𓏏' },
+            { latin: '0', hiero: '𓄤' } // Nefer (beauty/zero/complete)
+        ];
+
+        const reverseMap = {};
+        patterns.forEach(p => {
+            if (!reverseMap[p.hiero]) reverseMap[p.hiero] = p.latin;
+        });
+
+        const latinInput = document.getElementById('latinInput');
+        const hieroOutput = document.getElementById('hieroOutput');
+        const clearBtn = document.getElementById('clearBtn');
+        const copyBtn = document.getElementById('copyBtn');
+        const infoBtn = document.getElementById('infoBtn');
+        const infoModal = document.getElementById('infoModal');
+        const closeInfo = document.getElementById('closeInfo');
+        const toast = document.getElementById('toast');
+
+        // Function to transliterate
+        function transliterate(text) {
+            let result = "";
+            let i = 0;
+            const lowerText = text.toLowerCase();
+
+            while (i < lowerText.length) {
+                let match = false;
+                
+                // Try to match multi-char patterns first
+                for (const p of patterns) {
+                    if (lowerText.substring(i, i + p.latin.length) === p.latin) {
+                        result += p.hiero;
+                        i += p.latin.length;
+                        match = true;
+                        break;
+                    }
+                }
+
+                if (!match) {
+                    const char = lowerText[i];
+                    if (char === " ") {
+                        result += "  "; // Extra space for word separation
+                    } else if (char === "\n") {
+                        result += "<br>";
+                    } else {
+                        result += char; // Keep unknown characters
+                    }
+                    i++;
+                }
+            }
+            return result;
+        }
+
+        // Live Update
+        latinInput.addEventListener('input', () => {
+            const htmlResult = transliterate(latinInput.value);
+            hieroOutput.innerHTML = htmlResult;
+        });
+
+        // Clear Text
+        clearBtn.addEventListener('click', () => {
+            latinInput.value = "";
+            hieroOutput.innerHTML = "";
+        });
+
+        // Copy Text
+        copyBtn.addEventListener('click', () => {
+            const textToCopy = hieroOutput.innerText;
+            if (!textToCopy) return;
+
+            const tempInput = document.createElement('textarea');
+            tempInput.value = textToCopy;
+            document.body.appendChild(tempInput);
+            tempInput.select();
+            document.execCommand('copy');
+            document.body.removeChild(tempInput);
+
+            // Show Toast
+            showToast();
+        });
+
+        function showToast() {
+            toast.style.bottom = "24px";
+            toast.style.opacity = "1";
+            setTimeout(() => {
+                toast.style.bottom = "-100px";
+                toast.style.opacity = "0";
+            }, 2000);
+        }
+
+        // Modal Logic
+        infoBtn.addEventListener('click', () => infoModal.classList.remove('hidden'));
+        closeInfo.addEventListener('click', () => infoModal.classList.add('hidden'));
+        window.addEventListener('click', (e) => {
+            if (e.target === infoModal) infoModal.classList.add('hidden');
+        });
+
+    </script>
+</body>
+</html>
