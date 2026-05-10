@@ -1,0 +1,396 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gothic Alphabet for Javanese</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Plus+Jakarta+Sans', sans-serif;
+            background-color: #f0f4f8;
+        }
+        /* Menggunakan font sistem yang mendukung Unicode Gothic jika tersedia */
+        .gothic-font {
+            font-family: 'Segoe UI Historic', 'Noto Sans Gothic', 'Code2001', sans-serif;
+            font-size: 1.75rem;
+            line-height: 2rem;
+        }
+        .custom-shadow {
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.05), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+        }
+        .toast {
+            visibility: hidden;
+            min-width: 200px;
+            background-color: #1e293b;
+            color: #fff;
+            text-align: center;
+            border-radius: 12px;
+            padding: 12px 24px;
+            position: fixed;
+            z-index: 100;
+            left: 50%;
+            transform: translateX(-50%);
+            bottom: 30px;
+            opacity: 0;
+            transition: opacity 0.3s, bottom 0.3s;
+        }
+        .toast.show {
+            visibility: visible;
+            opacity: 1;
+            bottom: 50px;
+        }
+    </style>
+</head>
+<body class="p-4 md:p-8 min-h-screen flex flex-col items-center">
+
+    <div class="max-w-5xl w-full mx-auto">
+        <!-- Header -->
+        <header class="text-center mb-8">
+            <h1 class="text-3xl md:text-5xl font-extrabold text-slate-900 mb-3">
+                <span class="text-indigo-600">Aksara</span> Gothic
+            </h1>
+            <p class="text-slate-600 font-medium">Transliterasi untuk Penutur Bahasa Jawa & Indonesia</p>
+        </header>
+
+        <!-- Main Interface -->
+        <div class="bg-white rounded-[2rem] p-6 md:p-10 custom-shadow border border-slate-100">
+            
+            <div id="converterContainer" class="grid grid-cols-1 lg:grid-cols-[1fr_auto_1fr] gap-6 items-center">
+                
+                <!-- Input Section -->
+                <div class="flex flex-col gap-3 h-full">
+                    <div class="flex justify-between items-center px-1">
+                        <span id="labelLeft" class="text-sm font-bold text-slate-500 uppercase tracking-wider">Latin</span>
+                        <span class="text-xs text-slate-400">Input</span>
+                    </div>
+                    <textarea id="inputArea" 
+                        class="w-full h-48 md:h-64 p-5 text-lg border-2 border-slate-100 rounded-3xl focus:ring-4 focus:ring-indigo-100 focus:border-indigo-400 transition-all outline-none resize-none bg-slate-50 text-slate-800"
+                        placeholder="Ketik teks di sini..."></textarea>
+                </div>
+
+                <!-- Swap Button (Center) -->
+                <div class="flex lg:flex-col justify-center items-center py-2">
+                    <button id="swapBtn" class="p-4 bg-indigo-50 text-indigo-600 rounded-2xl hover:bg-indigo-600 hover:text-white transition-all shadow-sm active:scale-90" title="Tukar Mode">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 lg:rotate-90" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4" />
+                        </svg>
+                    </button>
+                </div>
+
+                <!-- Output Section -->
+                <div class="flex flex-col gap-3 h-full">
+                    <div class="flex justify-between items-center px-1">
+                        <span id="labelRight" class="text-sm font-bold text-slate-500 uppercase tracking-wider">Gothic</span>
+                        <span class="text-xs text-slate-400">Hasil</span>
+                    </div>
+                    <textarea id="outputArea" readonly
+                        class="w-full h-48 md:h-64 p-5 border-2 border-slate-100 rounded-3xl bg-slate-50 text-slate-900 outline-none resize-none gothic-font"
+                        placeholder="Hasil akan muncul di sini..."></textarea>
+                </div>
+            </div>
+
+            <!-- Action Buttons -->
+            <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 mt-10">
+                <button id="clearBtn" class="flex items-center justify-center gap-2 px-6 py-4 bg-slate-100 text-slate-600 font-bold rounded-2xl hover:bg-red-50 hover:text-red-600 transition-all">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                    </svg>
+                    Bersihkan
+                </button>
+                
+                <button id="guideBtn" class="flex items-center justify-center gap-2 px-6 py-4 bg-indigo-50 text-indigo-700 font-bold rounded-2xl hover:bg-indigo-100 transition-all">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                    Panduan
+                </button>
+
+                <button id="copyBtn" class="flex items-center justify-center gap-2 px-6 py-4 bg-indigo-600 text-white font-bold rounded-2xl hover:bg-indigo-700 shadow-lg shadow-indigo-200 transition-all active:scale-95">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2m-2 4h.01M8 16h.01M8 12h.01M12 12h.01M12 16h.01M12 8h.01" />
+                    </svg>
+                    Salin Hasil
+                </button>
+            </div>
+        </div>
+
+        <!-- Info Cards -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mt-8">
+            <div class="bg-white p-6 rounded-[2rem] border border-slate-100">
+                <h3 class="font-bold text-slate-800 mb-2 flex items-center gap-2">
+                    <span class="w-2 h-2 bg-green-500 rounded-full"></span> Dukungan Medial & Final
+                </h3>
+                <p class="text-sm text-slate-500 leading-relaxed">
+                    Karena Gothic adalah alfabet, bukan abugida, sistem Medial (Cakra/Pengkal) dan Final (Wignyan/Layar) ditulis sebagai huruf utuh yang berurutan. Misalnya: <b>mangan</b> diakhiri 𐌽 (n) secara linier.
+                </p>
+            </div>
+            <div class="bg-white p-6 rounded-[2rem] border border-slate-100">
+                <h3 class="font-bold text-slate-800 mb-2 flex items-center gap-2">
+                    <span class="w-2 h-2 bg-blue-500 rounded-full"></span> Transliterasi Angka
+                </h3>
+                <p class="text-sm text-slate-500 leading-relaxed">
+                    Angka 1-9 dipetakan ke urutan abjad Gothic tradisional (𐌰, 𐌱, 𐌲...). Masukkan angka Latin 1-9 untuk melihat hasilnya.
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Guide -->
+    <div id="guideModal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm hidden flex items-center justify-center p-4 z-[200]">
+        <div class="bg-white rounded-[2.5rem] max-w-2xl w-full max-h-[85vh] overflow-y-auto p-8 shadow-2xl">
+            <div class="flex justify-between items-center mb-6">
+                <h2 class="text-2xl font-extrabold text-slate-900">Papan Informasi</h2>
+                <button id="closeModal" class="p-2 hover:bg-slate-100 rounded-full text-slate-400 hover:text-slate-600 transition-all">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                </button>
+            </div>
+            
+            <div class="space-y-6 text-slate-700 text-sm md:text-base">
+                <section class="bg-indigo-50 p-6 rounded-3xl">
+                    <h3 class="font-bold text-indigo-900 mb-3 text-lg">Aturan Khusus Jawa</h3>
+                    <ul class="space-y-3">
+                        <li class="flex gap-3"><span class="font-bold text-indigo-500">é</span> <span>Dipetakan ke <b>𐌴</b> (E-long) untuk membedakan dengan e-pepet.</span></li>
+                        <li class="flex gap-3"><span class="font-bold text-indigo-500">ng</span> <span>Menggunakan <b>𐌲𐌲</b> (Double Gamma) sesuai aturan fonetik asli Gothic.</span></li>
+                        <li class="flex gap-3"><span class="font-bold text-indigo-500">th</span> <span>Menggunakan huruf Thorn <b>𐌸</b>.</span></li>
+                        <li class="flex gap-3"><span class="font-bold text-indigo-500">dh</span> <span>Menggunakan huruf <b>𐌳</b> (D) karena kedekatan bunyi.</span></li>
+                    </ul>
+                </section>
+
+                <div class="grid grid-cols-2 gap-4">
+                    <div class="border rounded-2xl p-4">
+                        <p class="font-bold text-slate-400 text-xs uppercase mb-2">Huruf Serapan</p>
+                        <ul class="text-sm space-y-1">
+                            <li>f/v → 𐍆</li>
+                            <li>kh/x → 𐍇</li>
+                            <li>sy/s → 𐍃</li>
+                            <li>q → 𐌵</li>
+                            <li>z → 𐌶</li>
+                        </ul>
+                    </div>
+                    <div class="border rounded-2xl p-4">
+                        <p class="font-bold text-slate-400 text-xs uppercase mb-2">Vokal Utama</p>
+                        <ul class="text-sm space-y-1">
+                            <li>a → 𐌰</li>
+                            <li>i → 𐌹</li>
+                            <li>u → 𐌿</li>
+                            <li>o → 𐍉</li>
+                            <li>e (pepet) → 𐌰𐌹</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast -->
+    <div id="toast" class="toast">Aksara Berhasil Disalin</div>
+
+    <script>
+        // Data Mapping Lengkap
+        const mapping = {
+            'ng': '𐌲𐌲',
+            'ny': '𐌽𐌾',
+            'th': '𐌸',
+            'dh': '𐌳',
+            'kh': '𐍇',
+            'sy': '𐍃',
+            'ph': '𐍀',
+            'a': '𐌰',
+            'e': '𐌰𐌹', 
+            'é': '𐌴',   
+            'i': '𐌹',
+            'o': '𐍉',
+            'u': '𐌿',
+            'b': '𐌱',
+            'c': '𐌺', 
+            'd': '𐌳',
+            'f': '𐍆',
+            'g': '𐌲',
+            'h': '𐌷',
+            'j': '𐌾',
+            'k': '𐌺',
+            'l': '𐌻',
+            'm': '𐌼',
+            'n': '𐌽',
+            'p': '𐍀',
+            'q': '𐌵',
+            'r': '𐍂',
+            's': '𐍃',
+            't': '𐍄',
+            'v': '𐍆',
+            'w': '𐍅',
+            'x': '𐍇',
+            'y': '𐌾',
+            'z': '𐌶',
+            '1': '𐌰', '2': '𐌱', '3': '𐌲', '4': '𐌳', '5': '𐌴', '6': '𐌵', '7': '𐌶', '8': '𐌷', '9': '𐌸'
+        };
+
+        const reverseMapping = {};
+        for (let [latin, gothic] of Object.entries(mapping)) {
+            if (!reverseMapping[gothic]) reverseMapping[gothic] = latin;
+        }
+        // Manual override for special gothic combos
+        reverseMapping['𐌲𐌲'] = 'ng';
+        reverseMapping['𐌽𐌾'] = 'ny';
+        reverseMapping['𐌰𐌹'] = 'e';
+
+        const digraphs = ['ng', 'ny', 'th', 'dh', 'kh', 'sy', 'ph'];
+        const gothicPairs = ['𐌲𐌲', '𐌽𐌾', '𐌰𐌹'];
+
+        // App State
+        let currentMode = 'latin-to-gothic'; // 'latin-to-gothic' or 'gothic-to-latin'
+
+        const inputArea = document.getElementById('inputArea');
+        const outputArea = document.getElementById('outputArea');
+        const swapBtn = document.getElementById('swapBtn');
+        const labelLeft = document.getElementById('labelLeft');
+        const labelRight = document.getElementById('labelRight');
+        const clearBtn = document.getElementById('clearBtn');
+        const copyBtn = document.getElementById('copyBtn');
+        const guideBtn = document.getElementById('guideBtn');
+        const guideModal = document.getElementById('guideModal');
+        const closeModal = document.getElementById('closeModal');
+
+        function translate() {
+            const text = inputArea.value;
+            if (!text) {
+                outputArea.value = "";
+                return;
+            }
+
+            if (currentMode === 'latin-to-gothic') {
+                outputArea.value = latinToGothic(text);
+            } else {
+                outputArea.value = gothicToLatin(text);
+            }
+        }
+
+        function latinToGothic(text) {
+            let result = "";
+            let i = 0;
+            const lower = text.toLowerCase();
+            
+            while (i < lower.length) {
+                let found = false;
+                
+                // Check digraphs
+                for (let d of digraphs) {
+                    if (lower.substr(i, d.length) === d) {
+                        result += mapping[d];
+                        i += d.length;
+                        found = true;
+                        break;
+                    }
+                }
+                
+                if (!found) {
+                    let char = lower[i];
+                    result += mapping[char] || char;
+                    i++;
+                }
+            }
+            return result;
+        }
+
+        function gothicToLatin(text) {
+            let result = "";
+            // Menangani pasangan surrogate (Gothic characters are 2-char length in JS string)
+            // We use Array.from to correctly iterate over Unicode code points
+            const chars = Array.from(text);
+            let i = 0;
+
+            while (i < chars.length) {
+                let found = false;
+                
+                // Check double gothic chars (like 𐌲𐌲)
+                if (i < chars.length - 1) {
+                    let pair = chars[i] + chars[i+1];
+                    if (reverseMapping[pair]) {
+                        result += reverseMapping[pair];
+                        i += 2;
+                        found = true;
+                    }
+                }
+
+                if (!found) {
+                    let char = chars[i];
+                    result += reverseMapping[char] || char;
+                    i++;
+                }
+            }
+            return result;
+        }
+
+        // Toggle Mode
+        swapBtn.addEventListener('click', () => {
+            currentMode = currentMode === 'latin-to-gothic' ? 'gothic-to-latin' : 'latin-to-gothic';
+            
+            // Swap labels
+            const tempLabel = labelLeft.innerText;
+            labelLeft.innerText = labelRight.innerText;
+            labelRight.innerText = tempLabel;
+
+            // Swap textarea content
+            const tempText = inputArea.value;
+            inputArea.value = outputArea.value;
+            outputArea.value = tempText;
+
+            // Toggle font classes
+            if (currentMode === 'gothic-to-latin') {
+                inputArea.classList.add('gothic-font');
+                outputArea.classList.remove('gothic-font');
+                inputArea.placeholder = "𐌺𐌴𐍄𐌹𐌺 𐌰𐌺𐍃𐌰𐍂𐌰 𐌳𐌹 𐍃𐌹𐌽𐌹...";
+                outputArea.placeholder = "Hasil Latin...";
+            } else {
+                inputArea.classList.remove('gothic-font');
+                outputArea.classList.add('gothic-font');
+                inputArea.placeholder = "Ketik teks di sini...";
+                outputArea.placeholder = "Hasil akan muncul di sini...";
+            }
+        });
+
+        // Listeners
+        inputArea.addEventListener('input', translate);
+
+        clearBtn.addEventListener('click', () => {
+            inputArea.value = "";
+            outputArea.value = "";
+        });
+
+        copyBtn.addEventListener('click', () => {
+            if (!outputArea.value) return;
+            
+            // Standard copy to clipboard
+            outputArea.select();
+            try {
+                document.execCommand('copy');
+                showToast();
+            } catch (err) {
+                console.error('Gagal menyalin', err);
+            }
+        });
+
+        guideBtn.addEventListener('click', () => {
+            guideModal.classList.remove('hidden');
+        });
+
+        closeModal.addEventListener('click', () => {
+            guideModal.classList.add('hidden');
+        });
+
+        window.addEventListener('click', (e) => {
+            if (e.target === guideModal) guideModal.classList.add('hidden');
+        });
+
+        function showToast() {
+            const toast = document.getElementById("toast");
+            toast.classList.add("show");
+            setTimeout(() => { toast.classList.remove("show"); }, 3000);
+        }
+    </script>
+</body>
+</html>
