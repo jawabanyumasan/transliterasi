@@ -1,0 +1,401 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Transliterasi Latin - Aksara Gujarati</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Gujarati:wght@400;700&family=Inter:wght@400;600&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f8fafc;
+        }
+        .gujarati-font {
+            font-family: 'Noto Sans Gujarati', sans-serif;
+        }
+        .custom-scrollbar::-webkit-scrollbar {
+            width: 6px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+            background-color: #cbd5e1;
+            border-radius: 10px;
+        }
+        .toast {
+            visibility: hidden;
+            min-width: 250px;
+            background-color: #334155;
+            color: #fff;
+            text-align: center;
+            border-radius: 8px;
+            padding: 12px;
+            position: fixed;
+            z-index: 50;
+            left: 50%;
+            bottom: 30px;
+            transform: translateX(-50%);
+            transition: opacity 0.3s, visibility 0.3s;
+            opacity: 0;
+        }
+        .toast.show {
+            visibility: visible;
+            opacity: 1;
+        }
+    </style>
+</head>
+<body class="p-4 md:p-8">
+
+    <div class="max-w-4xl mx-auto">
+        <!-- Header -->
+        <header class="text-center mb-8">
+            <h1 class="text-3xl font-bold text-slate-800 mb-2">ગુજરાતી લિપિ</h1>
+            <p class="text-slate-600">Transliterasi Latin & Aksara Gujarati (Edisi Jawa)</p>
+        </header>
+
+        <!-- Main Card -->
+        <div class="bg-white rounded-2xl shadow-xl border border-slate-200 overflow-hidden">
+            <!-- Mode Switcher -->
+            <div class="bg-slate-50 p-4 border-b border-slate-200 flex justify-center items-center">
+                <div class="flex items-center space-x-6">
+                    <span id="labelFrom" class="font-semibold text-indigo-600">Latin</span>
+                    <button id="btnSwap" class="p-2 bg-white rounded-full border border-slate-300 hover:bg-slate-100 transition-colors shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m7 16 3-3-3-3"/><path d="m17 8-3 3 3 3"/><path d="M3 12h7"/><path d="M14 12h7"/></svg>
+                    </button>
+                    <span id="labelTo" class="font-semibold text-slate-800">Gujarati</span>
+                </div>
+            </div>
+
+            <!-- Input/Output Areas -->
+            <div class="grid grid-cols-1 md:grid-cols-2 divide-y md:divide-y-0 md:divide-x divide-slate-200">
+                <!-- Input Section -->
+                <div class="p-6">
+                    <div class="flex justify-between items-center mb-2">
+                        <label class="text-xs font-bold uppercase tracking-wider text-slate-400">Input</label>
+                        <button onclick="copyToClipboard('inputArea')" class="text-indigo-600 hover:text-indigo-800 text-xs font-medium">Salin Input</button>
+                    </div>
+                    <textarea id="inputArea" placeholder="Ketik latin atau tempel aksara di sini..." class="w-full h-48 md:h-64 p-0 border-none focus:ring-0 text-lg resize-none custom-scrollbar"></textarea>
+                </div>
+
+                <!-- Output Section -->
+                <div class="p-6 bg-slate-50/50">
+                    <div class="flex justify-between items-center mb-2">
+                        <label class="text-xs font-bold uppercase tracking-wider text-slate-400">Hasil</label>
+                        <button onclick="copyToClipboard('outputArea')" class="text-indigo-600 hover:text-indigo-800 text-xs font-medium">Salin Hasil</button>
+                    </div>
+                    <div id="outputArea" class="w-full h-48 md:h-64 text-2xl gujarati-font break-words overflow-y-auto custom-scrollbar"></div>
+                </div>
+            </div>
+
+            <!-- Footer Buttons -->
+            <div class="bg-slate-50 p-4 border-t border-slate-200 flex justify-end space-x-2">
+                <button id="btnClear" class="px-4 py-2 text-sm font-medium bg-white text-red-600 border border-red-100 rounded-lg hover:bg-red-50 transition-colors shadow-sm">Bersihkan Teks</button>
+                <button id="btnInfo" class="px-4 py-2 text-sm font-medium bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors shadow-sm">Buka Panduan</button>
+            </div>
+        </div>
+
+        <p class="mt-4 text-center text-sm text-slate-400 italic">
+            Mendukung konsonan penuh 'h' (હ) dan 'ng' (ઙ).
+        </p>
+    </div>
+
+    <!-- Info Modal -->
+    <div id="modalInfo" class="fixed inset-0 bg-black/50 hidden z-50 flex items-center justify-center p-4">
+        <div class="bg-white rounded-2xl max-w-2xl w-full max-h-[80vh] overflow-hidden flex flex-col shadow-2xl">
+            <div class="p-6 border-b border-slate-200 flex justify-between items-center">
+                <h2 class="text-xl font-bold text-slate-800">Panduan Aksara Gujarati</h2>
+                <button id="btnCloseInfo" class="text-slate-400 hover:text-slate-600 text-2xl">&times;</button>
+            </div>
+            <div class="p-6 overflow-y-auto custom-scrollbar space-y-8">
+                <!-- Vokal -->
+                <div>
+                    <h3 class="font-bold text-indigo-600 mb-3 border-b border-indigo-100 pb-1">Vokal Mandiri</h3>
+                    <div class="grid grid-cols-5 gap-3">
+                        <div class="text-center bg-slate-50 p-2 rounded">
+                            <div class="gujarati-font text-xl">અ</div><div class="text-xs text-slate-500">a</div>
+                        </div>
+                        <div class="text-center bg-slate-50 p-2 rounded">
+                            <div class="gujarati-font text-xl">આ</div><div class="text-xs text-slate-500">ā / aa</div>
+                        </div>
+                        <div class="text-center bg-slate-50 p-2 rounded">
+                            <div class="gujarati-font text-xl">ઇ</div><div class="text-xs text-slate-500">i</div>
+                        </div>
+                        <div class="text-center bg-slate-50 p-2 rounded">
+                            <div class="gujarati-font text-xl">ઈ</div><div class="text-xs text-slate-500">ī / ii</div>
+                        </div>
+                        <div class="text-center bg-slate-50 p-2 rounded">
+                            <div class="gujarati-font text-xl">એ</div><div class="text-xs text-slate-500">e / é</div>
+                        </div>
+                        <div class="text-center bg-slate-50 p-2 rounded">
+                            <div class="gujarati-font text-xl">ઐ</div><div class="text-xs text-slate-500">ai</div>
+                        </div>
+                        <div class="text-center bg-slate-50 p-2 rounded">
+                            <div class="gujarati-font text-xl">ઓ</div><div class="text-xs text-slate-500">o</div>
+                        </div>
+                        <div class="text-center bg-slate-50 p-2 rounded">
+                            <div class="gujarati-font text-xl">ઔ</div><div class="text-xs text-slate-500">au</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Konsonan -->
+                <div>
+                    <h3 class="font-bold text-indigo-600 mb-3 border-b border-indigo-100 pb-1">Konsonan Utama</h3>
+                    <div class="grid grid-cols-5 gap-2 text-sm">
+                        <div class="flex flex-col items-center border p-1 rounded"><span>ક</span><span class="text-xs text-slate-400">ka</span></div>
+                        <div class="flex flex-col items-center border p-1 rounded"><span>ખ</span><span class="text-xs text-slate-400">kha</span></div>
+                        <div class="flex flex-col items-center border p-1 rounded"><span>ગ</span><span class="text-xs text-slate-400">ga</span></div>
+                        <div class="flex flex-col items-center border p-1 rounded"><span>ઘ</span><span class="text-xs text-slate-400">gha</span></div>
+                        <div class="flex flex-col items-center border p-1 rounded"><span>ઙ</span><span class="text-xs text-slate-400">ng / ઙa</span></div>
+                        <div class="flex flex-col items-center border p-1 rounded"><span>ચ</span><span class="text-xs text-slate-400">ca</span></div>
+                        <div class="flex flex-col items-center border p-1 rounded"><span>છ</span><span class="text-xs text-slate-400">cha</span></div>
+                        <div class="flex flex-col items-center border p-1 rounded"><span>જ</span><span class="text-xs text-slate-400">ja</span></div>
+                        <div class="flex flex-col items-center border p-1 rounded"><span>ઝ</span><span class="text-xs text-slate-400">jha</span></div>
+                        <div class="flex flex-col items-center border p-1 rounded"><span>ઞ</span><span class="text-xs text-slate-400">ny / ઞa</span></div>
+                        <div class="flex flex-col items-center border p-1 rounded"><span>ટ</span><span class="text-xs text-slate-400">th / ṭa</span></div>
+                        <div class="flex flex-col items-center border p-1 rounded"><span>ઠ</span><span class="text-xs text-slate-400">ṭha</span></div>
+                        <div class="flex flex-col items-center border p-1 rounded"><span>ડ</span><span class="text-xs text-slate-400">dh / ḍa</span></div>
+                        <div class="flex flex-col items-center border p-1 rounded"><span>ઢ</span><span class="text-xs text-slate-400">ḍha</span></div>
+                        <div class="flex flex-col items-center border p-1 rounded"><span>ણ</span><span class="text-xs text-slate-400">ṇa</span></div>
+                        <div class="flex flex-col items-center border p-1 rounded"><span>ત</span><span class="text-xs text-slate-400">ta</span></div>
+                        <div class="flex flex-col items-center border p-1 rounded"><span>થ</span><span class="text-xs text-slate-400">tha</span></div>
+                        <div class="flex flex-col items-center border p-1 rounded"><span>દ</span><span class="text-xs text-slate-400">da</span></div>
+                        <div class="flex flex-col items-center border p-1 rounded"><span>ધ</span><span class="text-xs text-slate-400">dha</span></div>
+                        <div class="flex flex-col items-center border p-1 rounded"><span>ન</span><span class="text-xs text-slate-400">na</span></div>
+                    </div>
+                </div>
+
+                <!-- Serapan -->
+                <div>
+                    <h3 class="font-bold text-indigo-600 mb-3 border-b border-indigo-100 pb-1">Serapan & Khusus</h3>
+                    <div class="grid grid-cols-4 gap-2 text-sm">
+                        <div class="flex flex-col items-center border p-1 rounded"><span>ક઼</span><span class="text-xs text-slate-400">qa</span></div>
+                        <div class="flex flex-col items-center border p-1 rounded"><span>ખ઼</span><span class="text-xs text-slate-400">kh (z)</span></div>
+                        <div class="flex flex-col items-center border p-1 rounded"><span>જ઼</span><span class="text-xs text-slate-400">za</span></div>
+                        <div class="flex flex-col items-center border p-1 rounded"><span>ફ઼</span><span class="text-xs text-slate-400">fa</span></div>
+                        <div class="flex flex-col items-center border p-1 rounded"><span>શ</span><span class="text-xs text-slate-400">sy / ś</span></div>
+                        <div class="flex flex-col items-center border p-1 rounded"><span>વ</span><span class="text-xs text-slate-400">v / w</span></div>
+                        <div class="flex flex-col items-center border p-1 rounded"><span>હ</span><span class="text-xs text-slate-400">ha</span></div>
+                    </div>
+                </div>
+
+                <!-- Angka -->
+                <div>
+                    <h3 class="font-bold text-indigo-600 mb-3 border-b border-indigo-100 pb-1">Angka</h3>
+                    <div class="flex flex-wrap gap-2">
+                        <span class="px-2 py-1 bg-slate-100 rounded">૦ (0)</span>
+                        <span class="px-2 py-1 bg-slate-100 rounded">૧ (1)</span>
+                        <span class="px-2 py-1 bg-slate-100 rounded">૨ (2)</span>
+                        <span class="px-2 py-1 bg-slate-100 rounded">૩ (3)</span>
+                        <span class="px-2 py-1 bg-slate-100 rounded">૪ (4)</span>
+                        <span class="px-2 py-1 bg-slate-100 rounded">૫ (5)</span>
+                        <span class="px-2 py-1 bg-slate-100 rounded">૬ (6)</span>
+                        <span class="px-2 py-1 bg-slate-100 rounded">૭ (7)</span>
+                        <span class="px-2 py-1 bg-slate-100 rounded">૮ (8)</span>
+                        <span class="px-2 py-1 bg-slate-100 rounded">૯ (9)</span>
+                    </div>
+                </div>
+            </div>
+            <div class="p-4 border-t border-slate-200 bg-slate-50 text-right">
+                <button id="btnCloseInfoBottom" class="px-6 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors">Tutup</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="toast" class="toast">Aksara Berhasil Disalin</div>
+
+    <script>
+        // --- Mapping Data ---
+        const gujaratiVowels = {
+            'a': 'અ', 'ā': 'આ', 'aa': 'આ', 'i': 'ઇ', 'ī': 'ઈ', 'ii': 'ઈ', 
+            'u': 'ઉ', 'ū': 'ઊ', 'uu': 'ઊ', 'e': 'એ', 'é': 'એ', 'ai': 'ઐ', 
+            'o': 'ઓ', 'au': 'ઔ'
+        };
+
+        const gujaratiMatras = {
+            'ā': 'ા', 'aa': 'ા', 'i': 'િ', 'ī': 'ી', 'ii': 'ી', 
+            'u': 'ુ', 'ū': 'ૂ', 'uu': 'ૂ', 'e': 'ે', 'é': 'ે', 'ai': 'ૈ', 
+            'o': 'ો', 'au': 'ૌ', 'æ': 'ૅ', 'ô': 'ૉ'
+        };
+
+        const gujaratiConsonants = {
+            'kh': 'ખ', 'gh': 'ઘ', 'ng': 'ઙ', 'ch': 'છ', 'jh': 'ઝ', 'ny': 'ઞ',
+            'ṭh': 'ઠ', 'ḍh': 'ઢ', 'th': 'થ', 'dh': 'ધ', 'ph': 'ફ', 'bh': 'ભ',
+            'sh': 'શ', 'sy': 'શ', 'ṣ': 'ષ', 'qa': 'ક઼', 'za': 'જ઼', 'fa': 'ફ઼',
+            'k': 'ક', 'g': 'ગ', 'c': 'ચ', 'j': 'જ', 'ṭ': 'ટ', 'ḍ': 'ડ', 'ણ': 'ણ',
+            't': 'ત', 'd': 'દ', 'n': 'ન', 'p': 'પ', 'b': 'બ', 'm': 'મ', 'y': 'ય',
+            'r': 'ર', 'l': 'લ', 'v': 'વ', 'w': 'વ', 'ś': 'શ', 's': 'સ', 'h': 'હ',
+            'f': 'ફ઼', 'z': 'જ઼', 'q': 'ક઼'
+        };
+
+        const gujaratiNumbers = {
+            '0': '૦', '1': '૧', '2': '૨', '3': '૩', '4': '૪', '5': '૫', '6': '૬', '7': '૭', '8': '૮', '9': '૯'
+        };
+
+        const virama = '્';
+
+        // Reverse Mappings
+        const reverseVowels = Object.fromEntries(Object.entries(gujaratiVowels).map(([k, v]) => [v, k]));
+        const reverseMatras = Object.fromEntries(Object.entries(gujaratiMatras).map(([k, v]) => [v, k]));
+        const reverseConsonants = Object.fromEntries(Object.entries(gujaratiConsonants).map(([k, v]) => [v, k]));
+        const reverseNumbers = Object.fromEntries(Object.entries(gujaratiNumbers).map(([k, v]) => [v, k]));
+
+        let mode = 'latin-to-gujarati';
+        const inputArea = document.getElementById('inputArea');
+        const outputArea = document.getElementById('outputArea');
+        const labelFrom = document.getElementById('labelFrom');
+        const labelTo = document.getElementById('labelTo');
+
+        function showToast(message) {
+            const toast = document.getElementById('toast');
+            toast.innerText = message;
+            toast.classList.add('show');
+            setTimeout(() => toast.classList.remove('show'), 2000);
+        }
+
+        function copyToClipboard(id) {
+            const el = document.getElementById(id);
+            const text = id === 'outputArea' ? el.innerText : el.value;
+            if (!text) return;
+
+            const textArea = document.createElement("textarea");
+            textArea.value = text;
+            document.body.appendChild(textArea);
+            textArea.select();
+            try {
+                document.execCommand('copy');
+                showToast("Aksara Berhasil Disalin");
+            } catch (err) {
+                console.error('Gagal menyalin', err);
+            }
+            document.body.removeChild(textArea);
+        }
+
+        function transliterateLatinToGujarati(text) {
+            let result = '';
+            let i = 0;
+            text = text.toLowerCase();
+
+            while (i < text.length) {
+                let char = text[i];
+                let next = text[i + 1] || '';
+                let nextNext = text[i + 2] || '';
+
+                if (/[0-9]/.test(char)) {
+                    result += gujaratiNumbers[char];
+                    i++;
+                    continue;
+                }
+
+                let combo2 = char + next;
+                let combo3 = char + next + nextNext;
+
+                if (gujaratiConsonants[combo2]) {
+                    let base = gujaratiConsonants[combo2];
+                    i += 2;
+                    let vowel = text[i] || '';
+                    if (text[i] + text[i+1] === 'ai' || text[i] + text[i+1] === 'au') {
+                        result += base + gujaratiMatras[text[i] + text[i+1]];
+                        i += 2;
+                    } else if (gujaratiMatras[vowel]) {
+                        result += base + gujaratiMatras[vowel];
+                        i++;
+                    } else if (vowel === 'a') {
+                        result += base;
+                        i++;
+                    } else if (/[a-z]/.test(vowel)) {
+                        result += base + virama;
+                    } else {
+                        result += base + virama;
+                    }
+                } else if (gujaratiVowels[combo2]) {
+                    result += gujaratiVowels[combo2];
+                    i += 2;
+                } else if (gujaratiConsonants[char]) {
+                    let base = gujaratiConsonants[char];
+                    i++;
+                    let vowel = text[i] || '';
+                    if (text[i] + text[i+1] === 'ai' || text[i] + text[i+1] === 'au') {
+                        result += base + gujaratiMatras[text[i] + text[i+1]];
+                        i += 2;
+                    } else if (gujaratiMatras[vowel]) {
+                        result += base + gujaratiMatras[vowel];
+                        i++;
+                    } else if (vowel === 'a') {
+                        result += base;
+                        i++;
+                    } else if (/[a-z]/.test(vowel)) {
+                        result += base + virama;
+                    } else {
+                        result += base + virama;
+                    }
+                } else if (gujaratiVowels[char]) {
+                    result += gujaratiVowels[char];
+                    i++;
+                } else {
+                    result += char;
+                    i++;
+                }
+            }
+            return result;
+        }
+
+        function transliterateGujaratiToLatin(text) {
+            let result = '';
+            for (let i = 0; i < text.length; i++) {
+                let char = text[i];
+                if (reverseNumbers[char]) result += reverseNumbers[char];
+                else if (reverseVowels[char]) result += reverseVowels[char];
+                else if (reverseConsonants[char]) {
+                    result += reverseConsonants[char];
+                    let next = text[i+1];
+                    if (!next || (!reverseMatras[next] && next !== virama)) {
+                        result += 'a';
+                    }
+                } else if (reverseMatras[char]) result += reverseMatras[char];
+                else if (char === virama) continue;
+                else result += char;
+            }
+            return result;
+        }
+
+        function process() {
+            const input = inputArea.value;
+            if (mode === 'latin-to-gujarati') {
+                outputArea.innerText = transliterateLatinToGujarati(input);
+            } else {
+                outputArea.innerText = transliterateGujaratiToLatin(input);
+            }
+        }
+
+        inputArea.addEventListener('input', process);
+
+        document.getElementById('btnSwap').addEventListener('click', () => {
+            mode = mode === 'latin-to-gujarati' ? 'gujarati-to-latin' : 'latin-to-gujarati';
+            const tempLabel = labelFrom.innerText;
+            labelFrom.innerText = labelTo.innerText;
+            labelTo.innerText = tempLabel;
+            
+            labelFrom.classList.toggle('text-indigo-600');
+            labelFrom.classList.toggle('text-slate-800');
+            labelTo.classList.toggle('text-indigo-600');
+            labelTo.classList.toggle('text-slate-800');
+
+            const oldInput = inputArea.value;
+            const oldOutput = outputArea.innerText;
+            inputArea.value = oldOutput;
+            outputArea.innerText = oldInput;
+            process();
+        });
+
+        document.getElementById('btnClear').addEventListener('click', () => {
+            inputArea.value = '';
+            outputArea.innerText = '';
+        });
+
+        const modal = document.getElementById('modalInfo');
+        document.getElementById('btnInfo').addEventListener('click', () => modal.classList.remove('hidden'));
+        document.getElementById('btnCloseInfo').addEventListener('click', () => modal.classList.add('hidden'));
+        document.getElementById('btnCloseInfoBottom').addEventListener('click', () => modal.classList.add('hidden'));
+    </script>
+</body>
+</html>
