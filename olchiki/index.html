@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Transliterasi Ol Chiki Jawa</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap');
+        body { font-family: 'Inter', sans-serif; }
+        .ol-chiki-font { font-family: serif; }
+        .modal-active { overflow: hidden; }
+    </style>
+</head>
+<body class="bg-gray-50 text-gray-900">
+
+    <div class="min-h-screen p-4 md:p-8">
+        <div class="max-w-4xl mx-auto">
+            <!-- Header -->
+            <header class="flex flex-col md:flex-row md:items-center justify-between mb-8 gap-4">
+                <div>
+                    <h1 class="text-3xl font-bold text-blue-700">Ol Chiki - Javanese</h1>
+                    <p class="text-gray-500 text-sm md:text-base">Transliterasi untuk kebutuhan fonetik Jawa (Aksara Santali)</p>
+                </div>
+                <button onclick="toggleInfo(true)" class="flex items-center gap-2 bg-white border border-gray-200 px-4 py-2 rounded-xl shadow-sm hover:bg-gray-100 transition-colors self-start">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/></svg>
+                    <span class="font-medium">Panduan</span>
+                </button>
+            </header>
+
+            <!-- Workspace -->
+            <div class="grid grid-cols-1 gap-4">
+                <!-- Top Box -->
+                <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+                    <div class="px-6 py-3 border-b border-gray-50 flex justify-between items-center bg-gray-50/50">
+                        <span id="inputLabel" class="text-xs font-bold uppercase tracking-widest text-gray-400">Input Latin</span>
+                        <button onclick="clearText()" class="p-1 hover:text-red-500 transition-colors text-gray-400" title="Bersihkan">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/></svg>
+                        </button>
+                    </div>
+                    <textarea id="inputText" class="w-full p-6 text-xl min-h-[160px] focus:outline-none resize-none placeholder-gray-200" placeholder="Ketik teks Latin (th, dh, ng, ny, é)..."></textarea>
+                </div>
+
+                <!-- Switcher -->
+                <div class="flex justify-center -my-6 z-10">
+                    <button onclick="switchMode()" class="bg-blue-600 text-white p-4 rounded-full shadow-lg hover:bg-blue-700 transition-transform active:scale-95 hover:scale-105">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m16 3 4 4-4 4"/><path d="M20 7H4"/><path d="m8 21-4-4 4-4"/><path d="M4 17h16"/></svg>
+                    </button>
+                </div>
+
+                <!-- Bottom Box -->
+                <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+                    <div class="px-6 py-3 border-b border-gray-50 flex justify-between items-center bg-gray-50/50">
+                        <span id="outputLabel" class="text-xs font-bold uppercase tracking-widest text-gray-400">Hasil Ol Chiki</span>
+                        <button id="copyBtn" onclick="copyToClipboard()" class="flex items-center gap-2 px-4 py-1.5 rounded-lg text-sm font-semibold transition-all bg-blue-50 text-blue-600 hover:bg-blue-100">
+                            <svg id="copyIcon" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="14" height="14" x="8" y="8" rx="2" ry="2"/><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"/></svg>
+                            <span id="copyBtnText">Salin Teks</span>
+                        </button>
+                    </div>
+                    <div id="outputText" class="p-6 text-3xl min-h-[160px] break-all leading-relaxed ol-chiki-font text-blue-900 whitespace-pre-wrap">
+                        <span class="text-gray-200 text-xl italic">Hasil akan muncul otomatis...</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Modal Panduan -->
+            <div id="infoModal" class="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
+                <div class="bg-white rounded-3xl max-w-2xl w-full max-h-[90vh] overflow-y-auto shadow-2xl scale-95 transition-transform">
+                    <div class="p-6 border-b flex justify-between items-center sticky top-0 bg-white z-10">
+                        <h2 class="text-xl font-bold">Panduan Aksara Ol Chiki</h2>
+                        <button onclick="toggleInfo(false)" class="p-2 hover:bg-gray-100 rounded-full">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
+                        </button>
+                    </div>
+                    <div class="p-8 space-y-6">
+                        <div>
+                            <h3 class="font-bold text-blue-700 mb-2">Karakteristik Alfabet</h3>
+                            <p class="text-gray-600 text-sm">Ol Chiki adalah sistem alfabet, bukan abugida. Tidak ada gantungan atau pasangan. Semua suara (vokal & konsonan) ditulis berjajar.</p>
+                        </div>
+                        
+                        <div class="grid grid-cols-2 gap-4">
+                            <div class="p-3 border rounded-xl">
+                                <p class="text-[10px] font-bold text-gray-400 uppercase">Vokal Taling (é)</p>
+                                <p class="text-xl">ᱮ</p>
+                            </div>
+                            <div class="p-3 border rounded-xl">
+                                <p class="text-[10px] font-bold text-gray-400 uppercase">Nasal (ng / ny)</p>
+                                <p class="text-xl">ᱝ / ᱧ</p>
+                            </div>
+                            <div class="p-3 border rounded-xl">
+                                <p class="text-[10px] font-bold text-gray-400 uppercase">Retroflex (th / dh)</p>
+                                <p class="text-xl">ᱴ / ᱰ</p>
+                            </div>
+                            <div class="p-3 border rounded-xl">
+                                <p class="text-[10px] font-bold text-gray-400 uppercase">Serapan (f / v / z)</p>
+                                <p class="text-xl font-mono text-sm">ᱯᱷ / ᱵᱷ / ᱡᱽ</p>
+                            </div>
+                        </div>
+
+                        <div class="bg-blue-50 p-4 rounded-2xl">
+                            <h3 class="font-bold text-blue-800 text-sm mb-1">Catatan Medial & Final</h3>
+                            <p class="text-xs text-blue-700 leading-relaxed">
+                                Sistem <b>Pengkal/Cakra</b> (medial) dan <b>Cecak/Wignyan</b> (final) dalam bahasa Jawa ditulis menggunakan huruf konsonan penuh dalam Ol Chiki. Misalnya, 'ng' di akhir kata tetap menggunakan karakter <b>ᱝ</b>.
+                            </p>
+                        </div>
+                    </div>
+                    <div class="p-6 border-t text-center">
+                        <button onclick="toggleInfo(false)" class="w-full bg-blue-600 text-white py-3 rounded-xl font-bold hover:bg-blue-700">Tutup Panduan</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const LATIN_TO_OL = {
+            'kh': 'ᱠᱷ', 'sy': 'ᱥᱭ', 'th': 'ᱴ', 'dh': 'ᱰ', 'ng': 'ᱝ', 'ny': 'ᱧ',
+            'a': 'ᱟ', 'i': 'ᱤ', 'u': 'ᱩ', 'e': 'ᱮ', 'é': 'ᱮ', 'o': 'ᱚ', 'ò': 'ᱳ',
+            'k': 'ᱠ', 'g': 'ᱜ', 'c': 'ᱪ', 'j': 'ᱡ', 't': 'ᱛ', 'd': 'ᱫ', 'n': 'ᱱ',
+            'p': 'ᱯ', 'b': 'ᱵ', 'm': 'ᱢ', 'y': 'ᱭ', 'r': 'ᱨ', 'l': 'ᱞ', 'w': 'ᱣ',
+            's': 'ᱥ', 'h': 'ᱦ', 'f': 'ᱯᱷ', 'v': 'ᱵᱷ', 'z': 'ᱡᱽ', 'q': 'ᱠ',
+            '0': '٠', '1': '᱑', '2': '᱒', '3': '᱓', '4': '᱔', '5': '᱕', '6': '᱖', '7': '᱗', '8': '᱘', '9': '᱙',
+            ' ': ' '
+        };
+
+        const OL_TO_LATIN = {
+            'ᱠᱷ': 'kh', 'ᱥᱭ': 'sy', 'ᱴ': 'th', 'ᱰ': 'dh', 'ᱝ': 'ng', 'ᱧ': 'ny',
+            'ᱟ': 'a', 'ᱤ': 'i', 'ᱩ': 'u', 'ᱮ': 'é', 'ᱚ': 'o', 'ᱳ': 'ò',
+            'ᱠ': 'k', 'ᱜ': 'g', 'ᱪ': 'c', 'ᱡ': 'j', 'ᱛ': 't', 'ᱫ': 'd', 'ᱱ': 'n',
+            'ᱯ': 'p', 'ᱵ': 'b', 'ᱢ': 'm', 'ᱭ': 'y', 'ᱨ': 'r', 'ᱞ': 'l', 'ᱣ': 'w',
+            'ᱥ': 's', 'ᱦ': 'h', 'ᱯᱷ': 'f', 'ᱵᱷ': 'v', 'ᱡᱽ': 'z',
+            '᱐': '0', '᱑': '1', '᱒': '2', '᱓': '3', '᱔': '4', '᱕': '5', '᱖': '6', '᱗': '7', '᱘': '8', '᱙': '9',
+            ' ': ' '
+        };
+
+        let mode = 'latinToOl'; // 'latinToOl' or 'olToLatin'
+        const inputArea = document.getElementById('inputText');
+        const outputDisplay = document.getElementById('outputText');
+        const inputLabel = document.getElementById('inputLabel');
+        const outputLabel = document.getElementById('outputLabel');
+
+        inputArea.addEventListener('input', handleInput);
+
+        function handleInput() {
+            const text = inputArea.value;
+            if (!text) {
+                outputDisplay.innerHTML = '<span class="text-gray-200 text-xl italic">Hasil akan muncul otomatis...</span>';
+                return;
+            }
+
+            if (mode === 'latinToOl') {
+                let lowerText = text.toLowerCase();
+                const keys = Object.keys(LATIN_TO_OL).sort((a, b) => b.length - a.length);
+                let result = "";
+                let i = 0;
+                while (i < lowerText.length) {
+                    let matched = false;
+                    for (const key of keys) {
+                        if (lowerText.startsWith(key, i)) {
+                            result += LATIN_TO_OL[key];
+                            i += key.length;
+                            matched = true;
+                            break;
+                        }
+                    }
+                    if (!matched) {
+                        result += lowerText[i];
+                        i++;
+                    }
+                }
+                outputDisplay.innerText = result;
+            } else {
+                let result = "";
+                const chars = Array.from(text);
+                const keys = Object.keys(OL_TO_LATIN).sort((a, b) => b.length - a.length);
+                let i = 0;
+                while (i < chars.length) {
+                    let matched = false;
+                    const combined = chars.slice(i, i + 2).join('');
+                    if (OL_TO_LATIN[combined]) {
+                        result += OL_TO_LATIN[combined];
+                        i += 2;
+                        matched = true;
+                    } else if (OL_TO_LATIN[chars[i]]) {
+                        result += OL_TO_LATIN[chars[i]];
+                        i++;
+                        matched = true;
+                    }
+
+                    if (!matched) {
+                        result += chars[i];
+                        i++;
+                    }
+                }
+                outputDisplay.innerText = result;
+            }
+        }
+
+        function switchMode() {
+            const currentOutput = outputDisplay.innerText;
+            const isDefault = outputDisplay.querySelector('.text-gray-200');
+            
+            mode = mode === 'latinToOl' ? 'olToLatin' : 'latinToOl';
+            
+            inputLabel.innerText = mode === 'latinToOl' ? 'Input Latin' : 'Input Ol Chiki';
+            outputLabel.innerText = mode === 'latinToOl' ? 'Hasil Ol Chiki' : 'Hasil Latin';
+            inputArea.placeholder = mode === 'latinToOl' ? "Ketik teks Latin (th, dh, ng, ny, é)..." : "Tempel aksara Ol Chiki...";
+            
+            if (!isDefault) {
+                inputArea.value = currentOutput;
+                handleInput();
+            }
+        }
+
+        function clearText() {
+            inputArea.value = '';
+            handleInput();
+        }
+
+        function toggleInfo(show) {
+            const modal = document.getElementById('infoModal');
+            if (show) {
+                modal.classList.remove('hidden');
+                document.body.classList.add('modal-active');
+            } else {
+                modal.classList.add('hidden');
+                document.body.classList.remove('modal-active');
+            }
+        }
+
+        function copyToClipboard() {
+            const text = outputDisplay.innerText;
+            const isDefault = outputDisplay.querySelector('.text-gray-200');
+            if (isDefault || !text) return;
+
+            const temp = document.createElement('textarea');
+            temp.value = text;
+            document.body.appendChild(temp);
+            temp.select();
+            
+            const btn = document.getElementById('copyBtn');
+            const btnText = document.getElementById('copyBtnText');
+            const icon = document.getElementById('copyIcon');
+
+            try {
+                document.execCommand('copy');
+                btn.classList.replace('bg-blue-50', 'bg-green-100');
+                btn.classList.replace('text-blue-600', 'text-green-700');
+                btnText.innerText = 'Aksara Berhasil Disalin';
+                icon.innerHTML = '<path d="M20 6 9 17l-5-5"/>';
+
+                setTimeout(() => {
+                    btn.classList.replace('bg-green-100', 'bg-blue-50');
+                    btn.classList.replace('text-green-700', 'text-blue-600');
+                    btnText.innerText = 'Salin Teks';
+                    icon.innerHTML = '<rect width="14" height="14" x="8" y="8" rx="2" ry="2"/><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"/>';
+                }, 2000);
+            } catch (err) {
+                console.error('Gagal menyalin', err);
+            }
+            document.body.removeChild(temp);
+        }
+    </script>
+</body>
+</html>
