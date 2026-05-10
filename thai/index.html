@@ -1,0 +1,315 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Transliterasi Latin-Thai (Javanese Style)</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+Thai:wght@400;700&family=Noto+Sans:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Noto Sans', sans-serif;
+            background-color: #f8fafc;
+        }
+        .thai-text {
+            font-family: 'Noto Serif Thai', serif;
+        }
+        .custom-scrollbar::-webkit-scrollbar {
+            width: 6px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-track {
+            background: #f1f1f1;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+            background: #cbd5e1;
+            border-radius: 10px;
+        }
+    </style>
+</head>
+<body class="min-h-screen p-4 md:p-8">
+
+    <div class="max-w-4xl mx-auto bg-white rounded-2xl shadow-xl overflow-hidden border border-slate-200">
+        <!-- Header -->
+        <div class="bg-indigo-700 p-6 text-white">
+            <h1 class="text-2xl font-bold flex items-center gap-2">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5h12M9 3v2m1.048 9.5A18.022 18.022 0 016.412 9m6.088 9h7M11 21l5-10 5 10M12.751 5C11.783 11.37 9.188 15.287 5.711 17.5" />
+                </svg>
+                Aksara Thai (Sanskerta-Jawa Style)
+            </h1>
+            <p class="text-indigo-100 text-sm mt-1">Dukungan Transliterasi Dua Arah: Latin ↔ Thai (Inherent 'a' & Vokal Depan)</p>
+        </div>
+
+        <!-- Main Body -->
+        <div class="p-6">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <!-- Input Section -->
+                <div class="space-y-2">
+                    <div class="flex justify-between items-center">
+                        <label id="label-input" class="text-sm font-semibold text-slate-700 uppercase tracking-wider">Latin (Fonetik Jawa)</label>
+                        <button onclick="clearText()" class="text-xs text-red-500 hover:text-red-700 font-medium flex items-center gap-1 transition">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                            </svg>
+                            Bersihkan
+                        </button>
+                    </div>
+                    <textarea id="input-area" class="w-full h-48 p-4 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-transparent outline-none transition custom-scrollbar text-lg" placeholder="Masukkan teks..."></textarea>
+                </div>
+
+                <!-- Output Section -->
+                <div class="space-y-2">
+                    <div class="flex justify-between items-center">
+                        <label id="label-output" class="text-sm font-semibold text-slate-700 uppercase tracking-wider">Hasil Transliterasi</label>
+                        <button onclick="copyResult()" class="text-xs text-indigo-600 hover:text-indigo-800 font-medium flex items-center gap-1 transition">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2m0 0h2a2 2 0 012 2v3m2 4H10m0 0l3-3m-3 3l3 3" />
+                            </svg>
+                            Salin Hasil
+                        </button>
+                    </div>
+                    <div id="output-area" class="w-full h-48 p-4 bg-indigo-50 border border-indigo-100 rounded-xl text-3xl overflow-y-auto custom-scrollbar leading-relaxed tracking-wider"></div>
+                </div>
+            </div>
+
+            <!-- Controls -->
+            <div class="mt-8 flex flex-wrap gap-4 justify-center items-center">
+                <button id="btn-swap" onclick="swapMode()" class="px-6 py-3 bg-white border-2 border-slate-200 rounded-full font-bold text-slate-700 hover:bg-slate-50 flex items-center gap-2 transition shadow-sm active:scale-95">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4" />
+                    </svg>
+                    Tukar Mode
+                </button>
+                <button onclick="toggleGuide()" class="px-6 py-3 bg-slate-800 text-white rounded-full font-bold hover:bg-slate-900 flex items-center gap-2 transition shadow-lg active:scale-95">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                    Daftar Aksara
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Guide Modal -->
+    <div id="guide-modal" class="fixed inset-0 bg-black/50 hidden items-center justify-center p-4 z-50">
+        <div class="bg-white rounded-2xl max-w-2xl w-full max-h-[80vh] overflow-hidden flex flex-col shadow-2xl">
+            <div class="p-6 border-b border-slate-100 flex justify-between items-center">
+                <h2 class="text-xl font-bold text-slate-800">Pedoman Transliterasi</h2>
+                <button onclick="toggleGuide()" class="p-2 hover:bg-slate-100 rounded-full">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l18 18" />
+                    </svg>
+                </button>
+            </div>
+            <div class="p-6 overflow-y-auto custom-scrollbar space-y-4">
+                <section>
+                    <h3 class="font-bold text-indigo-600 border-b pb-1 mb-2">Contoh Penulisan</h3>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 text-sm">
+                        <div class="bg-slate-50 p-2 rounded"><b>rantai</b> → รนฺไต</div>
+                        <div class="bg-slate-50 p-2 rounded"><b>natha</b> → นถะ</div>
+                        <div class="bg-slate-50 p-2 rounded"><b>arka</b> → อรฺก</div>
+                        <div class="bg-slate-50 p-2 rounded"><b>kang</b> → กํ</div>
+                    </div>
+                </section>
+                <p class="text-xs text-slate-500">Catatan: Dalam mode Thai ke Latin, huruf polos tanpa penanda matèn (ฺ) akan otomatis dibaca dengan akhiran 'a'.</p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const inputArea = document.getElementById('input-area');
+        const outputArea = document.getElementById('output-area');
+        const labelInput = document.getElementById('label-input');
+        const labelOutput = document.getElementById('label-output');
+
+        let mode = 'latinToThai';
+
+        const latinToThaiMap = {
+            'kh': 'ข', 'gh': 'ฆ', 'ng': 'ง', 'ch': 'ฉ', 'jh': 'ฌ', 'ny': 'ญ',
+            'th': 'ฏ', 'ṭh': 'ฐ', 'dh': 'ฑ', 'ḍh': 'ฒ', 'ṇ': 'ณ',
+            'tha': 'ถ', 'dha': 'ธ', 'ph': 'ผ', 'bh': 'ภ', 'sy': 'ศ', 'sh': 'ษ',
+            'k': 'ก', 'g': 'ค', 'c': 'จ', 'j': 'ช', 't': 'ต', 'd': 'ท', 'n': 'น',
+            'p': 'ป', 'b': 'พ', 'm': 'ม', 'y': 'ย', 'r': 'ร', 'l': 'ล', 'w': 'ว',
+            's': 'ส', 'h': 'ห', 'z': 'ซ', 'f': 'ฟ', 'q': 'ก', 'v': 'ว'
+        };
+
+        const vowels = {
+            'ai': 'ไ', 'au': 'เ..า', 'é': 'เ..ะ', 'ŏ': 'โ..ะ', 'æ': 'แ..ะ', 'ǣ': 'แ', 
+            'ô': 'เ..าะ', 'a': 'ะ', 'i': 'ิ', 'u': 'ุ', 'e': 'เ', 'o': 'โ'
+        };
+
+        const thaiConsonants = "กขคฆงจฉชฌญฏฐฑฒณตถทธนบปผฝพฟภมยรลวศษสหฬอฮ";
+        const preposedThaiVowels = "เแโใไ";
+
+        function applyVowelPlacement(consonant, vFound) {
+            if (vFound === 'ะ') return consonant;
+            if (vFound === 'ไ') return 'ไ' + consonant;
+            if (vFound === 'เ') return 'เ' + consonant;
+            if (vFound === 'โ') return 'โ' + consonant;
+            if (vFound === 'แ') return 'แ' + consonant;
+            if (vFound === 'เ..า') return 'เ' + consonant + 'า';
+            if (vFound === 'เ..ะ') return 'เ' + 'ะ' + consonant;
+            if (vFound === 'โ..ะ') return 'โ' + 'ะ' + consonant;
+            if (vFound === 'แ..ะ') return 'แ' + 'ะ' + consonant;
+            if (vFound === 'เ..าะ') return 'เ' + 'าะ' + consonant;
+            if (vFound === 'ิ') return consonant + 'ิ';
+            if (vFound === 'ุ') return consonant + 'ุ';
+            return consonant + vFound;
+        }
+
+        function transliterateLatinToThai(text) {
+            text = text.toLowerCase();
+            let result = '';
+            let i = 0;
+            const nums = {'0':'๐','1':'๑','2':'๒','3':'๓','4':'๔','5':'๕','6':'๖','7':'๗','8':'๘','9':'๙'};
+
+            while (i < text.length) {
+                let char = text[i];
+                if (/\d/.test(char)) { result += nums[char] || char; i++; continue; }
+                if (!/[a-z\u00C0-\u017F]/.test(char)) { result += char; i++; continue; }
+
+                let nextChar = text[i+1] || '';
+                let twoPossible = char + nextChar;
+                if (['ky','kr','kl','gy','gr','gl','ry'].includes(twoPossible)) {
+                    let base = latinToThaiMap[char] || 'ก';
+                    let medial = (nextChar === 'y') ? 'ย' : (nextChar === 'r') ? 'ร' : 'ล';
+                    result += base + 'ฺ' + medial;
+                    i += 2; continue;
+                }
+
+                let nextNextChar = text[i+2] || '';
+                let three = char + nextChar + nextNextChar;
+                let two = char + nextChar;
+                let consonant = '';
+                let step = 0;
+
+                if (latinToThaiMap[three]) { consonant = latinToThaiMap[three]; step = 3; }
+                else if (latinToThaiMap[two]) { consonant = latinToThaiMap[two]; step = 2; }
+                else if (latinToThaiMap[char]) { consonant = latinToThaiMap[char]; step = 1; }
+
+                if (consonant) {
+                    let remaining = text.substring(i + step);
+                    let vFound = '';
+                    let vKey = '';
+                    const vKeysSorted = Object.keys(vowels).sort((a,b) => b.length - a.length);
+                    for (let vk of vKeysSorted) {
+                        if (remaining.startsWith(vk)) { vFound = vowels[vk]; vKey = vk; break; }
+                    }
+
+                    if (vKey) {
+                        result += applyVowelPlacement(consonant, vFound);
+                        i += (step + vKey.length);
+                    } else {
+                        if (remaining.startsWith('ng')) { result += consonant + 'ํ'; i += (step + 2); }
+                        else if (remaining.startsWith('h')) { result += consonant + 'ห์'; i += (step + 1); }
+                        else { result += consonant + 'ฺ'; i += step; }
+                    }
+                } else {
+                    let vFoundS = '';
+                    let vKeyS = '';
+                    const vKeysSorted = Object.keys(vowels).sort((a,b) => b.length - a.length);
+                    for (let vk of vKeysSorted) {
+                        if (text.substring(i).startsWith(vk)) { vFoundS = vowels[vk]; vKeyS = vk; break; }
+                    }
+                    if (vKeyS) { result += applyVowelPlacement('อ', vFoundS); i += vKeyS.length; }
+                    else { result += char; i++; }
+                }
+            }
+            return result;
+        }
+
+        function transliterateThaiToLatin(text) {
+            let result = '';
+            let i = 0;
+
+            const tConsonantMap = {
+                'ก':'k','ข':'kh','ค':'g','ฆ':'gh','ง':'ng','จ':'c','ฉ':'ch','ช':'j','ฌ':'jh','ญ':'ny',
+                'ฏ':'th','ฐ':'ṭh','ฑ':'dh','ฒ':'ḍh','ณ':'ṇ','ต':'t','ถ':'tha','ท':'d','ธ':'dha','น':'n',
+                'ป':'p','ผ':'ph','พ':'b','ภ':'bh','ม':'m','ย':'y','ร':'r','ล':'l','ว':'w','ศ':'sy','ษ':'sh',
+                'ส':'s','ห':'h','อ':'a'
+            };
+
+            const tVowelMap = {
+                'ิ':'i','ุ':'u','า':'a','ะ':'a','ํ':'ng','ไ':'ai','ใ':'ai','โ':'o','เ':'e','แ':'æ'
+            };
+
+            const numsT = {'๐':'0','๑':'1','๒':'2','๓':'3','๔':'4','๕':'5','๖':'6','๗':'7','๘':'8','๙':'9'};
+
+            while (i < text.length) {
+                let char = text[i];
+                let next = text[i+1];
+
+                if (numsT[char]) { result += numsT[char]; i++; continue; }
+
+                if (preposedThaiVowels.includes(char)) {
+                    // Vokal di depan (e, o, ai)
+                    let v = tVowelMap[char];
+                    if (next && tConsonantMap[next]) {
+                        result += tConsonantMap[next] + v;
+                        i += 2;
+                    } else { i++; }
+                } else if (tConsonantMap[char]) {
+                    // Konsonan
+                    let cons = tConsonantMap[char];
+                    if (next === 'ฺ') {
+                        result += cons; // Mati
+                        i += 2;
+                    } else if (next && tVowelMap[next]) {
+                        result += cons + tVowelMap[next]; // Ada vokal penanda
+                        i += 2;
+                    } else {
+                        // Inherent 'a' jika konsonan polos
+                        result += (char === 'อ') ? 'a' : cons + 'a';
+                        i++;
+                    }
+                } else {
+                    if (char !== 'ฺ' && !tVowelMap[char]) result += char;
+                    i++;
+                }
+            }
+            // Bersihkan dobel 'a' dari 'อ' dan vokal inheren
+            return result.replace(/aa/g, 'a');
+        }
+
+        function updateTransliteration() {
+            const val = inputArea.value;
+            const res = mode === 'latinToThai' ? transliterateLatinToThai(val) : transliterateThaiToLatin(val);
+            outputArea.innerText = res;
+            outputArea.className = (mode === 'latinToThai' ? 'thai-text ' : '') + "w-full h-48 p-4 bg-indigo-50 border border-indigo-100 rounded-xl text-3xl overflow-y-auto custom-scrollbar leading-relaxed tracking-wider";
+        }
+
+        function swapMode() {
+            mode = mode === 'latinToThai' ? 'thaiToLatin' : 'latinToThai';
+            labelInput.innerText = mode === 'latinToThai' ? 'Latin (Fonetik Jawa)' : 'Aksara Thai';
+            labelOutput.innerText = mode === 'latinToThai' ? 'Aksara Thai' : 'Latin (Fonetik Jawa)';
+            inputArea.placeholder = mode === 'latinToThai' ? 'Masukkan teks latin...' : 'ใส่ข้อความภาษาไทย...';
+            inputArea.className = (mode === 'thaiToLatin' ? 'thai-text ' : '') + "w-full h-48 p-4 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-transparent outline-none transition custom-scrollbar text-lg";
+            
+            const temp = inputArea.value;
+            inputArea.value = outputArea.innerText;
+            updateTransliteration();
+        }
+
+        function clearText() { inputArea.value = ''; outputArea.innerText = ''; }
+
+        function copyResult() {
+            const text = outputArea.innerText;
+            if (!text) return;
+            const el = document.createElement('textarea');
+            el.value = text;
+            document.body.appendChild(el);
+            el.select();
+            document.execCommand('copy');
+            document.body.removeChild(el);
+        }
+
+        function toggleGuide() {
+            const modal = document.getElementById('guide-modal');
+            modal.classList.toggle('hidden');
+            modal.classList.toggle('flex');
+        }
+
+        inputArea.addEventListener('input', updateTransliteration);
+    </script>
+</body>
+</html>
