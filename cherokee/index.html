@@ -1,0 +1,291 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Transliterasi Cherokee untuk Orang Jawa</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;900&display=swap');
+        body { font-family: 'Inter', sans-serif; }
+        
+        /* Animasi bounce khusus untuk toast */
+        @keyframes bounce-short {
+            0%, 100% { transform: translate(-50%, 0); }
+            50% { transform: translate(-50%, -15px); }
+        }
+        .animate-bounce-short {
+            animation: bounce-short 0.4s ease-out;
+        }
+    </style>
+</head>
+<body class="bg-slate-50 text-slate-800 p-4 md:p-8">
+    <div class="max-w-5xl mx-auto">
+        <!-- Header -->
+        <header class="mb-8 text-center">
+            <h1 class="text-4xl font-black text-indigo-900 mb-2 tracking-tight">ᏣᎳᎩ ᏗᎪᏪᎶᏙᏗ</h1>
+            <p class="text-slate-600 font-medium">Transliterasi Cherokee Lengkap untuk Orang Jawa</p>
+        </header>
+
+        <!-- Action Bar -->
+        <div class="flex flex-wrap items-center justify-between gap-4 mb-6 bg-white p-4 rounded-2xl shadow-sm border border-slate-100">
+            <button id="toggleBtn" class="flex items-center gap-3 bg-indigo-600 hover:bg-indigo-700 text-white px-6 py-3 rounded-xl transition-all shadow-lg active:scale-95 font-bold">
+                <i data-lucide="arrow-right-left"></i>
+                <span id="modeLabel">Latin ➔ Cherokee</span>
+            </button>
+
+            <div class="flex gap-3">
+                <button id="infoBtn" class="p-3 text-slate-500 hover:bg-slate-100 rounded-xl transition-colors border border-slate-200">
+                    <i data-lucide="info"></i>
+                </button>
+                <button id="clearBtn" class="p-3 text-red-500 hover:bg-red-50 rounded-xl transition-colors border border-red-100">
+                    <i data-lucide="trash-2"></i>
+                </button>
+            </div>
+        </div>
+
+        <!-- Editor Area -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+            <div class="space-y-3">
+                <label class="text-xs font-bold text-slate-400 uppercase tracking-widest flex items-center gap-2">
+                    <div class="w-2 h-2 rounded-full bg-indigo-400"></div>
+                    <span id="inputLabel">Input Latin / Jawa</span>
+                </label>
+                <textarea id="inputText" class="w-full h-80 p-6 rounded-3xl border-2 border-slate-200 focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/10 outline-none transition-all text-2xl bg-white shadow-sm leading-relaxed resize-none" placeholder="Contoh: Jenengku 123..."></textarea>
+            </div>
+
+            <div class="space-y-3">
+                <label class="text-xs font-bold text-slate-400 uppercase tracking-widest flex items-center gap-2">
+                    <div class="w-2 h-2 rounded-full bg-emerald-400"></div>
+                    Hasil Transliterasi
+                </label>
+                <div class="relative h-80 group">
+                    <div id="outputText" class="w-full h-full p-6 rounded-3xl border-2 border-emerald-100 bg-emerald-50/20 text-3xl font-bold overflow-auto break-words shadow-inner leading-relaxed text-indigo-900">
+                        <span class="text-slate-300 italic text-xl font-normal">Menunggu input...</span>
+                    </div>
+                    <button id="copyBtn" class="absolute bottom-6 right-6 bg-indigo-900 text-white px-6 py-3 rounded-2xl shadow-xl hover:bg-black transition-all active:scale-95 flex items-center gap-2 font-bold hidden">
+                        <i data-lucide="copy"></i> Salin Aksara
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Feature Grid -->
+        <div class="mt-10 grid grid-cols-2 md:grid-cols-4 gap-4">
+            <div class="bg-white p-4 rounded-2xl border border-slate-100 shadow-sm">
+                <div class="text-indigo-600 font-bold text-sm mb-1">Konsonan t, c, r, p</div>
+                <div class="text-slate-500 text-xs">Terpetakan otomatis</div>
+            </div>
+            <div class="bg-white p-4 rounded-2xl border border-slate-100 shadow-sm">
+                <div class="text-indigo-600 font-bold text-sm mb-1">Angka Cherokee</div>
+                <div class="text-slate-500 text-xs">Bukan angka Latin</div>
+            </div>
+            <div class="bg-white p-4 rounded-2xl border border-slate-100 shadow-sm">
+                <div class="text-indigo-600 font-bold text-sm mb-1">é (Taling)</div>
+                <div class="text-slate-500 text-xs">Vokal otomatis</div>
+            </div>
+            <div class="bg-white p-4 rounded-2xl border border-slate-100 shadow-sm">
+                <div class="text-indigo-600 font-bold text-sm mb-1">th, dh, ng, ny</div>
+                <div class="text-slate-500 text-xs">Dukungan penuh</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Info Modal -->
+    <div id="infoModal" class="fixed inset-0 bg-slate-900/80 backdrop-blur-md z-50 flex items-center justify-center p-4 hidden">
+        <div class="bg-white rounded-[2.5rem] max-w-2xl w-full max-h-[85vh] overflow-auto shadow-2xl relative">
+            <button id="closeInfoBtn" class="absolute top-6 right-6 p-2 hover:bg-slate-100 rounded-full text-slate-400">
+                <i data-lucide="x"></i>
+            </button>
+            <div class="p-8 md:p-12">
+                <h2 class="text-3xl font-black text-indigo-900 mb-8 flex items-center gap-4">
+                    <i data-lucide="info" class="text-indigo-600"></i> Panduan Aksara
+                </h2>
+                <div class="space-y-8 text-slate-700">
+                    <section class="bg-indigo-50 p-6 rounded-3xl border border-indigo-100">
+                        <h3 class="text-lg font-bold text-indigo-900 mb-3 flex items-center gap-2">
+                            <i data-lucide="hash"></i> Transliterasi Angka
+                        </h3>
+                        <p class="text-sm mb-4">Angka latin kini otomatis diubah ke penyebutan fonetik Cherokee tradisional:</p>
+                        <div class="grid grid-cols-2 gap-x-8 gap-y-2 font-mono text-sm">
+                            <div class="flex justify-between border-b pb-1"><span>1 ➔ ᏐᏉ</span></div>
+                            <div class="flex justify-between border-b pb-1"><span>2 ➔ ᏔᎵ</span></div>
+                            <div class="flex justify-between border-b pb-1"><span>3 ➔ ᏦᎢ</span></div>
+                            <div class="flex justify-between border-b pb-1"><span>4 ➔ ᏅᎩ</span></div>
+                        </div>
+                    </section>
+                    <section>
+                        <h3 class="text-lg font-bold text-slate-900 mb-3">Penanganan Konsonan Latin</h3>
+                        <p class="text-sm leading-relaxed mb-4">Konsonan tunggal seperti <strong>t, k, d, l, n, r, p</strong> dipetakan ke bentuk suku kata dasarnya:</p>
+                        <ul class="space-y-2 text-sm list-disc pl-5">
+                            <li><strong>r</strong> diubah menjadi <strong>l</strong> (Ꮃ).</li>
+                            <li><strong>p/b</strong> diubah menjadi <strong>qu</strong> (Ꮖ).</li>
+                            <li><strong>j/c</strong> diubah menjadi <strong>ts</strong> (Ꮳ).</li>
+                        </ul>
+                    </section>
+                </div>
+                <button id="closeModalBtn" class="w-full mt-10 bg-indigo-600 text-white py-4 rounded-2xl font-black text-lg hover:bg-indigo-700 shadow-xl transition-all">Selesai</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast -->
+    <div id="toast" class="fixed bottom-10 left-1/2 -translate-x-1/2 bg-indigo-900 text-white px-8 py-4 rounded-3xl shadow-2xl flex items-center gap-4 z-[100] border-2 border-indigo-400 hidden animate-bounce-short">
+        <i data-lucide="check-circle-2" class="text-emerald-400"></i>
+        <span class="font-bold text-lg">Aksara Berhasil Disalin</span>
+    </div>
+
+    <script>
+        // Transliteration Mappings
+        const mapping = {
+            'a': 'Ꭰ', 'e': 'Ꭱ', 'i': 'Ꭲ', 'o': 'Ꭳ', 'u': 'Ꭴ', 'v': 'Ꭵ', 'é': 'Ꭱ',
+            'ga': 'Ꭶ', 'ka': 'Ꭷ', 'ge': 'Ꭸ', 'gi': 'Ꭹ', 'go': 'Ꭺ', 'gu': 'Ꭻ', 'gv': 'Ꭼ',
+            'ha': 'Ꭽ', 'he': 'Ꭾ', 'hi': 'Ꭿ', 'ho': 'Ꮀ', 'hu': 'Ꮁ', 'hv': 'Ꮂ',
+            'la': 'Ꮃ', 'le': 'Ꮄ', 'li': 'Ꮅ', 'lo': 'Ꮆ', 'lu': 'Ꮇ', 'lv': 'Ꮈ',
+            'ma': 'Ꮉ', 'me': 'Ꮊ', 'mi': 'Ꮋ', 'mo': 'Ꮌ', 'mu': 'Ꮍ',
+            'na': 'Ꮎ', 'hna': 'Ꮏ', 'nah': 'Ꮐ', 'ne': 'Ꮑ', 'ni': 'Ꮒ', 'no': 'Ꮓ', 'nu': 'Ꮔ', 'nv': 'Ꮕ',
+            'qua': 'Ꮖ', 'que': 'Ꮗ', 'qui': 'Ꮘ', 'quo': 'Ꮙ', 'quu': 'Ꮚ', 'quv': 'Ꮛ',
+            'sa': 'Ꮜ', 's': 'Ꮝ', 'se': 'Ꮞ', 'si': 'Ꮟ', 'so': 'Ꮠ', 'su': 'Ꮡ', 'sv': 'Ꮢ',
+            'da': 'Ꮣ', 'ta': 'Ꮤ', 'de': 'Ꮥ', 'te': 'Ꮦ', 'di': 'Ꮧ', 'ti': 'Ꮨ', 'do': 'Ꮩ', 'du': 'Ꮪ', 'dv': 'Ꮫ',
+            'dla': 'Ꮬ', 'tla': 'Ꮭ', 'tle': 'Ꮮ', 'tli': 'Ꮯ', 'tlo': 'Ꮰ', 'tlu': 'Ꮱ', 'tlv': 'Ꮲ',
+            'tsa': 'Ꮳ', 'tse': 'Ꮴ', 'tsi': 'Ꮵ', 'tso': 'Ꮶ', 'tsu': 'Ꮷ', 'tsv': 'Ꮸ',
+            'wa': 'Ꮹ', 'we': 'Ꮺ', 'wi': 'Ꮻ', 'wo': 'Ꮼ', 'wu': 'Ꮽ', 'wv': 'Ꮾ',
+            'ya': 'Ꮿ', 'ye': 'Ᏸ', 'yi': 'Ᏹ', 'yo': 'Ᏺ', 'yu': 'Ᏻ', 'yv': 'Ᏼ',
+            'k': 'Ꭷ', 'g': 'Ꭶ', 'h': 'Ꭽ', 'l': 'Ꮃ', 'm': 'Ꮉ', 'n': 'Ꮎ', 't': 'Ꮤ', 'd': 'Ꮣ', 
+            'w': 'Ꮹ', 'y': 'Ꮿ', 'c': 'Ꮳ', 'j': 'Ꮳ', 'r': 'Ꮃ', 'p': 'Ꮖ', 'b': 'Ꮖ'
+        };
+
+        const numberMapping = {
+            '0': 'ᏝᎥ', '1': 'Ꮠquo', '2': 'ᏔᎵ', '3': 'ᏦᎢ', '4': 'ᏅᎩ',
+            '5': 'ᎯᏍᎩ', '6': 'ᏑᏓᎵ', '7': 'ᎦᎵᏉᎩ', '8': 'ᏧᏁᎳ', '9': 'ᏐᏁᎳ'
+        };
+
+        const reverseMapping = {};
+        Object.entries(mapping).forEach(([key, val]) => {
+            if (!reverseMapping[val] || key.length > 1) {
+                reverseMapping[val] = key;
+            }
+        });
+
+        // State Management
+        let mode = 'latinToCherokee';
+        const inputText = document.getElementById('inputText');
+        const outputText = document.getElementById('outputText');
+        const modeLabel = document.getElementById('modeLabel');
+        const inputLabel = document.getElementById('inputLabel');
+        const copyBtn = document.getElementById('copyBtn');
+        const infoModal = document.getElementById('infoModal');
+        const toast = document.getElementById('toast');
+
+        // Core Functions
+        function latinToCherokee(text) {
+            let result = text.toLowerCase();
+            const replacements = [
+                { l: 'ng', r: 'nv' }, { l: 'ny', r: 'ni' }, { l: 'th', r: 'ta' },
+                { l: 'dh', r: 'da' }, { l: 'kh', r: 'ka' }, { l: 'sy', r: 'si' },
+                { l: 'f', r: 'wa' }, { l: 'v', r: 'wv' }, { l: 'z', r: 'tsa' },
+                { l: 'r', r: 'la' }, { l: 'p', r: 'qua' }, { l: 'b', r: 'wa' },
+                { l: 'j', r: 'tsa' }, { l: 'c', r: 'tsa' }
+            ];
+
+            replacements.forEach(rep => {
+                result = result.replace(new RegExp(rep.l, 'g'), rep.r);
+            });
+
+            Object.entries(numberMapping).forEach(([num, cher]) => {
+                result = result.replace(new RegExp(num, 'g'), cher);
+            });
+
+            let finalStr = '';
+            let i = 0;
+            while (i < result.length) {
+                let matched = false;
+                for (let len = 3; len >= 1; len--) {
+                    let chunk = result.substr(i, len);
+                    if (mapping[chunk]) {
+                        finalStr += mapping[chunk];
+                        i += len;
+                        matched = true;
+                        break;
+                    }
+                }
+                if (!matched) {
+                    finalStr += result[i];
+                    i++;
+                }
+            }
+            return finalStr;
+        }
+
+        function cherokeeToLatin(text) {
+            let processedText = text;
+            Object.entries(numberMapping).forEach(([num, cher]) => {
+                processedText = processedText.replace(new RegExp(cher, 'g'), num);
+            });
+
+            let result = '';
+            for (let char of processedText) {
+                result += reverseMapping[char] || char;
+            }
+            return result;
+        }
+
+        function handleConversion() {
+            const val = inputText.value;
+            if (!val) {
+                outputText.innerHTML = '<span class="text-slate-300 italic text-xl font-normal">Menunggu input...</span>';
+                copyBtn.classList.add('hidden');
+                return;
+            }
+            
+            const result = mode === 'latinToCherokee' ? latinToCherokee(val) : cherokeeToLatin(val);
+            outputText.textContent = result;
+            copyBtn.classList.remove('hidden');
+        }
+
+        // Event Listeners
+        inputText.oninput = handleConversion;
+
+        document.getElementById('toggleBtn').onclick = () => {
+            mode = mode === 'latinToCherokee' ? 'cherokeeToLatin' : 'latinToCherokee';
+            modeLabel.textContent = mode === 'latinToCherokee' ? 'Latin ➔ Cherokee' : 'Cherokee ➔ Latin';
+            inputLabel.textContent = mode === 'latinToCherokee' ? 'Input Latin / Jawa' : 'Aksara Cherokee';
+            inputText.placeholder = mode === 'latinToCherokee' ? "Contoh: Jenengku 123..." : "Paste ᏣᎳᎩ di sini...";
+            
+            const currentOutput = outputText.textContent;
+            // Hanya tukar jika ada teks hasil yang valid (bukan placeholder)
+            if (currentOutput && !currentOutput.includes('Menunggu')) {
+                inputText.value = currentOutput;
+                handleConversion();
+            }
+        };
+
+        document.getElementById('clearBtn').onclick = () => {
+            inputText.value = '';
+            handleConversion();
+        };
+
+        document.getElementById('copyBtn').onclick = () => {
+            const el = document.createElement('textarea');
+            el.value = outputText.textContent;
+            document.body.appendChild(el);
+            el.select();
+            document.execCommand('copy');
+            document.body.removeChild(el);
+
+            // Tampilkan notifikasi toast
+            toast.classList.remove('hidden');
+            setTimeout(() => toast.classList.add('hidden'), 2000);
+        };
+
+        // Modal Controls
+        document.getElementById('infoBtn').onclick = () => infoModal.classList.remove('hidden');
+        document.getElementById('closeInfoBtn').onclick = () => infoModal.classList.add('hidden');
+        document.getElementById('closeModalBtn').onclick = () => infoModal.classList.add('hidden');
+
+        // Initialize Icons
+        lucide.createIcons();
+    </script>
+</body>
+</html>
