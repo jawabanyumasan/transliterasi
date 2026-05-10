@@ -1,0 +1,304 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Transliterasi Latin - Ge'ez (Aksara Etiopia)</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Ethiopic:wght@400;700&family=Inter:wght@400;600&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f8fafc;
+        }
+        .geez-font {
+            font-family: 'Noto Sans Ethiopic', sans-serif;
+        }
+        .custom-shadow {
+            box-shadow: 0 4px 20px -2px rgba(0, 0, 0, 0.1);
+        }
+    </style>
+</head>
+<body class="min-h-screen p-4 md:p-8">
+
+    <div class="max-w-4xl mx-auto">
+        <!-- Header -->
+        <header class="text-center mb-8">
+            <h1 class="text-3xl font-bold text-slate-800 mb-2">Transliterasi Latin ⇌ Ge'ez</h1>
+            <p class="text-slate-600">Alat bantu konversi aksara Etiopia untuk fonologi Bahasa Jawa</p>
+        </header>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <!-- Input Latin -->
+            <div class="bg-white p-6 rounded-2xl custom-shadow border border-slate-100">
+                <div class="flex justify-between items-center mb-4">
+                    <label class="font-semibold text-slate-700 flex items-center gap-2">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 8 6 6"/><path d="m4 14 6-6 2-3"/><path d="M2 5h12"/><path d="M7 2h1"/><path d="m22 22-5-10-5 10"/><path d="M14 18h6"/></svg>
+                        Latin (Jawa)
+                    </label>
+                    <button onclick="clearText()" class="text-sm text-red-500 hover:text-red-700 transition-colors">Bersihkan</button>
+                </div>
+                <textarea id="latinInput" class="w-full h-48 p-4 rounded-xl border border-slate-200 focus:ring-2 focus:ring-blue-500 focus:outline-none transition-all resize-none mb-4" placeholder="Ketik di sini (contoh: dhahar, thole, nyanyi, énak)..."></textarea>
+                <button onclick="copyToClipboard('latinInput')" class="w-full py-2 bg-slate-100 text-slate-600 rounded-lg hover:bg-slate-200 transition-colors flex justify-center items-center gap-2">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="14" height="14" x="8" y="8" rx="2" ry="2"/><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"/></svg>
+                    Salin Latin
+                </button>
+            </div>
+
+            <!-- Output Ge'ez -->
+            <div class="bg-white p-6 rounded-2xl custom-shadow border border-slate-100">
+                <div class="flex justify-between items-center mb-4">
+                    <label class="font-semibold text-slate-700 flex items-center gap-2">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 12h-5"/><path d="M15 8h-5"/><path d="M19 17V5a2 2 0 0 0-2-2H4"/><path d="M8 21h12a2 2 0 0 0 2-2v-1a1 1 0 0 0-1-1H11a1 1 0 0 0-1 1v1a2 2 0 1 1-4 0V5a2 2 0 1 0-4 0v2a1 1 0 0 0 1 1h3"/></svg>
+                        Aksara Ge'ez (ግዕዝ)
+                    </label>
+                </div>
+                <textarea id="geezOutput" class="geez-font w-full h-48 p-4 rounded-xl border border-slate-200 focus:ring-2 focus:ring-indigo-500 focus:outline-none transition-all resize-none mb-4 text-xl" placeholder="Hasil aksara akan muncul di sini..."></textarea>
+                <button onclick="copyToClipboard('geezOutput')" class="w-full py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors flex justify-center items-center gap-2">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="14" height="14" x="8" y="8" rx="2" ry="2"/><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"/></svg>
+                    Salin Aksara
+                </button>
+            </div>
+        </div>
+
+        <!-- Info Button & Modal -->
+        <div class="mt-8 text-center">
+            <button onclick="toggleModal(true)" class="inline-flex items-center gap-2 text-indigo-600 hover:underline font-medium">
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/></svg>
+                Lihat Panduan Transliterasi
+            </button>
+        </div>
+    </div>
+
+    <!-- Notification Toast -->
+    <div id="toast" class="fixed bottom-10 left-1/2 -translate-x-1/2 bg-slate-800 text-white px-6 py-3 rounded-full shadow-lg opacity-0 pointer-events-none transition-opacity duration-300 z-50">
+        Aksara Berhasil Disalin
+    </div>
+
+    <!-- Modal Panduan -->
+    <div id="infoModal" class="fixed inset-0 bg-black/50 hidden items-center justify-center p-4 z-50">
+        <div class="bg-white w-full max-w-2xl rounded-2xl max-h-[90vh] overflow-y-auto p-6 relative">
+            <button onclick="toggleModal(false)" class="absolute top-4 right-4 text-slate-400 hover:text-slate-600">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
+            </button>
+            <h2 class="text-2xl font-bold mb-4 text-slate-800">Panduan Transliterasi</h2>
+            
+            <div class="space-y-6 text-sm text-slate-700">
+                <section>
+                    <h3 class="font-bold text-lg text-indigo-600 mb-2">Vokal</h3>
+                    <p class="mb-2">Ge'ez memiliki 7 urutan vokal. Di sini kita sesuaikan dengan vokal Jawa:</p>
+                    <ul class="grid grid-cols-2 gap-2 bg-slate-50 p-3 rounded-lg">
+                        <li><strong>a (mangan):</strong> Bentuk ke-4 (Long A)</li>
+                        <li><strong>i:</strong> Bentuk ke-3</li>
+                        <li><strong>u:</strong> Bentuk ke-2</li>
+                        <li><strong>é (taling):</strong> Bentuk ke-5</li>
+                        <li><strong>o:</strong> Bentuk ke-7</li>
+                        <li><strong>e (pepet):</strong> Bentuk ke-6</li>
+                    </ul>
+                </section>
+
+                <section>
+                    <h3 class="font-bold text-lg text-indigo-600 mb-2">Konsonan Spesifik Jawa</h3>
+                    <ul class="space-y-1">
+                        <li><strong>th</strong> (Retroflex T) → ጠ (T'ait)</li>
+                        <li><strong>dh</strong> (Retroflex D) → ዽ (D'ait)</li>
+                        <li><strong>ng</strong> (Cecak) → ጘ (Gna)</li>
+                        <li><strong>ny</strong> (Pengkal n) → ኘ (Nya)</li>
+                    </ul>
+                </section>
+
+                <section>
+                    <h3 class="font-bold text-lg text-indigo-600 mb-2">Final & Medial (Cecak, Layar, dll)</h3>
+                    <p>Sistem ini mendeteksi konsonan mati di akhir suku kata dan menggunakan bentuk ke-6 (Vokal 'e' pepet/mati) secara otomatis. Contoh:</p>
+                    <ul class="list-disc ml-5">
+                        <li><strong>Dahar</strong> → ዳሀር (D-a-h-a-r mati)</li>
+                        <li><strong>Mangan</strong> → ማንጋን (M-a-n mati-g-a-n mati)</li>
+                    </ul>
+                </section>
+
+                <section>
+                    <h3 class="font-bold text-lg text-indigo-600 mb-2">Angka</h3>
+                    <p>Angka 0-9 dikonversi ke sistem angka Ge'ez (፩, ፪, ፫, ...).</p>
+                </section>
+            </div>
+            
+            <button onclick="toggleModal(false)" class="mt-8 w-full py-3 bg-slate-800 text-white rounded-xl font-semibold">Tutup Panduan</button>
+        </div>
+    </div>
+
+    <script>
+        // Mapping Consonants (Base/1st order)
+        // Order: 1(ä), 2(u), 3(i), 4(a), 5(e), 6(ə), 7(o)
+        const mapping = {
+            'h': ['ሀ', 'ሁ', 'ሂ', 'ሃ', 'ሄ', 'ህ', 'ሆ'],
+            'l': ['ለ', 'ሉ', 'ሊ', 'ላ', 'ሌ', 'ል', 'ሎ'],
+            'm': ['መ', 'ሙ', 'ሚ', 'ማ', 'ሜ', 'ም', 'ሞ'],
+            'r': ['ረ', 'ሩ', 'ሪ', 'ራ', 'ሬ', 'ር', 'ሮ'],
+            's': ['ሰ', 'ሱ', 'ሲ', 'ሳ', 'ሴ', 'ስ', 'ሶ'],
+            'sh': ['ሸ', 'ሹ', 'ሺ', 'ሻ', 'ሼ', 'ሽ', 'ሾ'], // sy
+            'sy': ['ሸ', 'ሹ', 'ሺ', 'ሻ', 'ሼ', 'ሽ', 'ሾ'], 
+            'q': ['ቀ', 'ቁ', 'ቂ', 'ቃ', 'ቄ', 'ቅ', 'ቆ'],
+            'kh': ['ኸ', 'ኹ', 'ኺ', 'ኻ', 'ኼ', 'ኽ', 'ኾ'],
+            'b': ['በ', 'ቡ', 'ቢ', 'ባ', 'ቤ', 'ብ', 'ቦ'],
+            't': ['ተ', 'ቱ', 'ቲ', 'ታ', 'ቴ', 'ት', 'ቶ'],
+            'th': ['ጠ', 'ጡ', 'ጢ', 'ጣ', 'ጤ', 'ጥ', 'ጦ'], // th
+            'c': ['ቸ', 'ቹ', 'ቺ', 'ቻ', 'ቼ', 'ች', 'ቾ'],
+            'n': ['ነ', 'ኑ', 'ኒ', 'ና', 'ኔ', 'ን', 'ኖ'],
+            'ny': ['ኘ', 'ኙ', 'ኚ', 'ኛ', 'ኜ', 'ኝ', 'ኞ'], // ny
+            'k': ['ከ', 'ኩ', 'ኪ', 'ካ', 'ኬ', 'ክ', 'ኮ'],
+            'w': ['ወ', 'ዉ', 'ዊ', 'ዋ', 'ዌ', 'ው', 'ዎ'],
+            'z': ['ዘ', 'ዙ', 'ዚ', 'ዛ', 'ዜ', 'ዝ', 'ዞ'],
+            'y': ['የ', 'ዩ', 'ዪ', 'ያ', 'ዬ', 'ይ', 'ዮ'],
+            'd': ['ደ', 'ዱ', 'ዲ', 'ዳ', 'ዴ', 'ድ', 'ዶ'],
+            'dh': ['ዽ', 'ዹ', 'ዺ', 'ዻ', 'ዼ', 'ዽ', 'ዾ'], // dh
+            'j': ['ጀ', 'ጁ', 'ጂ', 'ጃ', 'ጄ', 'ጅ', 'ጆ'],
+            'g': ['ገ', 'ጉ', 'ጊ', 'ጋ', 'ጌ', 'ግ', 'ጎ'],
+            'ng': ['ጘ', 'ጙ', 'ጚ', 'ጛ', 'ጜ', 'ጝ', 'ጞ'], // ng
+            'p': ['ፐ', 'ፑ', 'ፒ', 'ፓ', 'ፔ', 'ፕ', 'ፖ'],
+            'f': ['ፈ', 'ፉ', 'ፊ', 'ፋ', 'ፌ', 'ፍ', 'ፎ'],
+            'v': ['ቨ', 'ቩ', 'ቪ', 'ቫ', 'ቬ', 'ቭ', 'ቮ']
+        };
+
+        const vowels = {
+            'a': 3, // Mapping Javanese 'a' to Geez 'a' (4th form, index 3)
+            'i': 2, // 3rd form, index 2
+            'u': 1, // 2nd form, index 1
+            'é': 4, // 5th form, index 4
+            'e': 5, // 6th form (pepet), index 5
+            'o': 6, // 7th form, index 6
+        };
+
+        const numbers = {
+            '1': '፩', '2': '፪', '3': '፫', '4': '፬', '5': '፭',
+            '6': '፮', '7': '፯', '8': '፰', '9': '፱', '0': 'ዐ'
+        };
+
+        const latinInput = document.getElementById('latinInput');
+        const geezOutput = document.getElementById('geezOutput');
+
+        latinInput.addEventListener('input', () => {
+            const text = latinInput.value.toLowerCase();
+            geezOutput.value = transliterateToGeez(text);
+        });
+
+        geezOutput.addEventListener('input', () => {
+            // Bi-directional simple mapping could be complex due to many-to-one, 
+            // but we can implement a basic reverse.
+            latinInput.value = transliterateToLatin(geezOutput.value);
+        });
+
+        function transliterateToGeez(str) {
+            let res = "";
+            let i = 0;
+            
+            while (i < str.length) {
+                let char = str[i];
+                let next = str[i+1] || "";
+                let next2 = str[i+2] || "";
+
+                // Handle Numbers
+                if (numbers[char]) {
+                    res += numbers[char];
+                    i++;
+                    continue;
+                }
+
+                // Handle punctuation or space
+                if (!/[a-z|é]/.test(char)) {
+                    res += char;
+                    i++;
+                    continue;
+                }
+
+                let cons = "";
+                // Check 2-letter consonants
+                if (mapping[char + next]) {
+                    cons = char + next;
+                    i += 2;
+                } else if (mapping[char]) {
+                    cons = char;
+                    i++;
+                }
+
+                if (cons) {
+                    let v = str[i] || "";
+                    if (vowels[v] !== undefined) {
+                        res += mapping[cons][vowels[v]];
+                        i++;
+                    } else {
+                        // Konsonan mati (Final)
+                        res += mapping[cons][5]; // Use 6th form
+                    }
+                } else {
+                    // Vokal berdiri sendiri (Gunakan H/A as base or keep as is)
+                    if (vowels[char] !== undefined) {
+                        res += mapping['h'][vowels[char]];
+                        i++;
+                    } else {
+                        res += char;
+                        i++;
+                    }
+                }
+            }
+            return res;
+        }
+
+        function transliterateToLatin(str) {
+            // Simplified reverse mapping
+            let res = "";
+            for (let char of str) {
+                let found = false;
+                // Check numbers
+                for (let k in numbers) {
+                    if (numbers[k] === char) {
+                        res += k;
+                        found = true; break;
+                    }
+                }
+                if (found) continue;
+
+                // Check consonants
+                for (let k in mapping) {
+                    let idx = mapping[k].indexOf(char);
+                    if (idx !== -1) {
+                        res += k;
+                        // Add vowel
+                        if (idx === 0) res += ""; // Neutral
+                        if (idx === 1) res += "u";
+                        if (idx === 2) res += "i";
+                        if (idx === 3) res += "a";
+                        if (idx === 4) res += "é";
+                        if (idx === 5) res += ""; // Could be 'e' or silent
+                        if (idx === 6) res += "o";
+                        found = true; break;
+                    }
+                }
+                if (!found) res += char;
+            }
+            return res;
+        }
+
+        function clearText() {
+            latinInput.value = "";
+            geezOutput.value = "";
+        }
+
+        function copyToClipboard(elementId) {
+            const el = document.getElementById(elementId);
+            el.select();
+            document.execCommand('copy');
+            
+            const toast = document.getElementById('toast');
+            toast.style.opacity = '1';
+            setTimeout(() => {
+                toast.style.opacity = '0';
+            }, 2000);
+        }
+
+        function toggleModal(show) {
+            const modal = document.getElementById('infoModal');
+            modal.style.display = show ? 'flex' : 'none';
+        }
+    </script>
+</body>
+</html>
