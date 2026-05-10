@@ -1,0 +1,386 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Transliterasi Aksara Takri (𑚔𑚭𑚊𑚤𑚯)</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+Takri&family=Inter:wght@400;600;700&display=swap');
+        
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f8fafc;
+        }
+
+        .takri-font {
+            font-family: 'Noto Sans Takri', sans-serif;
+        }
+
+        .custom-scrollbar::-webkit-scrollbar {
+            width: 6px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-track {
+            background: #f1f1f1;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+            background: #cbd5e1;
+            border-radius: 10px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+            background: #94a3b8;
+        }
+
+        .toast {
+            visibility: hidden;
+            min-width: 250px;
+            margin-left: -125px;
+            background-color: #334155;
+            color: #fff;
+            text-align: center;
+            border-radius: 8px;
+            padding: 16px;
+            position: fixed;
+            z-index: 100;
+            left: 50%;
+            bottom: 30px;
+            font-size: 14px;
+            box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1);
+        }
+
+        .toast.show {
+            visibility: visible;
+            animation: fadein 0.5s, fadeout 0.5s 2.5s;
+        }
+
+        @keyframes fadein {
+            from {bottom: 0; opacity: 0;}
+            to {bottom: 30px; opacity: 1;}
+        }
+
+        @keyframes fadeout {
+            from {bottom: 30px; opacity: 1;}
+            to {bottom: 0; opacity: 0;}
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 50;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.5);
+            backdrop-filter: blur(4px);
+        }
+    </style>
+</head>
+<body class="p-4 md:p-8">
+
+    <div class="max-w-4xl mx-auto">
+        <!-- Header -->
+        <header class="mb-8 text-center">
+            <h1 class="text-3xl md:text-4xl font-bold text-slate-800 mb-2">Transliterasi Aksara Takri</h1>
+            <p class="text-slate-600">Alat Konversi Dua Arah (Latin ↔ 𑚔𑚭𑚊𑚤𑚯)</p>
+        </header>
+
+        <!-- Swap Toggle -->
+        <div class="flex justify-center mb-6">
+            <button id="swapBtn" class="flex items-center gap-3 px-6 py-3 bg-white border border-slate-200 rounded-full shadow-sm hover:border-blue-400 hover:text-blue-600 transition-all group active:scale-95">
+                <span id="modeLabelLeft" class="font-bold text-sm uppercase tracking-widest text-blue-600">Latin</span>
+                <div class="p-2 bg-slate-100 rounded-full group-hover:bg-blue-50 transition-colors">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 transition-transform group-hover:rotate-180" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4" />
+                    </svg>
+                </div>
+                <span id="modeLabelRight" class="font-bold text-sm uppercase tracking-widest text-slate-400">Takri</span>
+            </button>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <!-- Input Area -->
+            <div class="bg-white rounded-2xl shadow-sm border border-slate-200 p-5 flex flex-col">
+                <div class="flex items-center justify-between mb-3">
+                    <span id="inputHeaderLabel" class="font-semibold text-slate-700 flex items-center gap-2">
+                        Input Latin
+                    </span>
+                    <button id="clearBtn" class="text-xs font-medium text-red-500 hover:text-red-600 transition-colors uppercase tracking-wider">Bersihkan</button>
+                </div>
+                <textarea id="mainInput" class="w-full h-48 md:h-64 p-4 text-lg border-0 focus:ring-0 resize-none bg-slate-50 rounded-xl custom-scrollbar" placeholder="Ketik di sini..."></textarea>
+            </div>
+
+            <!-- Result Area -->
+            <div class="bg-white rounded-2xl shadow-sm border border-slate-200 p-5 flex flex-col">
+                <div class="flex items-center justify-between mb-3">
+                    <span id="resultHeaderLabel" class="font-semibold text-slate-700 flex items-center gap-2">
+                        Hasil Aksara Takri
+                    </span>
+                    <button id="copyBtn" class="flex items-center gap-1 text-xs font-medium text-indigo-600 hover:text-indigo-700 transition-colors uppercase tracking-wider">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2m0 0h2a2 2 0 012 2v3m2 4H10m0 0l3-3m-3 3l3 3" />
+                        </svg>
+                        Salin
+                    </button>
+                </div>
+                <textarea id="mainOutput" readonly class="w-full h-48 md:h-64 p-4 text-3xl md:text-4xl border-0 focus:ring-0 resize-none bg-indigo-50/50 text-indigo-900 rounded-xl custom-scrollbar" placeholder="..."></textarea>
+            </div>
+        </div>
+
+        <!-- Info Button -->
+        <div class="mt-8 flex justify-center">
+            <button id="infoBtn" class="flex items-center gap-2 px-6 py-3 bg-slate-800 text-white rounded-full hover:bg-slate-700 transition-all shadow-md">
+                <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+                Papan Panduan & Info
+            </button>
+        </div>
+    </div>
+
+    <!-- Toast Notification -->
+    <div id="toast" class="toast">Aksara Berhasil Disalin</div>
+
+    <!-- Modal Info -->
+    <div id="infoModal" class="modal">
+        <div class="flex items-center justify-center min-h-screen p-4">
+            <div class="bg-white rounded-3xl max-w-2xl w-full max-h-[80vh] overflow-y-auto p-6 md:p-8 relative custom-scrollbar">
+                <button id="closeModal" class="absolute top-4 right-4 text-slate-400 hover:text-slate-600">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                </button>
+                
+                <h2 class="text-2xl font-bold text-slate-800 mb-6">Panduan Transliterasi Takri</h2>
+                
+                <div class="space-y-6 text-slate-700">
+                    <section>
+                        <h3 class="font-bold text-slate-900 mb-2 border-b pb-1">Vokal Mandiri (Aksara Swara)</h3>
+                        <div class="grid grid-cols-2 gap-2 text-sm">
+                            <div>a: 𑚀</div><div>i: 𑚂</div>
+                            <div>u: 𑚄</div><div>e/é: 𑚆</div>
+                            <div>o: 𑚈</div><div>ai: 𑚇</div>
+                            <div>au: 𑚉</div>
+                        </div>
+                    </section>
+
+                    <section>
+                        <h3 class="font-bold text-slate-900 mb-2 border-b pb-1">Konsonan & Panyigeg</h3>
+                        <div class="grid grid-cols-2 gap-2 text-sm">
+                            <div>kah/hah (-h): 𑚬 (Visarga)</div>
+                            <div>h mati (berdiri sendiri): 𑚪𑚶</div>
+                            <div>ng (akhir): 𑚫 (Cecak)</div>
+                            <div>r (layar/mati): 𑚤𑚶</div>
+                            <div>Pangkon (Virama): 𑚶</div>
+                        </div>
+                    </section>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const swapBtn = document.getElementById('swapBtn');
+        const mainInput = document.getElementById('mainInput');
+        const mainOutput = document.getElementById('mainOutput');
+        const clearBtn = document.getElementById('clearBtn');
+        const copyBtn = document.getElementById('copyBtn');
+        const infoBtn = document.getElementById('infoBtn');
+        const infoModal = document.getElementById('infoModal');
+        const closeModal = document.getElementById('closeModal');
+        const modeLabelLeft = document.getElementById('modeLabelLeft');
+        const modeLabelRight = document.getElementById('modeLabelRight');
+        const inputHeaderLabel = document.getElementById('inputHeaderLabel');
+        const resultHeaderLabel = document.getElementById('resultHeaderLabel');
+        const toast = document.getElementById('toast');
+
+        let isLatinToTakri = true;
+
+        const VOWELS_INDEPENDENT = { 'ai': '𑚇', 'au': '𑚉', 'a': '𑚀', 'i': '𑚂', 'u': '𑚄', 'e': '𑚆', 'é': '𑚆', 'o': '𑚈' };
+        const VOWELS_MATRA = { 'ai': '𑚳', 'au': '𑚵', 'a': '', 'i': '𑚮', 'u': '𑚰', 'e': '𑚲', 'é': '𑚲', 'o': '𑚴' };
+        const CONSONANTS = {
+            'kh': '𑚋', 'gh': '𑚍', 'ch': '𑚏', 'jh': '𑚑', 'th': '𑚔', 'dh': '𑚖', 'ph': '𑚟', 'bh': '𑚠',
+            'ng': '𑚎', 'ny': '𑚐', 'sy': '𑚧',
+            'k': '𑚊', 'g': '𑚌', 'c': '𑚏', 'j': '𑚑', 't': '𑚙', 'd': '𑚛', 'n': '𑚘', 'p': '𑚞', 
+            'b': '𑚠', 'm': '𑚡', 'y': '𑚣', 'r': '𑚤', 'l': '𑚥', 'w': '𑚦', 'v': '𑚦', 's': '𑚩', 'h': '𑚪',
+            'q': '𑚊𑚷', 'f': '𑚟𑚷', 'z': '𑚑𑚷'
+        };
+        const NUMBERS = { '0': '𑛀', '1': '𑛁', '2': '𑛂', '3': '𑛃', '4': '𑛄', '5': '𑛅', '6': '𑛆', '7': '𑛇', '8': '𑛈', '9': '𑛉' };
+        
+        const VIRAMA = '𑚶';
+        const ANUSVARA = '𑚫'; 
+        const VISARGA = '𑚬';
+
+        // Reversing maps for Takri -> Latin
+        const TAKRI_NUMBERS = Object.fromEntries(Object.entries(NUMBERS).map(([k, v]) => [v, k]));
+        const TAKRI_VOWELS_INDEP = Object.fromEntries(Object.entries(VOWELS_INDEPENDENT).map(([k, v]) => [v, k === 'é' ? 'e' : k]));
+        const TAKRI_VOWELS_MATRA = Object.fromEntries(Object.entries(VOWELS_MATRA).filter(([k,v]) => v !== '').map(([k, v]) => [v, k === 'é' ? 'e' : k]));
+        const TAKRI_CONSONANTS = Object.fromEntries(Object.entries(CONSONANTS).map(([k, v]) => [v, k]));
+
+        function latinToTakri(text) {
+            let result = '';
+            let i = 0;
+            const t = text.toLowerCase();
+            const isVowel = (c) => 'aiueoé'.includes(c);
+            const isPunctuation = (c) => " .,!?;:\n\t".includes(c);
+
+            while (i < t.length) {
+                let char = t[i];
+                if (isPunctuation(char)) { result += char; i++; continue; }
+                if (NUMBERS[char]) { result += NUMBERS[char]; i++; continue; }
+
+                let dip = t.substring(i, i + 2);
+                if ((i === 0 || isPunctuation(t[i-1]) || isVowel(t[i-1])) && VOWELS_INDEPENDENT[dip]) {
+                    result += VOWELS_INDEPENDENT[dip]; i += 2; continue;
+                }
+                if ((i === 0 || isPunctuation(t[i-1]) || isVowel(t[i-1])) && VOWELS_INDEPENDENT[char]) {
+                    result += VOWELS_INDEPENDENT[char]; i++; continue;
+                }
+
+                let digraph = t.substring(i, i + 2);
+                let currentCons = CONSONANTS[digraph] ? CONSONANTS[digraph] : (CONSONANTS[char] ? CONSONANTS[char] : '');
+                let step = CONSONANTS[digraph] ? 2 : (CONSONANTS[char] ? 1 : 0);
+
+                if (currentCons) {
+                    let nextPos = i + step;
+                    let isEnd = (nextPos >= t.length || isPunctuation(t[nextPos]));
+
+                    if (isEnd) {
+                        if (currentCons === '𑚎') result += ANUSVARA;
+                        else if (currentCons === '𑚤') result += '𑚤𑚶';
+                        else if (currentCons === '𑚪' && i > 0 && isVowel(t[i-1])) result += VISARGA;
+                        else result += currentCons + VIRAMA;
+                        i += step;
+                    } else if (isVowel(t[nextPos])) {
+                        result += currentCons;
+                        let vDip = t.substring(nextPos, nextPos + 2);
+                        if (VOWELS_MATRA[vDip]) { result += VOWELS_MATRA[vDip]; i = nextPos + 2; }
+                        else { result += VOWELS_MATRA[t[nextPos]]; i = nextPos + 1; }
+                    } else {
+                        result += currentCons + VIRAMA;
+                        i += step;
+                    }
+                } else { result += char; i++; }
+            }
+            return result;
+        }
+
+        function takriToLatin(text) {
+            let result = '';
+            let i = 0;
+            const t = text;
+
+            while (i < t.length) {
+                let char = t[i];
+                let next = t[i+1];
+
+                if (TAKRI_NUMBERS[char]) { result += TAKRI_NUMBERS[char]; i++; continue; }
+                if (TAKRI_VOWELS_INDEP[char]) { result += TAKRI_VOWELS_INDEP[char]; i++; continue; }
+                if (char === ANUSVARA) { result += 'ng'; i++; continue; }
+                if (char === VISARGA) { result += 'h'; i++; continue; }
+
+                // Check for Nuqta combo (konsonan serapan q, f, z, kh, sy)
+                let maybeNuqta = char + (next === '𑚷' ? '𑚷' : '');
+                let cons = TAKRI_CONSONANTS[maybeNuqta] ? maybeNuqta : (TAKRI_CONSONANTS[char] ? char : '');
+                
+                if (cons) {
+                    let step = cons.length;
+                    let latinCons = TAKRI_CONSONANTS[cons];
+                    let afterCons = t[i + step];
+                    
+                    result += latinCons;
+
+                    if (afterCons === VIRAMA) {
+                        // Dead consonant, don't add inherent 'a'
+                        i += (step + 1);
+                    } else if (TAKRI_VOWELS_MATRA[afterCons]) {
+                        // Matra vowel
+                        result += TAKRI_VOWELS_MATRA[afterCons];
+                        i += (step + 1);
+                    } else {
+                        // Check if it's the specific Nuqta mark directly after
+                        if (afterCons === '𑚷' && !TAKRI_CONSONANTS[cons]) {
+                             // This should have been handled by maybeNuqta, skip
+                             i += step;
+                        } else {
+                             // Inherent 'a'
+                             result += 'a';
+                             i += step;
+                        }
+                    }
+                } else {
+                    result += char;
+                    i++;
+                }
+            }
+            return result;
+        }
+
+        function updateTransliteration() {
+            const val = mainInput.value;
+            if (isLatinToTakri) {
+                mainOutput.value = latinToTakri(val);
+                mainOutput.classList.add('takri-font');
+            } else {
+                mainOutput.value = takriToLatin(val);
+                mainOutput.classList.remove('takri-font');
+            }
+        }
+
+        swapBtn.addEventListener('click', () => {
+            isLatinToTakri = !isLatinToTakri;
+            
+            // Swap Text Values
+            const tempVal = mainInput.value;
+            mainInput.value = mainOutput.value;
+            mainOutput.value = tempVal;
+
+            // Update UI Labels
+            if (isLatinToTakri) {
+                modeLabelLeft.innerText = "Latin";
+                modeLabelLeft.classList.replace('text-slate-400', 'text-blue-600');
+                modeLabelRight.innerText = "Takri";
+                modeLabelRight.classList.replace('text-blue-600', 'text-slate-400');
+                inputHeaderLabel.innerText = "Input Latin";
+                resultHeaderLabel.innerText = "Hasil Aksara Takri";
+                mainInput.classList.remove('takri-font');
+                mainOutput.classList.add('takri-font');
+                mainInput.placeholder = "Ketik teks latin...";
+            } else {
+                modeLabelLeft.innerText = "Takri";
+                modeLabelLeft.classList.replace('text-blue-600', 'text-slate-400');
+                modeLabelRight.innerText = "Latin";
+                modeLabelRight.classList.replace('text-slate-400', 'text-blue-600');
+                inputHeaderLabel.innerText = "Input Takri";
+                resultHeaderLabel.innerText = "Hasil Latin";
+                mainInput.classList.add('takri-font');
+                mainOutput.classList.remove('takri-font');
+                mainInput.placeholder = "Ketik aksara Takri...";
+            }
+            
+            updateTransliteration();
+        });
+
+        mainInput.addEventListener('input', updateTransliteration);
+
+        clearBtn.addEventListener('click', () => {
+            mainInput.value = '';
+            mainOutput.value = '';
+            mainInput.focus();
+        });
+
+        copyBtn.addEventListener('click', () => {
+            if (!mainOutput.value) return;
+            // Use standard selection and copy
+            mainOutput.select();
+            document.execCommand('copy');
+            toast.className = "toast show";
+            setTimeout(() => { toast.className = toast.className.replace("show", ""); }, 3000);
+        });
+
+        infoBtn.addEventListener('click', () => { infoModal.style.display = 'block'; });
+        closeModal.addEventListener('click', () => { infoModal.style.display = 'none'; });
+        window.onclick = (e) => { if (e.target == infoModal) infoModal.style.display = 'none'; };
+    </script>
+</body>
+</html>
