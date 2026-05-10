@@ -1,0 +1,330 @@
+<!DOCTYPE html>
+<html lang="te">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Telugu - Latin Transliteration for Javanese</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Telugu:wght@400;700&family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Poppins', sans-serif;
+            background-color: #f0f4f8;
+        }
+        .telugu-text {
+            font-family: 'Noto+Sans+Telugu', sans-serif;
+        }
+        .glass-morphism {
+            background: rgba(255, 255, 255, 0.9);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        .btn-hover {
+            transition: all 0.3s ease;
+        }
+        .btn-hover:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 50;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.5);
+        }
+        .notification {
+            visibility: hidden;
+            min-width: 250px;
+            background-color: #333;
+            color: #fff;
+            text-align: center;
+            border-radius: 8px;
+            padding: 16px;
+            position: fixed;
+            z-index: 100;
+            bottom: 30px;
+            left: 50%;
+            transform: translateX(-50%);
+        }
+        .notification.show {
+            visibility: visible;
+            animation: fadein 0.5s, fadeout 0.5s 2.5s;
+        }
+        @keyframes fadein { from {bottom: 0; opacity: 0;} to {bottom: 30px; opacity: 1;} }
+        @keyframes fadeout { from {bottom: 30px; opacity: 1;} to {bottom: 0; opacity: 0;} }
+    </style>
+</head>
+<body class="p-4 md:p-8">
+
+    <div class="max-w-4xl mx-auto">
+        <header class="text-center mb-8">
+            <h1 class="text-3xl font-bold text-indigo-800 mb-2">తెలుగు లిపి ట్రాన్స్‌లిటరేషన్</h1>
+            <p class="text-gray-600">Latin to Telugu & Vice Versa (Javanese Phonetic Support)</p>
+        </header>
+
+        <div class="glass-morphism p-6 shadow-xl">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <!-- Latin Input -->
+                <div class="flex flex-col">
+                    <label class="font-semibold text-gray-700 mb-2 flex justify-between">
+                        <span>Latin / Javanese Style</span>
+                        <button onclick="copyText('latin-input')" class="text-xs text-indigo-600 hover:underline">Copy</button>
+                    </label>
+                    <textarea id="latin-input" class="w-full h-48 p-4 border border-gray-300 rounded-xl focus:ring-2 focus:ring-indigo-500 outline-none resize-none" placeholder="Type latin here (e.g. ka, kha, ké, ng, ny)..."></textarea>
+                </div>
+
+                <!-- Telugu Output -->
+                <div class="flex flex-col">
+                    <label class="font-semibold text-gray-700 mb-2 flex justify-between">
+                        <span>తెలుగు లిపి (Telugu Script)</span>
+                        <button onclick="copyText('telugu-output')" class="text-xs text-indigo-600 hover:underline">Copy</button>
+                    </label>
+                    <textarea id="telugu-output" class="telugu-text w-full h-48 p-4 border border-gray-300 rounded-xl focus:ring-2 focus:ring-indigo-500 outline-none resize-none text-xl" placeholder="ఫలితం ఇక్కడ కనిపిస్తుంది..."></textarea>
+                </div>
+            </div>
+
+            <div class="mt-8 flex flex-wrap justify-center gap-4">
+                <button onclick="clearAll()" class="btn-hover bg-red-100 text-red-600 px-6 py-2 rounded-full font-medium border border-red-200">
+                    Clear Text (శుభ్రం చేయి)
+                </button>
+                <button onclick="openModal()" class="btn-hover bg-indigo-600 text-white px-6 py-2 rounded-full font-medium shadow-md">
+                    Info Guide (మార్గదర్శిని)
+                </button>
+            </div>
+        </div>
+
+        <footer class="mt-8 text-center text-gray-500 text-sm">
+            <p>Designed for Javanese Script mapping to Telugu</p>
+        </footer>
+    </div>
+
+    <!-- Info Modal -->
+    <div id="infoModal" class="modal flex items-center justify-center p-4">
+        <div class="bg-white rounded-2xl max-w-2xl w-full max-h-[80vh] overflow-y-auto p-6 shadow-2xl relative">
+            <button onclick="closeModal()" class="absolute top-4 right-4 text-gray-500 text-2xl font-bold">&times;</button>
+            <h2 class="text-2xl font-bold text-indigo-800 mb-4">మ్యాపింగ్ గైడ్ (Mapping Guide)</h2>
+            <div class="space-y-4 text-sm text-gray-700">
+                <section>
+                    <h3 class="font-bold border-b pb-1 mb-2">Vowels (అచ్చులు)</h3>
+                    <p>a: అ, i: ఇ, u: ఉ, e: ఏ, ai: ఐ, o: ఓ, au: ఔ, é: ఎ (short/taling)</p>
+                </section>
+                <section>
+                    <h3 class="font-bold border-b pb-1 mb-2">Medials (మధ్య అక్షరాలు)</h3>
+                    <p><b>Pengkal (y):</b> kya -> క్య, mya -> మ్య</p>
+                    <p><b>Cakra (r):</b> kra -> క్ర, pra -> ప్ర</p>
+                    <p><b>Va-vattu (v):</b> kva -> క్వ</p>
+                </section>
+                <section>
+                    <h3 class="font-bold border-b pb-1 mb-2">Finals (ముగింపులు)</h3>
+                    <p><b>Cecak (ng):</b> kang -> కం</p>
+                    <p><b>Wignyan (h):</b> kah -> కః</p>
+                    <p><b>Layar (r):</b> kar -> కర్</p>
+                </section>
+                <section>
+                    <h3 class="font-bold border-b pb-1 mb-2">Special Consonants</h3>
+                    <p>ng: ఙ, ny: ఞ, kh: ఖ, ph/f: ఫ, v: వ, z: జ (జ), sy: శ, q: ఖ</p>
+                </section>
+            </div>
+        </div>
+    </div>
+
+    <div id="toast" class="notification">Aksara Berhasil Disalin</div>
+
+    <script>
+        // Mappings
+        const latinToTeluguMap = {
+            // Numbers
+            '0': '౦', '1': '౧', '2': '౨', '3': '౩', '4': '౪', '5': '౫', '6': '౬', '7': '౭', '8': '౮', '9': '౯',
+            
+            // Special Consonants (Longest first)
+            'kh': 'ఖ', 'gh': 'ఘ', 'ṅa': 'ఙ', 'ch': 'ఛ', 'jh': 'ఝ', 'ña': 'ఞ', 'ṭh': 'ఠ', 'ḍh': 'ఢ', 'ṇ': 'ణ', 'th': 'థ', 'dh': 'ధ', 'ph': 'ఫ', 'bh': 'భ', 'sy': 'శ', 'sh': 'శ', 'ny': 'ఞ', 'ng': 'ఙ',
+            
+            // Single Consonants
+            'k': 'క', 'g': 'గ', 'c': 'చ', 'j': 'జ', 'ṭ': 'ట', 'ḍ': 'డ', 't': 'త', 'd': 'ద', 'n': 'న', 'p': 'ప', 'b': 'బ', 'm': 'మ', 'y': 'య', 'r': 'ర', 'l': 'ల', 'v': 'వ', 'ś': 'శ', 'ṣ': 'ష', 's': 'స', 'h': 'హ', 'f': 'ఫ', 'z': 'జ', 'q': 'ఖ',
+
+            // Vowels (Initial)
+            'a': 'అ', 'i': 'ఇ', 'u': 'ఉ', 'e': 'ఏ', 'é': 'ఎ', 'ai': 'ఐ', 'o': 'ఓ', 'au': 'ఔ'
+        };
+
+        const matraMap = {
+            'a': '', 'i': 'ి', 'u': 'ు', 'e': 'ే', 'é': 'ె', 'ai': 'ై', 'o': 'ో', 'au': 'ౌ'
+        };
+
+        const medialMap = {
+            'y': '్య', 'r': '్ర', 'v': '్వ', 'l': '్ల'
+        };
+
+        const latinInput = document.getElementById('latin-input');
+        const teluguOutput = document.getElementById('telugu-output');
+
+        latinInput.addEventListener('input', () => {
+            teluguOutput.value = transliterateLatinToTelugu(latinInput.value);
+        });
+
+        teluguOutput.addEventListener('input', () => {
+            latinInput.value = transliterateTeluguToLatin(teluguOutput.value);
+        });
+
+        function transliterateLatinToTelugu(text) {
+            let result = '';
+            let i = 0;
+            text = text.toLowerCase();
+
+            while (i < text.length) {
+                let found = false;
+
+                // Check for Numbers
+                if (/[0-9]/.test(text[i])) {
+                    result += latinToTeluguMap[text[i]];
+                    i++;
+                    continue;
+                }
+
+                // Check for Consonant Clusters (Medials/Vattus)
+                // Pattern: Consonant(s) + Medial + Vowel
+                // Pattern: Consonant(s) + Vowel
+                // Pattern: Standalone Vowel
+
+                let matchedConsonant = "";
+                let conLength = 0;
+
+                // 2-char consonants (kh, th, etc)
+                if (i + 1 < text.length && latinToTeluguMap[text.substring(i, i + 2)]) {
+                    matchedConsonant = text.substring(i, i + 2);
+                    conLength = 2;
+                } else if (latinToTeluguMap[text[i]]) {
+                    matchedConsonant = text[i];
+                    conLength = 1;
+                }
+
+                if (matchedConsonant && !'aiueoé'.includes(matchedConsonant)) {
+                    let nextIdx = i + conLength;
+                    let baseChar = latinToTeluguMap[matchedConsonant];
+                    let medialChar = "";
+                    let vowelChar = "";
+
+                    // Check for medial (y, r, l, v)
+                    if (nextIdx < text.length && medialMap[text[nextIdx]] && !'aiueoé'.includes(text[nextIdx])) {
+                        medialChar = medialMap[text[nextIdx]];
+                        nextIdx++;
+                    }
+
+                    // Check for vowel
+                    if (nextIdx < text.length && matraMap[text[nextIdx]]) {
+                        // Special for multi-char vowels like ai, au
+                        if (text.substring(nextIdx, nextIdx + 2) === 'ai') {
+                            vowelChar = matraMap['ai'];
+                            nextIdx += 2;
+                        } else if (text.substring(nextIdx, nextIdx + 2) === 'au') {
+                            vowelChar = matraMap['au'];
+                            nextIdx += 2;
+                        } else {
+                            vowelChar = matraMap[text[nextIdx]];
+                            nextIdx++;
+                        }
+                        result += baseChar + vowelChar + medialChar;
+                    } else {
+                        // Check for Final Nasal (ng -> Anusvara) or H (Visarga)
+                        // In Telugu, purely final consonants often get Virama or Anusvara
+                        if (text.substring(nextIdx, nextIdx + 2) === 'ng' && (nextIdx + 2 === text.length || !'aiueoé'.includes(text[nextIdx + 2]))) {
+                            result += baseChar + 'ం' + medialChar;
+                            nextIdx += 2;
+                        } else if (text[nextIdx] === 'h' && (nextIdx + 1 === text.length || !'aiueoé'.includes(text[nextIdx + 1]))) {
+                            result += baseChar + 'ః' + medialChar;
+                            nextIdx++;
+                        } else if (text[nextIdx] === 'r' && (nextIdx + 1 === text.length || !'aiueoé'.includes(text[nextIdx + 1]))) {
+                            result += baseChar + 'ర్' + medialChar;
+                            nextIdx++;
+                        } else {
+                            // Pure consonant at end or followed by another consonant
+                            result += baseChar + '్' + medialChar;
+                        }
+                    }
+                    i = nextIdx;
+                    found = true;
+                } 
+                
+                // If not a consonant pattern, check for standalone vowel
+                if (!found) {
+                    if (text.substring(i, i + 2) === 'ai') {
+                        result += 'ఐ';
+                        i += 2;
+                        found = true;
+                    } else if (text.substring(i, i + 2) === 'au') {
+                        result += 'ఔ';
+                        i += 2;
+                        found = true;
+                    } else if (latinToTeluguMap[text[i]]) {
+                        result += latinToTeluguMap[text[i]];
+                        i++;
+                        found = true;
+                    }
+                }
+
+                if (!found) {
+                    result += text[i];
+                    i++;
+                }
+            }
+            return result;
+        }
+
+        // Simpler reverse logic for basic back-transliteration
+        function transliterateTeluguToLatin(text) {
+            // Simplified reverse mapping for UI demonstration
+            const revMap = {
+                'అ': 'a', 'ఇ': 'i', 'ఉ': 'u', 'ఏ': 'e', 'ఎ': 'é', 'ఐ': 'ai', 'ఓ': 'o', 'ఔ': 'au',
+                'క': 'ka', 'ఖ': 'kha', 'గ': 'ga', 'ఘ': 'gha', 'ఙ': 'nga',
+                'చ': 'ca', 'ఛ': 'cha', 'జ': 'ja', 'ఝ': 'jha', 'ఞ': 'nya',
+                'ట': 'ta', 'ఠ': 'tha', 'డ': 'da', 'ఢ': 'dha', 'ణ': 'na',
+                'త': 'ta', 'థ': 'tha', 'ద': 'da', 'ధ': 'dha', 'న': 'na',
+                'ప': 'pa', 'ఫ': 'pha', 'బ': 'ba', 'భ': 'bha', 'మ': 'ma',
+                'య': 'ya', 'ర': 'ra', 'ల': 'la', 'వ': 'va', 'శ': 'sya', 'ష': 'sa', 'స': 'sa', 'హ': 'ha',
+                'ం': 'ng', 'ః': 'h', '్': ''
+            };
+            
+            let res = '';
+            for (let char of text) {
+                res += revMap[char] || char;
+            }
+            return res;
+        }
+
+        function clearAll() {
+            latinInput.value = '';
+            teluguOutput.value = '';
+        }
+
+        function copyText(id) {
+            const textarea = document.getElementById(id);
+            textarea.select();
+            document.execCommand('copy');
+            
+            const toast = document.getElementById('toast');
+            toast.innerText = id === 'telugu-output' ? "Aksara Berhasil Disalin" : "Teks Berhasil Disalin";
+            toast.className = "notification show";
+            setTimeout(() => { toast.className = toast.className.replace("show", ""); }, 3000);
+        }
+
+        function openModal() {
+            document.getElementById('infoModal').style.display = 'flex';
+        }
+
+        function closeModal() {
+            document.getElementById('infoModal').style.display = 'none';
+        }
+
+        window.onclick = function(event) {
+            const modal = document.getElementById('infoModal');
+            if (event.target == modal) {
+                closeModal();
+            }
+        }
+    </script>
+</body>
+</html>
