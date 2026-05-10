@@ -1,0 +1,302 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Aksara Abur (Permic) Transliteration</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap');
+        body { font-family: 'Inter', sans-serif; }
+        .permic-text { font-family: serif; }
+        .modal-active { overflow: hidden; }
+        #copyToast { transition: transform 0.3s ease-out, opacity 0.3s ease-out; }
+    </style>
+</head>
+<body class="bg-neutral-100 text-slate-800 p-4 min-h-screen">
+
+    <div class="max-w-2xl mx-auto space-y-6">
+        <!-- Header -->
+        <div class="text-center space-y-2 mt-4">
+            <h1 class="text-3xl font-extrabold text-indigo-900">Aksara Abur (Permic)</h1>
+            <p class="text-slate-500 font-medium">Transliterasi untuk Penutur Bahasa Jawa</p>
+        </div>
+
+        <!-- Info Card & Mode Switcher -->
+        <div class="bg-indigo-900 text-white p-4 rounded-2xl flex items-center justify-between shadow-lg">
+            <div class="flex items-center gap-3">
+                <div class="p-2 bg-indigo-800 rounded-lg">
+                    <i id="modeIcon" data-lucide="arrow-left-right"></i>
+                </div>
+                <div>
+                    <p class="text-xs opacity-70 uppercase tracking-widest font-bold">Mode Aktif</p>
+                    <p id="modeLabel" class="font-semibold">Latin ➔ Permic</p>
+                </div>
+            </div>
+            <div class="flex gap-2">
+                <button id="switchBtn" class="p-2 hover:bg-white/10 rounded-full transition-colors" title="Tukar Mode">
+                    <i data-lucide="arrow-left-right"></i>
+                </button>
+                <button id="infoBtn" class="p-2 hover:bg-white/10 rounded-full transition-colors" title="Panduan">
+                    <i data-lucide="help-circle"></i>
+                </button>
+            </div>
+        </div>
+
+        <!-- Input Section -->
+        <div class="space-y-4">
+            <div class="bg-white rounded-3xl shadow-sm border border-slate-200 overflow-hidden">
+                <div class="px-5 py-3 border-b border-slate-100 flex justify-between items-center bg-slate-50/50">
+                    <span id="inputLabel" class="text-xs font-bold text-slate-400 uppercase tracking-tighter">Input Latin</span>
+                    <button id="clearBtn" class="text-slate-400 hover:text-red-500 transition-colors">
+                        <i data-lucide="trash-2" class="w-4 h-4"></i>
+                    </button>
+                </div>
+                <textarea
+                    id="inputArea"
+                    class="w-full h-40 p-5 text-lg outline-none resize-none placeholder:text-slate-300"
+                    placeholder="Ketik Latin di sini..."
+                ></textarea>
+            </div>
+
+            <div class="bg-white rounded-3xl shadow-md border-2 border-indigo-100 overflow-hidden relative">
+                <div class="px-5 py-3 border-b border-indigo-50 flex justify-between items-center bg-indigo-50/30">
+                    <span class="text-xs font-bold text-indigo-400 uppercase tracking-tighter">Hasil Transliterasi</span>
+                </div>
+                <div id="outputArea" class="p-5 min-h-[160px] text-3xl break-words leading-relaxed text-indigo-900 permic-text">
+                    <span class="text-slate-200 text-lg">Hasil muncul di sini...</span>
+                </div>
+                <div id="copyActionContainer" class="p-4 flex justify-end hidden">
+                    <button 
+                        id="copyBtn"
+                        class="flex items-center gap-2 bg-indigo-600 hover:bg-indigo-700 text-white px-6 py-2.5 rounded-2xl font-bold transition-all active:scale-95 shadow-lg shadow-indigo-200"
+                    >
+                        <i data-lucide="copy" class="w-5 h-5"></i>
+                        Salin Hasil
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Quick Guide -->
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-3">
+            <div class="bg-white p-3 rounded-2xl border border-slate-200 text-center">
+                <p class="text-[10px] text-slate-400 font-bold uppercase">Ng (Sengau)</p>
+                <p class="text-xl permic-text">𐍝𐍒</p>
+            </div>
+            <div class="bg-white p-3 rounded-2xl border border-slate-200 text-center">
+                <p class="text-[10px] text-slate-400 font-bold uppercase">Ny</p>
+                <p class="text-xl permic-text">𐍝𐍦</p>
+            </div>
+            <div class="bg-white p-3 rounded-2xl border border-slate-200 text-center">
+                <p class="text-[10px] text-slate-400 font-bold uppercase">Th / Dh</p>
+                <p class="text-xl permic-text">𐍢 / 𐍓</p>
+            </div>
+            <div class="bg-white p-3 rounded-2xl border border-slate-200 text-center">
+                <p class="text-[10px] text-slate-400 font-bold uppercase">Sy / Kh</p>
+                <p class="text-xl permic-text">𐍥 / 𐍚𐍔</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Info Modal -->
+    <div id="infoModal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
+        <div class="bg-white max-w-lg w-full rounded-3xl shadow-2xl overflow-hidden relative">
+            <div class="p-6 space-y-4">
+                <div class="flex justify-between items-center">
+                    <h2 class="text-2xl font-bold text-slate-800">Papan Info</h2>
+                    <button id="closeInfoBtn" class="p-2 hover:bg-slate-100 rounded-full">
+                        <i data-lucide="x" class="w-5 h-5"></i>
+                    </button>
+                </div>
+                
+                <div class="space-y-4 text-sm text-slate-600 leading-relaxed overflow-y-auto max-h-[60vh] pr-2 text-justify">
+                    <div class="bg-amber-50 p-4 rounded-2xl border border-amber-100">
+                        <p class="text-amber-800 font-semibold mb-1">Penting: Masalah "Kotak-Kotak"</p>
+                        <p>Jika hasil masih berupa kotak, pastikan perangkat Anda memiliki font **Noto Sans Old Permic**. Aksara ini berada di blok Unicode tinggi yang tidak selalu didukung font standar sistem.</p>
+                    </div>
+
+                    <section>
+                        <h3 class="font-bold text-slate-900 mb-1">Sistem Penulisan</h3>
+                        <p>Aksara Permic (Abur) adalah **Alfabet**. Artinya vokal dan konsonan ditulis sejajar. Tidak ada *sandangan* (seperti taling/suku) atau *pasangan* seperti dalam Hanacaraka Jawa.</p>
+                    </section>
+
+                    <section>
+                        <h3 class="font-bold text-slate-900 mb-1">Konversi Khusus Jawa</h3>
+                        <ul class="list-disc ml-4 space-y-1">
+                            <li><strong>é (taling)</strong> dipetakan ke huruf E (𐍔).</li>
+                            <li><strong>Th & Dh</strong> menggunakan huruf dasar T (𐍢) dan D (𐍓).</li>
+                            <li><strong>Ng & Ny</strong> ditulis menggunakan kombinasi huruf N (𐍝) dan huruf kedua.</li>
+                            <li><strong>Angka 1-9</strong> dipetakan ke abjad tradisional Permic (Sistem Alfabetis).</li>
+                        </ul>
+                    </section>
+                </div>
+                
+                <button id="closeInfoOkBtn" class="w-full py-4 bg-slate-900 text-white rounded-2xl font-bold hover:bg-slate-800 transition-colors">
+                    Tutup Panduan
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast Notification -->
+    <div id="copyToast" class="fixed bottom-10 left-1/2 -translate-x-1/2 flex items-center gap-2 bg-emerald-600 text-white px-8 py-4 rounded-2xl shadow-2xl opacity-0 pointer-events-none z-[100]">
+        <i data-lucide="check-circle" class="w-5 h-5"></i>
+        <span class="font-bold tracking-tight">Aksara Berhasil Disalin</span>
+    </div>
+
+    <script>
+        // Data Mapping
+        const mapping = {
+            digraphs: [
+                { l: 'ng', p: '\u{1035D}\u{10352}' },
+                { l: 'ny', p: '\u{1035D}\u{10366}' },
+                { l: 'th', p: '\u{10362}' },
+                { l: 'dh', p: '\u{10353}' },
+                { l: 'kh', p: '\u{1035A}\u{10354}' },
+                { l: 'sy', p: '\u{10365}' },
+            ],
+            alphabet: [
+                { l: 'a', p: '\u{10350}' }, { l: 'b', p: '\u{10351}' },
+                { l: 'g', p: '\u{10352}' }, { l: 'd', p: '\u{10353}' },
+                { l: 'e', p: '\u{10354}' }, { l: 'é', p: '\u{10354}' },
+                { l: 'v', p: '\u{10355}' }, { l: 'z', p: '\u{10357}' },
+                { l: 'i', p: '\u{10359}' }, { l: 'k', p: '\u{1035A}' },
+                { l: 'l', p: '\u{1035B}' }, { l: 'm', p: '\u{1035C}' },
+                { l: 'n', p: '\u{1035D}' }, { l: 'o', p: '\u{1035E}' },
+                { l: 'p', p: '\u{1035F}' }, { l: 'r', p: '\u{10360}' },
+                { l: 's', p: '\u{10361}' }, { l: 't', p: '\u{10362}' },
+                { l: 'u', p: '\u{10363}' }, { l: 'c', p: '\u{10364}' },
+                { l: 'y', p: '\u{10366}' }, { l: 'w', p: '\u{10358}' },
+                { l: 'h', p: '\u{10354}' }, { l: 'f', p: '\u{1035F}' },
+                { l: 'q', p: '\u{1035A}' }, { l: 'j', p: '\u{10366}' },
+            ],
+            numbers: [
+                { l: '1', p: '\u{10350}' }, { l: '2', p: '\u{10351}' },
+                { l: '3', p: '\u{10352}' }, { l: '4', p: '\u{10353}' },
+                { l: '5', p: '\u{10354}' }, { l: '6', p: '\u{10355}' },
+                { l: '7', p: '\u{10357}' }, { l: '8', p: '\u{10359}' },
+                { l: '9', p: '\u{1035A}' }, { l: '0', p: '0' }
+            ]
+        };
+
+        // State
+        let currentMode = 'latinToPermic'; // 'latinToPermic' or 'permicToLatin'
+
+        // Elements
+        const inputArea = document.getElementById('inputArea');
+        const outputArea = document.getElementById('outputArea');
+        const modeLabel = document.getElementById('modeLabel');
+        const inputLabel = document.getElementById('inputLabel');
+        const modeIcon = document.getElementById('modeIcon');
+        const copyActionContainer = document.getElementById('copyActionContainer');
+        const copyToast = document.getElementById('copyToast');
+        const infoModal = document.getElementById('infoModal');
+
+        // Functions
+        function transliterate(text, toPermic) {
+            if (!text) return '';
+            let result = text;
+
+            if (toPermic) {
+                result = result.toLowerCase();
+                mapping.digraphs.forEach(item => {
+                    result = result.replace(new RegExp(item.l, 'g'), item.p);
+                });
+                mapping.alphabet.forEach(item => {
+                    result = result.replace(new RegExp(item.l, 'g'), item.p);
+                });
+                mapping.numbers.forEach(item => {
+                    result = result.replace(new RegExp(item.l, 'g'), item.p);
+                });
+            } else {
+                const allPermic = [...mapping.digraphs, ...mapping.alphabet, ...mapping.numbers]
+                    .sort((a, b) => b.p.length - a.p.length);
+                
+                allPermic.forEach(item => {
+                    result = result.split(item.p).join(item.l);
+                });
+            }
+            return result;
+        }
+
+        function updateOutput() {
+            const val = inputArea.value;
+            const translated = transliterate(val, currentMode === 'latinToPermic');
+            
+            if (translated) {
+                outputArea.textContent = translated;
+                outputArea.classList.remove('text-slate-200', 'text-lg');
+                copyActionContainer.classList.remove('hidden');
+            } else {
+                outputArea.innerHTML = '<span class="text-slate-200 text-lg">Hasil muncul di sini...</span>';
+                copyActionContainer.classList.add('hidden');
+            }
+        }
+
+        function showToast() {
+            copyToast.classList.remove('opacity-0', 'pointer-events-none');
+            copyToast.classList.add('opacity-100', 'translate-y-[-10px]');
+            setTimeout(() => {
+                copyToast.classList.add('opacity-0', 'pointer-events-none');
+                copyToast.classList.remove('opacity-100', 'translate-y-[-10px]');
+            }, 2000);
+        }
+
+        // Event Listeners
+        inputArea.addEventListener('input', updateOutput);
+
+        document.getElementById('switchBtn').addEventListener('click', () => {
+            currentMode = currentMode === 'latinToPermic' ? 'permicToLatin' : 'latinToPermic';
+            
+            // UI Updates
+            modeLabel.textContent = currentMode === 'latinToPermic' ? 'Latin ➔ Permic' : 'Permic ➔ Latin';
+            inputLabel.textContent = currentMode === 'latinToPermic' ? 'Input Latin' : 'Input Aksara Permic';
+            inputArea.placeholder = currentMode === 'latinToPermic' ? 'Ketik Latin di sini...' : 'Tempel Aksara Permic di sini...';
+            
+            if (currentMode === 'permicToLatin') {
+                modeIcon.classList.add('rotate-180');
+            } else {
+                modeIcon.classList.remove('rotate-180');
+            }
+            
+            updateOutput();
+        });
+
+        document.getElementById('clearBtn').addEventListener('click', () => {
+            inputArea.value = '';
+            updateOutput();
+        });
+
+        document.getElementById('copyBtn').addEventListener('click', () => {
+            const textToCopy = outputArea.textContent;
+            const el = document.createElement('textarea');
+            el.value = textToCopy;
+            document.body.appendChild(el);
+            el.select();
+            document.execCommand('copy');
+            document.body.removeChild(el);
+            showToast();
+        });
+
+        // Modal Logic
+        const toggleModal = (show) => {
+            if (show) {
+                infoModal.classList.remove('hidden');
+                document.body.classList.add('modal-active');
+            } else {
+                infoModal.classList.add('hidden');
+                document.body.classList.remove('modal-active');
+            }
+        };
+
+        document.getElementById('infoBtn').addEventListener('click', () => toggleModal(true));
+        document.getElementById('closeInfoBtn').addEventListener('click', () => toggleModal(false));
+        document.getElementById('closeInfoOkBtn').addEventListener('click', () => toggleModal(false));
+
+        // Initialize Lucide Icons
+        lucide.createIcons();
+    </script>
+</body>
+</html>
