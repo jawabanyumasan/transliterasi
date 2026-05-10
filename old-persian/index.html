@@ -1,0 +1,301 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Transliterasi Aksara Persia Kuno (Dua Arah)</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Plus+Jakarta+Sans', sans-serif;
+            background-color: #f1f5f9;
+        }
+        .cuneiform {
+            font-family: 'Noto Sans Old Persian', 'Segoe UI Historic', 'Standard Symbols L', 'FreeSans', 'Code2001', serif;
+            font-size: 2.5rem;
+            line-height: 1.4;
+            color: #0f172a;
+            word-wrap: break-word;
+        }
+        /* Custom styling for the input/output area */
+        .source-area { font-size: 1.125rem; }
+        .result-area.cuneiform { font-size: 2.8rem; }
+        .result-area.latin { font-size: 1.5rem; font-weight: 700; color: #1e40af; }
+
+        .toast {
+            visibility: hidden;
+            min-width: 250px;
+            margin-left: -125px;
+            background-color: #1e293b;
+            color: #fff;
+            text-align: center;
+            border-radius: 12px;
+            padding: 16px;
+            position: fixed;
+            z-index: 100;
+            left: 50%;
+            bottom: 30px;
+            font-size: 14px;
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+        }
+        .toast.show {
+            visibility: visible;
+            animation: fadein 0.5s, fadeout 0.5s 2.5s;
+        }
+        @keyframes fadein { from {bottom: 0; opacity: 0;} to {bottom: 30px; opacity: 1;} }
+        @keyframes fadeout { from {bottom: 30px; opacity: 1;} to {bottom: 0; opacity: 0;} }
+        
+        .modal { transition: opacity 0.25s ease; }
+        body.modal-active { overflow: hidden; }
+        
+        .switch-btn {
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .switch-btn:active { transform: scale(0.9) rotate(180deg); }
+    </style>
+</head>
+<body class="p-4 md:p-8">
+
+    <div class="max-w-6xl mx-auto">
+        <header class="text-center mb-8">
+            <h1 class="text-3xl font-extrabold text-slate-900 tracking-tight">Aksara Persia Kuno</h1>
+            <p class="text-slate-600 mt-2">Transliterasi Dua Arah (Latin ⇄ Persia Kuno)</p>
+        </header>
+
+        <div class="flex flex-col lg:flex-row items-center gap-4 lg:gap-6">
+            <!-- Sisi Input (Source) -->
+            <div class="flex-1 w-full bg-white p-6 rounded-3xl shadow-sm border border-slate-200">
+                <div class="flex items-center justify-between mb-4">
+                    <div class="flex items-center gap-2">
+                        <span id="sourceIcon" class="w-8 h-8 rounded-full bg-slate-100 flex items-center justify-center text-xs font-bold text-slate-500">1</span>
+                        <label id="sourceLabel" class="text-sm font-bold text-slate-700 uppercase tracking-wider">Teks Latin</label>
+                    </div>
+                </div>
+                <textarea id="mainInput" 
+                    class="w-full h-64 p-5 bg-slate-50 border border-slate-200 rounded-2xl focus:ring-2 focus:ring-blue-500 focus:outline-none transition-all source-area"
+                    placeholder="Masukkan teks di sini..."></textarea>
+            </div>
+
+            <!-- Tombol Switch Tengah -->
+            <div class="flex lg:flex-col items-center">
+                <button onclick="toggleMode()" class="switch-btn bg-white p-4 rounded-full shadow-md border border-slate-200 hover:bg-blue-50 hover:border-blue-200 group">
+                    <svg id="switchIcon" xmlns="http://www.w3.org/2000/svg" class="w-6 h-6 text-blue-600 group-hover:rotate-180 transition-transform duration-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4" />
+                    </svg>
+                </button>
+            </div>
+
+            <!-- Sisi Output (Result) -->
+            <div class="flex-1 w-full bg-white p-6 rounded-3xl shadow-sm border border-slate-200">
+                <div class="flex items-center justify-between mb-4">
+                    <div class="flex items-center gap-2">
+                        <span id="resultIcon" class="w-8 h-8 rounded-full bg-blue-100 flex items-center justify-center text-xs font-bold text-blue-600">2</span>
+                        <label id="resultLabel" class="text-sm font-bold text-slate-700 uppercase tracking-wider">Aksara Persia Kuno</label>
+                    </div>
+                </div>
+                <div id="mainOutput" 
+                    class="w-full h-64 p-5 bg-blue-50 border border-blue-100 rounded-2xl overflow-y-auto result-area cuneiform"
+                    style="min-height: 16rem;"></div>
+                
+                <div class="mt-4 flex gap-3">
+                    <button onclick="clearAll()" class="flex-1 bg-white border border-red-200 hover:bg-red-50 text-red-600 py-3 rounded-xl text-sm font-bold transition-all">
+                        Bersihkan
+                    </button>
+                    <button onclick="copyResult()" class="flex-[2] bg-blue-600 hover:bg-blue-700 text-white py-3 rounded-xl text-sm font-bold transition-all shadow-md flex items-center justify-center gap-2">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+                        Salin Hasil
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <div class="mt-8 text-center">
+            <button onclick="toggleModal()" class="inline-flex items-center gap-2 text-slate-500 hover:text-slate-800 font-medium transition-all">
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
+                Lihat Tabel Panduan Lengkap
+            </button>
+        </div>
+    </div>
+
+    <!-- Toast -->
+    <div id="toast" class="toast">Berhasil Disalin</div>
+
+    <!-- Modal Panduan (Sama seperti sebelumnya namun diupdate informasinya) -->
+    <div id="modal" class="modal opacity-0 pointer-events-none fixed w-full h-full top-0 left-0 flex items-center justify-center z-50">
+        <div class="modal-overlay absolute w-full h-full bg-black/40 backdrop-blur-sm" onclick="toggleModal()"></div>
+        <div class="modal-container bg-white w-11/12 md:max-w-2xl mx-auto rounded-3xl shadow-2xl z-50 overflow-y-auto max-h-[85vh]">
+            <div class="p-8">
+                <div class="flex justify-between items-center mb-6">
+                    <h3 class="text-2xl font-bold text-slate-900">Panduan Transliterasi</h3>
+                    <button onclick="toggleModal()" class="text-slate-400 hover:text-slate-600">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+                    </button>
+                </div>
+                
+                <div class="space-y-4 text-slate-600 text-sm leading-relaxed">
+                    <p>Aplikasi ini mendukung transliterasi otomatis dengan aturan semi-silabik Persia Kuno.</p>
+                    <div class="grid grid-cols-2 gap-4">
+                        <div class="p-4 bg-slate-50 rounded-xl">
+                            <span class="font-bold block mb-1">Vokal Mandiri:</span>
+                            A: 𐎠 | I/E: 𐎡 | U/O: 𐎢
+                        </div>
+                        <div class="p-4 bg-slate-50 rounded-xl">
+                            <span class="font-bold block mb-1">Pemisah Kata:</span>
+                            Spasi → 𐏐
+                        </div>
+                    </div>
+                    <p class="text-xs italic">*Catatan: Karena sistem semi-silabik, satu karakter Persia Kuno mungkin mewakili satu konsonan murni atau konsonan + vokal (misal: 𐎤 adalah 'ku').</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let isLatinToCuneiform = true;
+
+        const VOWELS = { 'a': '𐎠', 'i': '𐎡', 'u': '𐎢', 'e': '𐎡', 'é': '𐎡', 'o': '𐎢' };
+        
+        const CONSONANTS = {
+            'k': { a: '𐎣', i: '𐎣', u: '𐎤' }, 'q': { a: '𐎣', i: '𐎣', u: '𐎤' },
+            'x': { a: '𐎧', i: '𐎧', u: '𐎧' }, 'kh': { a: '𐎧', i: '𐎧', u: '𐎧' },
+            'g': { a: '𐎥', i: '𐎪', u: '𐎦' }, 'c': { a: '𐎨', i: '𐎨', u: '𐎨' },
+            'ch': { a: '𐎨', i: '𐎨', u: '𐎨' }, 'j': { a: '𐎩', i: '𐎪', u: '𐎩' },
+            't': { a: '𐎫', i: '𐎫', u: '𐎬' }, 'th': { a: '𐎰', i: '𐎰', u: '𐎰' },
+            'd': { a: '𐎭', i: '𐎮', u: '𐎯' }, 'dh': { a: '𐎭', i: '𐎮', u: '𐎯' },
+            'p': { a: '𐎱', i: '𐎱', u: '𐎱' }, 'f': { a: '𐎳', i: '𐎳', u: '𐎳' },
+            'b': { a: '𐎲', i: '𐎲', u: '𐎲' }, 'n': { a: '𐎴', i: '𐎴', u: '𐎵' },
+            'ng': { a: '𐎴', i: '𐎴', u: '𐎵' }, 'ny': { a: '𐎴', i: '𐎴', u: '𐎵' },
+            'm': { a: '𐎶', i: '𐎷', u: '𐎸' }, 'y': { a: '𐎹', i: '𐎹', u: '𐎹' },
+            'v': { a: '𐎺', i: '𐎻', u: '𐎺' }, 'w': { a: '𐎺', i: '𐎻', u: '𐎺' },
+            'r': { a: '𐎼', i: '𐎼', u: '𐎽' }, 'l': { a: '𐎼', i: '𐎼', u: '𐎽' },
+            's': { a: '𐎿', i: '𐎿', u: '𐎿' }, 'z': { a: '𐏀', i: '𐏀', u: '𐏀' },
+            'sh': { a: '𐏁', i: '𐏁', u: '𐏁' }, 'sy': { a: '𐏁', i: '𐏁', u: '𐏁' },
+            'h': { a: '𐏃', i: '𐏃', u: '𐏃' }
+        };
+
+        const NUMS = { '1': '𐏑', '2': '𐏒', '3': '𐏓', '4': '𐏔', '5': '𐏕', '0': ' ' };
+
+        // Reverse Mapping logic
+        const REVERSE_MAP = {};
+        Object.entries(VOWELS).forEach(([k, v]) => { if(!REVERSE_MAP[v]) REVERSE_MAP[v] = k; });
+        Object.entries(CONSONANTS).forEach(([k, obj]) => {
+            if(obj.a && !REVERSE_MAP[obj.a]) REVERSE_MAP[obj.a] = k;
+            if(obj.i && !REVERSE_MAP[obj.i]) REVERSE_MAP[obj.i] = k;
+            if(obj.u && !REVERSE_MAP[obj.u]) REVERSE_MAP[obj.u] = k;
+        });
+        REVERSE_MAP['𐏐'] = ' ';
+
+        const mainInput = document.getElementById('mainInput');
+        const mainOutput = document.getElementById('mainOutput');
+
+        function latinToCuneiform(text) {
+            let result = "";
+            let i = 0;
+            const t = text.toLowerCase();
+            while (i < t.length) {
+                let char = t[i], next = t[i+1];
+                if (char === ' ') { result += '𐏐'; i++; continue; }
+                if (char === '\n') { result += '<br>'; i++; continue; }
+                if (NUMS[char]) { result += NUMS[char]; i++; continue; }
+                let digraph = t.substring(i, i + 2);
+                let current = CONSONANTS[digraph] ? {c: CONSONANTS[digraph], s: 2} : (CONSONANTS[char] ? {c: CONSONANTS[char], s: 1} : null);
+                
+                if (current) {
+                    let following = t[i + current.s];
+                    if (following && VOWELS[following]) {
+                        if (following === 'a') result += current.c.a;
+                        else if (['i','e','é'].includes(following)) result += (current.c.i || current.c.a) + VOWELS['i'];
+                        else if (['u','o'].includes(following)) result += (current.c.u || current.c.a) + VOWELS['u'];
+                        i += current.s + 1;
+                    } else {
+                        result += current.c.a;
+                        i += current.s;
+                    }
+                } else if (VOWELS[char]) { result += VOWELS[char]; i++; }
+                else { result += char; i++; }
+            }
+            return result;
+        }
+
+        function cuneiformToLatin(text) {
+            let result = "";
+            // Use regex to match 2-byte unicode chars (Persia Kuno uses surrogate pairs)
+            const chars = text.match(/[\uD800-\uDBFF][\uDC00-\uDFFF]|./g) || [];
+            chars.forEach(c => {
+                if (REVERSE_MAP[c]) result += REVERSE_MAP[c];
+                else if (c === ' ') result += ' ';
+                else result += c;
+            });
+            return result;
+        }
+
+        function handleInput() {
+            const val = mainInput.value;
+            if (isLatinToCuneiform) {
+                mainOutput.innerHTML = latinToCuneiform(val);
+                mainOutput.className = "w-full h-64 p-5 bg-blue-50 border border-blue-100 rounded-2xl overflow-y-auto result-area cuneiform";
+            } else {
+                mainOutput.innerText = cuneiformToLatin(val);
+                mainOutput.className = "w-full h-64 p-5 bg-blue-50 border border-blue-100 rounded-2xl overflow-y-auto result-area latin";
+            }
+        }
+
+        mainInput.addEventListener('input', handleInput);
+
+        function toggleMode() {
+            isLatinToCuneiform = !isLatinToCuneiform;
+            const sourceLabel = document.getElementById('sourceLabel');
+            const resultLabel = document.getElementById('resultLabel');
+            const mainInput = document.getElementById('mainInput');
+
+            if (isLatinToCuneiform) {
+                sourceLabel.innerText = "Teks Latin";
+                resultLabel.innerText = "Aksara Persia Kuno";
+                mainInput.placeholder = "Ketik teks jawa atau latin...";
+                mainInput.classList.remove('cuneiform');
+            } else {
+                sourceLabel.innerText = "Aksara Persia Kuno";
+                resultLabel.innerText = "Teks Latin";
+                mainInput.placeholder = "𐎠𐎡𐎢...";
+                mainInput.classList.add('cuneiform');
+            }
+            
+            // Swap values
+            const currentOutput = mainOutput.innerText;
+            mainInput.value = currentOutput;
+            handleInput();
+        }
+
+        function clearAll() {
+            mainInput.value = "";
+            mainOutput.innerHTML = "";
+        }
+
+        function copyResult() {
+            const text = mainOutput.innerText;
+            if (!text) return;
+            const temp = document.createElement("textarea");
+            temp.value = text;
+            document.body.appendChild(temp);
+            temp.select();
+            document.execCommand("copy");
+            document.body.removeChild(temp);
+            showToast();
+        }
+
+        function showToast() {
+            const toast = document.getElementById("toast");
+            toast.className = "toast show";
+            setTimeout(() => { toast.className = "toast"; }, 3000);
+        }
+
+        function toggleModal() {
+            const modal = document.getElementById('modal');
+            modal.classList.toggle('opacity-0');
+            modal.classList.toggle('pointer-events-none');
+            document.body.classList.toggle('modal-active');
+        }
+    </script>
+</body>
+</html>
