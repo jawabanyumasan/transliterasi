@@ -1,0 +1,313 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Transliterasi Aksara Dogra (𑠖𑠵𑠌𑠤𑠬)</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Dogra&display=swap" rel="stylesheet">
+    <style>
+        body {
+            background-color: #f8fafc;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        .aksara-font {
+            font-family: 'Noto Sans Dogra', sans-serif;
+        }
+        .glass-morphism {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(226, 232, 240, 1);
+        }
+        .toast {
+            visibility: hidden;
+            min-width: 250px;
+            background-color: #334155;
+            color: #fff;
+            text-align: center;
+            border-radius: 8px;
+            padding: 16px;
+            position: fixed;
+            z-index: 100;
+            left: 50%;
+            bottom: 30px;
+            transform: translateX(-50%);
+            transition: visibility 0.3s, opacity 0.3s linear;
+            opacity: 0;
+        }
+        .toast.show {
+            visibility: visible;
+            opacity: 1;
+        }
+    </style>
+</head>
+<body class="p-4 md:p-8">
+
+    <div class="max-w-4xl mx-auto">
+        <header class="text-center mb-8">
+            <h1 class="text-3xl md:text-4xl font-bold text-slate-800 mb-2">Transliterasi Aksara Dogra</h1>
+            <p class="text-slate-600">Konversi Latin ke Aksara Dogri (𑠖𑠵𑠌𑠤𑠬) dengan Sistem Anusvara & Visarga</p>
+        </header>
+
+        <div class="glass-morphism rounded-3xl p-6 shadow-xl space-y-6">
+            
+            <div class="flex items-center justify-between bg-slate-100 p-2 rounded-2xl">
+                <div id="mode-text" class="px-4 font-semibold text-slate-700">Latin ➔ Aksara Dogra</div>
+                <button id="switch-btn" class="bg-indigo-600 hover:bg-indigo-700 text-white p-3 rounded-xl transition-all shadow-md flex items-center space-x-2">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                        <path fill-rule="evenodd" d="M4 2a1 1 0 011 1v2.101a7.002 7.002 0 0111.601 2.566 1 1 0 11-1.885.666A5.002 5.002 0 005.999 7H9a1 1 0 010 2H4a1 1 0 01-1-1V3a1 1 0 011-1zm.008 9.057a1 1 0 011.276.61A5.002 5.002 0 0014.001 13H11a1 1 0 110-2h5a1 1 0 011 1v5a1 1 0 11-2 0v-2.101a7.002 7.002 0 01-11.601-2.566 1 1 0 01.61-1.276z" clip-rule="evenodd" />
+                    </svg>
+                    <span>Tukar Mode</span>
+                </button>
+            </div>
+
+            <div class="space-y-2">
+                <div class="flex justify-between items-center px-1">
+                    <label class="text-sm font-bold text-slate-500 uppercase tracking-wider">Input</label>
+                    <button onclick="copyText('input-text')" class="text-xs font-medium text-indigo-600 hover:text-indigo-800 transition">Salin Input</button>
+                </div>
+                <textarea id="input-text" placeholder="Contoh: kah, king, suh, arka..." class="w-full h-32 md:h-40 p-4 rounded-2xl border-2 border-slate-200 focus:border-indigo-500 focus:outline-none text-lg transition-colors resize-none"></textarea>
+            </div>
+
+            <div class="space-y-2">
+                <div class="flex justify-between items-center px-1">
+                    <label class="text-sm font-bold text-slate-500 uppercase tracking-wider">Hasil (Output)</label>
+                    <button onclick="copyText('output-text')" class="text-xs font-medium text-indigo-600 hover:text-indigo-800 transition">Salin Hasil</button>
+                </div>
+                <div id="output-text" class="w-full min-h-[8rem] md:min-h-[10rem] p-4 rounded-2xl border-2 border-dashed border-slate-300 bg-slate-50 text-4xl aksara-font break-all leading-relaxed"></div>
+            </div>
+
+            <div class="flex flex-wrap gap-3 pt-4">
+                <button id="clear-btn" class="flex-1 bg-rose-50 hover:bg-rose-100 text-rose-600 font-bold py-4 rounded-2xl transition-all border border-rose-200">
+                    Bersihkan Teks
+                </button>
+                <button id="info-btn" class="flex-1 bg-slate-800 hover:bg-slate-900 text-white font-bold py-4 rounded-2xl transition-all shadow-lg flex justify-center items-center space-x-2">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                        <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd" />
+                    </svg>
+                    <span>Panduan Aksara</span>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Panduan -->
+    <div id="modal-info" class="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center hidden p-4">
+        <div class="bg-white rounded-3xl w-full max-w-2xl max-h-[85vh] overflow-hidden flex flex-col shadow-2xl">
+            <div class="p-6 border-b flex justify-between items-center bg-slate-50">
+                <h2 class="text-xl font-bold text-slate-800">Panduan Transliterasi</h2>
+                <button id="close-modal" class="text-slate-400 hover:text-slate-600 text-2xl">&times;</button>
+            </div>
+            <div class="p-6 overflow-y-auto space-y-6 text-sm">
+                <section>
+                    <h3 class="font-bold text-indigo-600 border-b pb-1 mb-2">Aturan Khusus (Finals)</h3>
+                    <ul class="list-disc list-inside space-y-1 text-slate-700">
+                        <li><strong>ng (Anusvara):</strong> Menjadi <span class="aksara-font text-lg">𑠷</span> (seperti Cecak). Contoh: <i>king</i> → <span class="aksara-font text-lg">𑠊𑠭𑠷</span></li>
+                        <li><strong>h (Visarga):</strong> Menjadi <span class="aksara-font text-lg">𑠸</span> (seperti Wignyan) jika di akhir kata/suku kata. Contoh: <i>kah</i> → <span class="aksara-font text-lg">𑠊𑠸</span></li>
+                        <li><strong>h (Konsonan):</strong> Tetap menjadi <span class="aksara-font text-lg">𑠪</span> jika diikuti vokal. Contoh: <i>haha</i> → <span class="aksara-font text-lg">𑠪𑠪</span></li>
+                    </ul>
+                </section>
+                <div class="grid grid-cols-2 gap-4">
+                    <div class="bg-slate-50 p-3 rounded-xl">
+                        <p class="font-bold mb-1">Vokal Mandiri</p>
+                        <p class="aksara-font text-xl">𑠀 𑠁 𑠂 𑠃 𑠄 𑠅 𑠆 𑠇 𑠈 𑠉</p>
+                    </div>
+                    <div class="bg-slate-50 p-3 rounded-xl">
+                        <p class="font-bold mb-1">Angka</p>
+                        <p class="aksara-font text-xl">० १ २ ३ ४ ५ ६ ७ ८ ९</p>
+                    </div>
+                </div>
+                <section>
+                    <p class="font-bold mb-2">Contoh Transliterasi:</p>
+                    <table class="w-full border-collapse">
+                        <tr class="border-b"><td class="py-1">arka</td><td class="aksara-font text-lg">𑠀𑠤𑠹𑠊</td></tr>
+                        <tr class="border-b"><td class="py-1">kya/kra</td><td class="aksara-font text-lg">𑠊𑠹𑠣 / 𑠊𑠹𑠤</td></tr>
+                        <tr class="border-b"><td class="py-1">fa/za</td><td class="aksara-font text-lg">𑠟𑠺 / 𑠑𑠺</td></tr>
+                    </table>
+                </section>
+            </div>
+        </div>
+    </div>
+
+    <div id="toast" class="toast">Aksara Berhasil Disalin</div>
+
+    <script>
+        const INDEPENDENT_VOWELS = {
+            'a': '𑠀', 'ā': '𑠁', 'i': '𑠂', 'ī': '𑠃', 'u': '𑠄', 'ū': '𑠅', 
+            'e': '𑠆', 'é': '𑠆', 'ai': '𑠇', 'o': '𑠈', 'au': '𑠉'
+        };
+
+        const MATRAS = {
+            'ā': '𑠬', 'i': '𑠭', 'ī': '𑠮', 'u': '𑠯', 'ū': '𑠰', 
+            'e': '𑠳', 'é': '𑠳', 'ai': '𑠴', 'o': '𑠵', 'au': '𑠶'
+        };
+
+        const CONSONANTS = {
+            'k': '𑠊', 'kh': '𑠋', 'g': '𑠌', 'gh': '𑠍', 'ṅ': '𑠎',
+            'c': '𑠏', 'ch': '𑠐', 'j': '𑠑', 'jh': '𑠒', 'ñ': '𑠓',
+            'ṭ': '𑠔', 'ṭh': '𑠕', 'ḍ': '𑠖', 'ḍh': '𑠗', 'ṇ': '𑠘',
+            't': '𑠙', 'th': '𑠚', 'd': '𑠛', 'dh': '𑠜', 'n': '𑠝',
+            'p': '𑠞', 'ph': '𑠟', 'b': '𑠠', 'bh': '𑠡', 'm': '𑠢',
+            'y': '𑠣', 'r': '𑠤', 'l': '𑠥', 'v': '𑠦', 'w': '𑠦',
+            'ś': '𑠧', 'ṣ': '𑠨', 's': '𑠩', 'h': '𑠪',
+            'q': '𑠊𑠺', 'z': '𑠑𑠺', 'f': '𑠟𑠺', 'sy': '𑠧'
+        };
+
+        const DIGITS = {
+            '0': '०', '1': '१', '2': '२', '3': '३', '4': '४', '5': '५', '6': '६', '7': '७', '8': '८', '9': '९'
+        };
+
+        const VIRAMA = '𑠹';
+        const ANUSVARA = '𑠷'; 
+        const VISARGA = '𑠸';  
+
+        const REV_MAP = {};
+        for (let k in INDEPENDENT_VOWELS) REV_MAP[INDEPENDENT_VOWELS[k]] = k;
+        for (let k in MATRAS) REV_MAP[MATRAS[k]] = k;
+        for (let k in CONSONANTS) REV_MAP[CONSONANTS[k]] = k;
+        for (let k in DIGITS) REV_MAP[DIGITS[k]] = k;
+        REV_MAP[ANUSVARA] = 'ng';
+        REV_MAP[VISARGA] = 'h';
+        REV_MAP[VIRAMA] = '';
+        REV_MAP['𑠺'] = ''; // Nukta
+
+        function latinToDogra(text) {
+            let res = "";
+            let i = 0;
+            text = text.toLowerCase().normalize('NFC');
+            const vowels = 'aeiouāīūé';
+
+            while (i < text.length) {
+                let char = text[i];
+                
+                if (DIGITS[char]) {
+                    res += DIGITS[char];
+                    i++;
+                    continue;
+                }
+
+                // Logika Anusvara (ng)
+                if (text.substring(i, i+2) === 'ng') {
+                    res += ANUSVARA;
+                    i += 2;
+                    continue;
+                }
+
+                // Logika Visarga (h final)
+                if (char === 'h' && (i + 1 >= text.length || !vowels.includes(text[i+1]))) {
+                    res += VISARGA;
+                    i++;
+                    continue;
+                }
+
+                let cons = null;
+                let step = 0;
+                
+                // Cek multi-char konsonan
+                if (i + 1 < text.length && CONSONANTS[text.substring(i, i + 2)]) {
+                    cons = CONSONANTS[text.substring(i, i + 2)];
+                    step = 2;
+                } else if (CONSONANTS[char]) {
+                    cons = CONSONANTS[char];
+                    step = 1;
+                }
+
+                if (cons) {
+                    res += cons;
+                    i += step;
+                    
+                    let next = text[i];
+                    // Jika tidak ada vokal setelahnya, berikan Virama (kecuali jika h/ng sudah ditangani)
+                    if (!next || next === ' ' || !vowels.includes(next)) {
+                        if (next === 'a') {
+                            i++; // inherent
+                        } else {
+                            res += VIRAMA;
+                        }
+                    } else {
+                        // Sandangan / Matra
+                        let vKey = next;
+                        if (next === 'a' && text[i+1] === 'i') { vKey = 'ai'; i++; }
+                        else if (next === 'a' && text[i+1] === 'u') { vKey = 'au'; i++; }
+                        
+                        if (vKey === 'a') {
+                            // inherent
+                        } else {
+                            res += MATRAS[vKey] || "";
+                        }
+                        i++;
+                    }
+                } else if (INDEPENDENT_VOWELS[char]) {
+                    let vKey = char;
+                    if (char === 'a' && text[i+1] === 'i') { vKey = 'ai'; i++; }
+                    else if (char === 'a' && text[i+1] === 'u') { vKey = 'au'; i++; }
+                    res += INDEPENDENT_VOWELS[vKey] || char;
+                    i++;
+                } else {
+                    res += char;
+                    i++;
+                }
+            }
+            return res;
+        }
+
+        function dograToLatin(text) {
+            let res = "";
+            let i = 0;
+            while (i < text.length) {
+                let char = text[i];
+                let next = text[i+1];
+                
+                // Gabungan Nukta
+                if (next === '𑠺') {
+                    let combined = char + next;
+                    res += REV_MAP[combined] || (REV_MAP[char] + "");
+                    i += 2;
+                } else {
+                    res += REV_MAP[char] !== undefined ? REV_MAP[char] : char;
+                    i++;
+                }
+            }
+            return res;
+        }
+
+        const inputEl = document.getElementById('input-text');
+        const outputEl = document.getElementById('output-text');
+        const switchBtn = document.getElementById('switch-btn');
+        const modeText = document.getElementById('mode-text');
+        let isLatinToDogra = true;
+
+        inputEl.addEventListener('input', () => {
+            outputEl.innerText = isLatinToDogra ? latinToDogra(inputEl.value) : dograToLatin(inputEl.value);
+        });
+
+        switchBtn.addEventListener('click', () => {
+            isLatinToDogra = !isLatinToDogra;
+            const tempVal = inputEl.value;
+            inputEl.value = outputEl.innerText;
+            outputEl.innerText = tempVal;
+            modeText.innerText = isLatinToDogra ? "Latin ➔ Aksara Dogra" : "Aksara Dogra ➔ Latin";
+            inputEl.placeholder = isLatinToDogra ? "Contoh: kah, king, suh..." : "Ketik Aksara Dogra di sini...";
+        });
+
+        document.getElementById('clear-btn').onclick = () => { inputEl.value = ""; outputEl.innerText = ""; };
+        document.getElementById('info-btn').onclick = () => document.getElementById('modal-info').classList.remove('hidden');
+        document.getElementById('close-modal').onclick = () => document.getElementById('modal-info').classList.add('hidden');
+
+        function copyText(id) {
+            const el = document.getElementById(id);
+            const txt = el.value || el.innerText;
+            if (!txt) return;
+            const textArea = document.createElement("textarea");
+            textArea.value = txt;
+            document.body.appendChild(textArea);
+            textArea.select();
+            document.execCommand('copy');
+            document.body.removeChild(textArea);
+            const toast = document.getElementById('toast');
+            toast.classList.add("show");
+            setTimeout(() => toast.classList.remove("show"), 3000);
+        }
+    </script>
+</body>
+</html>
