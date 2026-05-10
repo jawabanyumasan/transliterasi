@@ -1,0 +1,349 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Transliterasi Latin - Kannada (Javanese Friendly)</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Kannada:wght@400;700&family=Inter:wght@300;400;600&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f8fafc;
+        }
+        .kannada-font {
+            font-family: 'Noto Sans Kannada', sans-serif;
+        }
+        .custom-scrollbar::-webkit-scrollbar {
+            width: 6px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+            background-color: #e2e8f0;
+            border-radius: 10px;
+        }
+        .toast {
+            opacity: 0;
+            transform: translate(-50%, 20px);
+            transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            pointer-events: none;
+        }
+        .toast.show {
+            opacity: 1;
+            transform: translate(-50%, 0);
+        }
+    </style>
+</head>
+<body class="min-h-screen p-4 md:p-8 flex flex-col items-center">
+
+    <div class="max-w-4xl w-full bg-white rounded-3xl shadow-xl overflow-hidden border border-gray-100 mb-8">
+        <!-- Header -->
+        <div class="bg-indigo-600 p-6 text-white text-center">
+            <h1 class="text-2xl md:text-3xl font-bold mb-1">Transliterasi Kannada</h1>
+            <p class="text-indigo-100 text-sm opacity-90">Edisi Javanese-Friendly (Dukungan é, ŏ, & Medial)</p>
+        </div>
+
+        <!-- Main Content -->
+        <div class="p-6 md:p-8 space-y-6">
+            
+            <!-- Controls Top -->
+            <div class="flex items-center justify-between gap-4">
+                <div class="flex items-center gap-2 bg-gray-100 p-1 rounded-xl">
+                    <button id="modeBtn" class="px-4 py-2 bg-white shadow-sm rounded-lg font-semibold text-indigo-600 transition-all text-sm md:text-base">
+                        Latin → Kannada
+                    </button>
+                    <button id="swapBtn" class="p-2 hover:bg-gray-200 rounded-lg transition-colors" title="Tukar Mode">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4" />
+                        </svg>
+                    </button>
+                </div>
+                
+                <button id="clearBtn" class="px-4 py-2 text-sm bg-red-50 text-red-600 rounded-xl hover:bg-red-100 transition-all font-medium border border-red-100">
+                    Bersihkan
+                </button>
+            </div>
+
+            <!-- Input Area -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <!-- Source Box -->
+                <div class="space-y-2 relative group">
+                    <div class="flex justify-between items-center">
+                        <label id="labelSource" class="text-xs font-bold text-gray-400 uppercase tracking-widest">Input Latin</label>
+                        <button id="copyInputBtn" class="text-indigo-500 hover:text-indigo-700 text-xs font-semibold flex items-center gap-1 transition-colors">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7v8a2 2 0 002 2h6M8 7V5a2 2 0 012-2h4.586a1 1 0 01.707.293l4.414 4.414a1 1 0 01.293.707V15a2 2 0 01-2 2h-2M8 7H6a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2v-2" /></svg>
+                            Salin Input
+                        </button>
+                    </div>
+                    <textarea id="sourceText" placeholder="Ketik latin di sini (misal: kang, kah, énak)..." class="w-full h-48 md:h-64 p-4 text-lg border-2 border-gray-100 rounded-2xl focus:ring-4 focus:ring-indigo-50 focus:border-indigo-400 outline-none transition-all custom-scrollbar resize-none bg-gray-50/30"></textarea>
+                </div>
+
+                <!-- Target Box -->
+                <div class="space-y-2 relative group">
+                    <div class="flex justify-between items-center">
+                        <label id="labelTarget" class="text-xs font-bold text-gray-400 uppercase tracking-widest">Aksara Kannada</label>
+                        <button id="copyTargetBtn" class="text-indigo-500 hover:text-indigo-700 text-xs font-semibold flex items-center gap-1 transition-colors">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7v8a2 2 0 002 2h6M8 7V5a2 2 0 012-2h4.586a1 1 0 01.707.293l4.414 4.414a1 1 0 01.293.707V15a2 2 0 01-2 2h-2M8 7H6a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2v-2" /></svg>
+                            Salin Hasil
+                        </button>
+                    </div>
+                    <textarea id="targetText" readonly class="w-full h-48 md:h-64 p-4 text-3xl border-2 border-indigo-50 bg-indigo-50/20 rounded-2xl outline-none custom-scrollbar kannada-font resize-none text-indigo-900"></textarea>
+                </div>
+            </div>
+
+            <!-- Context Info -->
+            <div class="bg-amber-50 border border-amber-100 rounded-2xl p-4 flex gap-4 items-center">
+                <div class="shrink-0 w-10 h-10 bg-amber-100 rounded-full flex items-center justify-center text-amber-600">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" /></svg>
+                </div>
+                <p class="text-xs text-amber-800 leading-tight">
+                    <b>Catatan Sistem:</b> Input <code class="bg-amber-200/50 px-1 rounded">kang</code> diproses sebagai $ಕಂ$ (Anusvara) dan <code class="bg-amber-200/50 px-1 rounded">kah</code> sebagai $ಕಃ$ (Visarga), sesuai dengan kaidah fonetik yang benar.
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer with Help Button -->
+    <footer class="w-full max-w-4xl flex justify-center pb-12">
+        <button onclick="showModal()" class="text-gray-400 hover:text-indigo-600 flex items-center gap-2 text-sm transition-all font-medium py-2 px-4 rounded-xl hover:bg-indigo-50">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+            Tampilkan Panduan Info Aksara
+        </button>
+    </footer>
+
+    <!-- Modal Panduan -->
+    <div id="infoModal" class="fixed inset-0 bg-gray-900/60 hidden items-center justify-center p-4 z-50 backdrop-blur-sm">
+        <div class="bg-white rounded-3xl max-w-2xl w-full max-h-[85vh] overflow-hidden flex flex-col shadow-2xl">
+            <div class="p-6 border-b flex justify-between items-center bg-indigo-600 text-white">
+                <div>
+                    <h2 class="text-xl font-bold">Panduan Transliterasi</h2>
+                    <p class="text-xs text-indigo-100">Kamus pemetaan Latin ke Kannada</p>
+                </div>
+                <button onclick="hideModal()" class="p-2 hover:bg-white/20 rounded-full transition-colors">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" /></svg>
+                </button>
+            </div>
+            <div class="p-6 overflow-y-auto custom-scrollbar bg-gray-50 space-y-6">
+                <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
+                    <!-- Vowels -->
+                    <div class="bg-white p-4 rounded-2xl shadow-sm border border-gray-100">
+                        <h4 class="text-[10px] font-black text-indigo-300 uppercase tracking-widest mb-3">Vokal (Swara)</h4>
+                        <div class="space-y-2 text-sm">
+                            <div class="flex justify-between"><span>a</span><span class="kannada-font font-bold">ಅ</span></div>
+                            <div class="flex justify-between"><span>i</span><span class="kannada-font font-bold">ಇ</span></div>
+                            <div class="flex justify-between"><span>u</span><span class="kannada-font font-bold">ಉ</span></div>
+                            <div class="flex justify-between text-pink-600 font-bold"><span>é (taling)</span><span class="kannada-font">ಎ</span></div>
+                            <div class="flex justify-between text-pink-600 font-bold"><span>ŏ (pepet)</span><span class="kannada-font">ಒ</span></div>
+                            <div class="flex justify-between"><span>ai / au</span><span class="kannada-font">ಐ / ಔ</span></div>
+                        </div>
+                    </div>
+                    <!-- Final Systems -->
+                    <div class="bg-white p-4 rounded-2xl shadow-sm border border-gray-100">
+                        <h4 class="text-[10px] font-black text-indigo-300 uppercase tracking-widest mb-3">Sistem Final</h4>
+                        <div class="space-y-2 text-sm">
+                            <div class="flex justify-between font-bold text-green-600"><span>-ng (Cecak)</span><span class="kannada-font">ಂ</span></div>
+                            <div class="flex justify-between font-bold text-green-600"><span>-h (Wignyan)</span><span class="kannada-font">ಃ</span></div>
+                            <div class="flex justify-between"><span>kya (Pengkal)</span><span class="kannada-font">ಕ್ಯ</span></div>
+                            <div class="flex justify-between"><span>kra (Cakra)</span><span class="kannada-font">ಕ್ರ</span></div>
+                        </div>
+                    </div>
+                    <!-- Others -->
+                    <div class="bg-white p-4 rounded-2xl shadow-sm border border-gray-100">
+                        <h4 class="text-[10px] font-black text-indigo-300 uppercase tracking-widest mb-3">Angka</h4>
+                        <div class="grid grid-cols-2 gap-x-4 gap-y-1 text-sm">
+                            <div class="flex justify-between"><span>0</span><span class="kannada-font">೦</span></div>
+                            <div class="flex justify-between"><span>1</span><span class="kannada-font">೧</span></div>
+                            <div class="flex justify-between"><span>2</span><span class="kannada-font">೨</span></div>
+                            <div class="flex justify-between"><span>3</span><span class="kannada-font">೩</span></div>
+                            <div class="flex justify-between"><span>4</span><span class="kannada-font">೪</span></div>
+                            <div class="flex justify-between"><span>5</span><span class="kannada-font">೫</span></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast Notification -->
+    <div id="toast" class="toast fixed bottom-12 left-1/2 bg-gray-900 text-white px-6 py-3 rounded-full shadow-2xl flex items-center gap-3 z-[60]">
+        <div class="bg-green-500 rounded-full p-1">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3 text-white" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd" /></svg>
+        </div>
+        <span id="toastMsg" class="text-sm font-semibold uppercase tracking-wider">Aksara Berhasil Disalin</span>
+    </div>
+
+    <script>
+        // Data Mappings
+        const numerals = { '0': '೦', '1': '೧', '2': '೨', '3': '೩', '4': '೪', '5': '೫', '6': '೬', '7': '೭', '8': '೮', '9': '೯' };
+        const independentVowels = { 'a': 'ಅ', 'i': 'ಇ', 'u': 'ಉ', 'é': 'ಎ', 'e': 'ಏ', 'ŏ': 'ಒ', 'o': 'ಓ', 'ai': 'ಐ', 'au': 'ಔ' };
+        const vowelMatras = { 'a': '', 'i': 'ಿ', 'u': 'ು', 'é': 'ೆ', 'e': 'ೇ', 'ŏ': 'ೊ', 'o': 'ೋ', 'ai': 'ೈ', 'au': 'ೌ' };
+        const consonants = {
+            'kh': 'ಖ', 'gh': 'ಘ', 'ng': 'ಙ', 'ch': 'ಛ', 'jh': 'ಝ', 'ny': 'ಞ', 'th': 'ಥ', 'dh': 'ಧ', 'ph': 'ಫ', 'bh': 'ಭ',
+            'sh': 'ಶ', 'ss': 'ಷ', 'k': 'ಕ', 'g': 'ಗ', 'c': 'ಚ', 'j': 'ಜ', 't': 'ತ', 'd': 'ದ', 'n': 'ನ', 'p': 'ಪ',
+            'b': 'ಬ', 'm': 'ಮ', 'y': 'ಯ', 'r': 'ರ', 'l': 'ಲ', 'v': 'ವ', 'w': 'ವ', 's': 'ಸ', 'h': 'ಹ',
+            'f': 'ಫ಼', 'z': 'ಜ಼', 'q': 'ಕ಼'
+        };
+        const medials = { 'y': '್ಯ', 'r': '್ರ', 'l': '್ಲ', 'w': '್ವ', 'v': '್ವ' };
+        const finals = { 'ng': 'ಂ', 'h': 'ಃ' };
+        const virama = '್';
+
+        // State
+        let isLatinToKannada = true;
+        const sourceText = document.getElementById('sourceText');
+        const targetText = document.getElementById('targetText');
+        const modeBtn = document.getElementById('modeBtn');
+        const swapBtn = document.getElementById('swapBtn');
+        const clearBtn = document.getElementById('clearBtn');
+        const copyInputBtn = document.getElementById('copyInputBtn');
+        const copyTargetBtn = document.getElementById('copyTargetBtn');
+        const toast = document.getElementById('toast');
+
+        // Core Transliteration Logic
+        function latinToKannada(input) {
+            let result = '';
+            let text = input.toLowerCase();
+            let i = 0;
+
+            while (i < text.length) {
+                let char = text[i];
+                let nextChar = text[i+1] || '';
+                let nextNextChar = text[i+2] || '';
+                let doubleChar = char + nextChar;
+
+                // 1. Numerals
+                if (numerals[char]) { result += numerals[char]; i++; continue; }
+
+                // 2. Space/Punctuation
+                if (!/[a-z\u00C0-\u017F]/.test(char)) { result += char; i++; continue; }
+
+                // 3. Consonants
+                let con = '';
+                if (consonants[doubleChar]) { con = consonants[doubleChar]; i += 2; }
+                else if (consonants[char]) { con = consonants[char]; i++; }
+
+                if (con) {
+                    let currentPart = con;
+                    
+                    // Medial Check (ky, kr, etc)
+                    if (text[i] && medials[text[i]] && !/[aeiouéŏ]/.test(text[i])) {
+                        currentPart += medials[text[i]];
+                        i++;
+                    }
+
+                    // Vowel Check
+                    let vKey = text[i];
+                    let vNext = text[i+1] || '';
+                    let matra = null;
+
+                    if (vKey === 'a' && vNext === 'i') { matra = vowelMatras['ai']; i += 2; }
+                    else if (vKey === 'a' && vNext === 'u') { matra = vowelMatras['au']; i += 2; }
+                    else if (vowelMatras[vKey]) { matra = vowelMatras[vKey]; i++; }
+                    else if (vKey === 'a') { matra = ''; i++; }
+
+                    if (matra !== null) {
+                        currentPart += matra;
+                        // Check for Final (Anusvara/Visarga) AFTER a vowel
+                        if (text[i] === 'n' && text[i+1] === 'g') {
+                            currentPart += finals['ng'];
+                            i += 2;
+                        } else if (text[i] === 'h' && (!text[i+1] || !/[aeiouéŏ]/.test(text[i+1]))) {
+                            currentPart += finals['h'];
+                            i++;
+                        }
+                    } else {
+                        // No vowel follows: check for standalone final or apply virama
+                        if (text[i] === 'n' && text[i+1] === 'g') {
+                            // If user types 'kng' without vowel, treat as consonant group or final?
+                            // Standard behavior: virama
+                            currentPart += virama;
+                        } else if (text[i] === 'h' && (!text[i+1] || !/[aeiouéŏ]/.test(text[i+1]))) {
+                            currentPart += virama;
+                        } else {
+                            currentPart += virama;
+                        }
+                    }
+                    result += currentPart;
+                    continue;
+                }
+
+                // 4. Independent Vowels
+                if (doubleChar === 'ai' || doubleChar === 'au') {
+                    let v = independentVowels[doubleChar];
+                    i += 2;
+                    // Check for finals after independent vowel (e.g., "ang")
+                    if (text[i] === 'n' && text[i+1] === 'g') { v += finals['ng']; i += 2; }
+                    else if (text[i] === 'h') { v += finals['h']; i++; }
+                    result += v;
+                    continue;
+                }
+                if (independentVowels[char]) {
+                    let v = independentVowels[char];
+                    i++;
+                    if (text[i] === 'n' && text[i+1] === 'g') { v += finals['ng']; i += 2; }
+                    else if (text[i] === 'h' && (!text[i+1] || !/[aeiouéŏ]/.test(text[i+1]))) { v += finals['h']; i++; }
+                    result += v;
+                    continue;
+                }
+
+                result += char;
+                i++;
+            }
+            return result;
+        }
+
+        // Simplistic Reverse (Kannada to Latin)
+        function kannadaToLatin(input) {
+            let res = input;
+            const revNum = Object.fromEntries(Object.entries(numerals).map(([k,v]) => [v,k]));
+            for(let k in revNum) res = res.replaceAll(k, revNum[k]);
+            // (Full reverse is complex, basic numbers supported)
+            return res;
+        }
+
+        // UI Handlers
+        function updateOutput() {
+            targetText.value = isLatinToKannada ? latinToKannada(sourceText.value) : kannadaToLatin(sourceText.value);
+        }
+
+        sourceText.addEventListener('input', updateOutput);
+
+        swapBtn.addEventListener('click', () => {
+            isLatinToKannada = !isLatinToKannada;
+            modeBtn.innerText = isLatinToKannada ? 'Latin → Kannada' : 'Kannada → Latin';
+            document.getElementById('labelSource').innerText = isLatinToKannada ? 'Input Latin' : 'Input Kannada';
+            document.getElementById('labelTarget').innerText = isLatinToKannada ? 'Aksara Kannada' : 'Hasil Latin';
+            
+            let temp = sourceText.value;
+            sourceText.value = targetText.value;
+            targetText.value = temp;
+            
+            sourceText.classList.toggle('kannada-font', !isLatinToKannada);
+            targetText.classList.toggle('kannada-font', isLatinToKannada);
+            updateOutput();
+        });
+
+        clearBtn.addEventListener('click', () => { sourceText.value = ''; targetText.value = ''; });
+
+        function showToast(msg) {
+            document.getElementById('toastMsg').innerText = msg;
+            toast.classList.add('show');
+            setTimeout(() => toast.classList.remove('show'), 2000);
+        }
+
+        function copyText(elId, label) {
+            const el = document.getElementById(elId);
+            if (!el.value) return;
+            el.select();
+            document.execCommand('copy');
+            window.getSelection().removeAllRanges();
+            showToast(`${label} Berhasil Disalin`);
+        }
+
+        copyInputBtn.addEventListener('click', () => copyText('sourceText', 'Input'));
+        copyTargetBtn.addEventListener('click', () => copyText('targetText', 'Hasil'));
+
+        function showModal() { document.getElementById('infoModal').classList.replace('hidden', 'flex'); }
+        function hideModal() { document.getElementById('infoModal').classList.replace('flex', 'hidden'); }
+        document.getElementById('infoModal').addEventListener('click', (e) => { if(e.target.id === 'infoModal') hideModal(); });
+    </script>
+</body>
+</html>
