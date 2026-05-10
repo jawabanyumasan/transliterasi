@@ -1,0 +1,335 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Konverter Aksara Malayalam</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Malayalam:wght@400;700&family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: linear-gradient(135deg, #f0f4f8 0%, #d9e2ec 100%);
+            min-height: 100vh;
+        }
+        .malayalam-text {
+            font-family: 'Noto Sans Malayalam', sans-serif;
+        }
+        .custom-shadow {
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1);
+        }
+        textarea {
+            resize: none;
+        }
+        #notification {
+            position: fixed;
+            bottom: 30px;
+            left: 50%;
+            transform: translateX(-50%) translateY(100px);
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            z-index: 1000;
+        }
+        #notification.show {
+            transform: translateX(-50%) translateY(0);
+            opacity: 1;
+            visibility: visible;
+        }
+    </style>
+</head>
+<body class="p-4 md:p-8">
+
+    <div class="max-w-4xl mx-auto bg-white rounded-3xl custom-shadow overflow-hidden">
+        <!-- Header -->
+        <div class="bg-indigo-800 p-6 text-white text-center">
+            <h1 class="text-2xl md:text-3xl font-bold mb-1">Konverter Aksara Malayalam</h1>
+            <p class="text-indigo-200 opacity-90 text-sm md:text-base">Transliterasi Latin ke Malayalam untuk Penutur Bahasa Jawa</p>
+        </div>
+
+        <div class="p-6">
+            <!-- Mode Toggle -->
+            <div class="flex justify-center mb-6">
+                <div class="bg-gray-100 p-1 rounded-xl flex gap-1 shadow-inner">
+                    <button id="toMalayalamBtn" class="px-4 py-2 rounded-lg bg-indigo-600 text-white shadow-sm font-semibold transition-all">Latin ➔ Malayalam</button>
+                    <button id="toLatinBtn" class="px-4 py-2 rounded-lg text-gray-600 hover:bg-gray-200 font-semibold transition-all">Malayalam ➔ Latin</button>
+                </div>
+            </div>
+
+            <!-- Input/Output Areas -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div class="flex flex-col">
+                    <div class="flex justify-between items-center mb-2">
+                        <label id="inputLabel" class="text-xs font-bold text-gray-500 uppercase tracking-widest">Teks Latin</label>
+                        <button onclick="copyInput()" class="text-[10px] bg-gray-200 hover:bg-gray-300 text-gray-700 px-3 py-1 rounded-full transition-colors font-semibold uppercase">Salin</button>
+                    </div>
+                    <textarea id="inputText" class="w-full h-48 md:h-72 p-4 border-2 border-gray-100 rounded-2xl focus:border-indigo-500 focus:ring-4 focus:ring-indigo-100 outline-none text-lg transition-all" placeholder="Masukkan teks di sini..."></textarea>
+                </div>
+                <div class="flex flex-col">
+                    <div class="flex justify-between items-center mb-2">
+                        <label id="outputLabel" class="text-xs font-bold text-gray-500 uppercase tracking-widest">Aksara Malayalam</label>
+                        <button onclick="copyOutput()" class="text-[10px] bg-indigo-100 hover:bg-indigo-200 text-indigo-700 px-3 py-1 rounded-full transition-colors font-bold uppercase">Salin</button>
+                    </div>
+                    <textarea id="outputText" readonly class="malayalam-text w-full h-48 md:h-72 p-4 bg-gray-50 border-2 border-gray-100 rounded-2xl text-3xl text-indigo-900 outline-none" placeholder="Hasil akan muncul..."></textarea>
+                </div>
+            </div>
+
+            <!-- Action Buttons -->
+            <div class="mt-8 flex flex-wrap justify-center gap-4">
+                <button onclick="clearText()" class="bg-red-50 text-red-600 hover:bg-red-100 px-8 py-3 rounded-2xl font-bold transition-all border border-red-100">
+                    Bersihkan
+                </button>
+                <button onclick="toggleInfo()" class="bg-indigo-50 text-indigo-700 hover:bg-indigo-100 px-8 py-3 rounded-2xl font-bold transition-all border border-indigo-100">
+                    Panduan Aksara
+                </button>
+            </div>
+        </div>
+
+        <!-- Guide Table -->
+        <div id="infoBoard" class="hidden border-t border-gray-100 bg-gray-50 p-8">
+            <h3 class="text-xl font-bold text-indigo-900 mb-6 flex items-center gap-2">
+                <span class="bg-indigo-600 text-white p-1 rounded">ℹ️</span> Panduan Penulisan
+            </h3>
+            <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4 text-sm">
+                <div class="p-3 border rounded-xl bg-white shadow-sm"><span class="text-gray-400">Vokal:</span><br><span class="font-bold">a, i, u, e, é, o, ŏ</span></div>
+                <div class="p-3 border rounded-xl bg-white shadow-sm"><span class="text-gray-400">Diftong:</span><br><span class="font-bold">ai, au</span></div>
+                <div class="p-3 border rounded-xl bg-white shadow-sm"><span class="text-gray-400">Final:</span><br><span class="font-bold">ang (-ng), ah (-h)</span></div>
+                <div class="p-3 border rounded-xl bg-white shadow-sm"><span class="text-gray-400">Asing:</span><br><span class="font-bold">f, v, kh, sy, q, z</span></div>
+                <div class="p-3 border rounded-xl bg-white shadow-sm"><span class="text-gray-400">Medial:</span><br><span class="font-bold">kya, kra, kla, kwa</span></div>
+                <div class="p-3 border rounded-xl bg-white shadow-sm"><span class="text-gray-400">Layar:</span><br><span class="font-bold">arka (ar+kons)</span></div>
+            </div>
+            <button onclick="toggleInfo()" class="mt-6 text-indigo-600 font-bold hover:underline">Tutup Panduan</button>
+        </div>
+    </div>
+
+    <!-- Notification -->
+    <div id="notification" class="bg-gray-900 text-white px-10 py-4 rounded-full shadow-2xl font-bold text-sm tracking-wide">
+        Aksara Berhasil Disalin
+    </div>
+
+    <script>
+        // --- DATA MAPPING ---
+        const independentVowels = {
+            'ai': 'ഐ', 'au': 'ഔ', 'aa': 'ആ', 'ii': 'ഈ', 'uu': 'ഊ',
+            'a': 'അ', 'i': 'ഇ', 'u': 'ഉ', 'e': 'ഏ', 'é': 'എ', 'o': 'ഓ', 'ŏ': 'ഒ'
+        };
+
+        const vowelSigns = {
+            'ai': 'ൈ', 'au': 'ൗ', 'aa': 'ാ', 'a': '', 'i': 'ി', 'u': 'ു', 
+            'e': 'േ', 'é': 'െ', 'o': 'ോ', 'ŏ': 'ൊ'
+        };
+
+        const consonants = {
+            'kh': 'ഖ', 'ng': 'ങ', 'ch': 'ഛ', 'ny': 'ഞ', 'th': 'ത', 
+            'dh': 'ദ', 'ph': 'ഫ', 'bh': 'ഭ', 'sh': 'ശ', 'sy': 'ശ',
+            'ka': 'ക', 'ga': 'ഗ', 'ca': 'ച', 'ja': 'ജ', 'ta': 'ട', 
+            'da': 'ഡ', 'na': 'ന', 'pa': 'പ', 'ba': 'ബ', 'ma': 'മ', 
+            'ya': 'യ', 'ra': 'ര', 'la': 'ല', 'va': 'വ', 'wa': 'വ', 
+            'sa': 'സ', 'ha': 'ഹ', 'fa': 'ഫ', 'za': 'സ', 'qa': 'ക',
+            'k': 'ക', 'g': 'ഗ', 'c': 'ച', 'j': 'ജ', 't': 'ട', 'd': 'ഡ', 'n': 'ന', 
+            'p': 'പ', 'b': 'ബ', 'm': 'മ', 'y': 'യ', 'r': 'ര', 'l': 'ല', 'v': 'വ', 'w': 'വ', 's': 'സ', 'h': 'ഹ', 'f': 'ഫ', 'z': 'സ', 'q': 'ക'
+        };
+
+        const medials = { 'y': '്യ', 'r': '്ര', 'l': '്ല', 'w': '്വ' };
+        const numbers = { '0': '൦', '1': '൧', '2': '൨', '3': '൩', '4': '൪', '5': '൫', '6': '൬', '7': '൭', '8': '൮', '9': '൯' };
+
+        // --- STATE & UI ---
+        let mode = 'toMalayalam';
+        const inputArea = document.getElementById('inputText');
+        const outputArea = document.getElementById('outputText');
+        const toMalayalamBtn = document.getElementById('toMalayalamBtn');
+        const toLatinBtn = document.getElementById('toLatinBtn');
+        const inputLabel = document.getElementById('inputLabel');
+        const outputLabel = document.getElementById('outputLabel');
+
+        function switchMode(newMode) {
+            if (mode === newMode) return;
+            
+            // Swap isi kolom saat berpindah mode agar input sesuai script yang dipilih
+            const currentInput = inputArea.value;
+            const currentOutput = outputArea.value;
+            
+            mode = newMode;
+            
+            if (mode === 'toMalayalam') {
+                toMalayalamBtn.className = 'px-4 py-2 rounded-lg bg-indigo-600 text-white shadow-sm font-semibold transition-all';
+                toLatinBtn.className = 'px-4 py-2 rounded-lg text-gray-600 hover:bg-gray-200 font-semibold transition-all';
+                inputLabel.innerText = "Teks Latin";
+                outputLabel.innerText = "Aksara Malayalam";
+                inputArea.classList.remove('malayalam-text');
+                outputArea.classList.add('malayalam-text');
+            } else {
+                toLatinBtn.className = 'px-4 py-2 rounded-lg bg-indigo-600 text-white shadow-sm font-semibold transition-all';
+                toMalayalamBtn.className = 'px-4 py-2 rounded-lg text-gray-600 hover:bg-gray-200 font-semibold transition-all';
+                inputLabel.innerText = "Aksara Malayalam";
+                outputLabel.innerText = "Teks Latin";
+                inputArea.classList.add('malayalam-text');
+                outputArea.classList.remove('malayalam-text');
+            }
+
+            // Tukar konten
+            inputArea.value = currentOutput;
+            outputArea.value = currentInput;
+            
+            inputArea.focus();
+        }
+
+        toMalayalamBtn.addEventListener('click', () => switchMode('toMalayalam'));
+        toLatinBtn.addEventListener('click', () => switchMode('toLatin'));
+
+        inputArea.addEventListener('input', updateConversion);
+
+        // --- CORE LOGIC ---
+        function updateConversion() {
+            const rawText = inputArea.value;
+            if (mode === 'toMalayalam') {
+                outputArea.value = transliterateToMalayalam(rawText.toLowerCase());
+            } else {
+                outputArea.value = transliterateToLatin(rawText);
+            }
+        }
+
+        function transliterateToMalayalam(text) {
+            let result = "";
+            let i = 0;
+
+            while (i < text.length) {
+                if (numbers[text[i]]) { result += numbers[text[i]]; i++; continue; }
+                if (/\s|[.,?!;:]/.test(text[i])) { result += text[i]; i++; continue; }
+
+                if (text.startsWith('ar', i) && i + 2 < text.length && consonants[text[i+2]]) {
+                    result += "അർ";
+                    i += 2;
+                    continue;
+                }
+
+                let c = "";
+                const digraphs = ['kh', 'ng', 'ch', 'ny', 'th', 'dh', 'ph', 'bh', 'sh', 'sy'];
+                let foundDigraph = false;
+                for (let d of digraphs) {
+                    if (text.startsWith(d, i)) {
+                        c = d;
+                        i += 2;
+                        foundDigraph = true;
+                        break;
+                    }
+                }
+                if (!foundDigraph && consonants[text[i]]) {
+                    c = text[i];
+                    i += 1;
+                }
+
+                if (c) {
+                    let base = consonants[c];
+                    let medial = "";
+                    if (medials[text[i]]) {
+                        let next = text[i+1];
+                        if (i+1 >= text.length || /[aiueoŏé\s]/.test(next) || text.startsWith('ang', i+1) || text.startsWith('ah', i+1)) {
+                            medial = medials[text[i]];
+                            i++;
+                        }
+                    }
+
+                    let v = "";
+                    let final = "";
+                    
+                    if (text.startsWith('ang', i)) { v = 'a'; final = "ം"; i += 3; }
+                    else if (text.startsWith('ah', i)) { v = 'a'; final = "ഃ"; i += 2; }
+                    else if (text.startsWith('ai', i)) { v = 'ai'; i += 2; }
+                    else if (text.startsWith('au', i)) { v = 'au'; i += 2; }
+                    else if (text.startsWith('aa', i)) { v = 'aa'; i += 2; }
+                    else if (vowelSigns[text[i]]) { v = text[i]; i += 1; }
+                    else if (text[i] === 'a') { v = 'a'; i += 1; }
+
+                    if (v) {
+                        result += base + medial + vowelSigns[v] + final;
+                    } else {
+                        result += base + medial + "്" + final;
+                    }
+                    continue;
+                }
+
+                let foundVowel = false;
+                const vList = ['ai', 'au', 'aa', 'ii', 'uu', 'a', 'i', 'u', 'e', 'é', 'o', 'ŏ'];
+                for (let v of vList) {
+                    if (text.startsWith(v, i)) {
+                        let after = text.substr(i+v.length);
+                        let extra = "";
+                        if (after.startsWith('ang')) { extra = "ം"; i += 3; }
+                        else if (after.startsWith('ah')) { extra = "ഃ"; i += 2; }
+                        result += independentVowels[v] + extra;
+                        i += v.length;
+                        foundVowel = true;
+                        break;
+                    }
+                }
+
+                if (!foundVowel) {
+                    result += text[i];
+                    i++;
+                }
+            }
+            return result;
+        }
+
+        function transliterateToLatin(text) {
+            let res = text;
+            const revMap = {
+                'അ': 'a', 'ആ': 'aa', 'ഇ': 'i', 'ഈ': 'ii', 'ഉ': 'u', 'ഊ': 'uu', 
+                'ഏ': 'e', 'എ': 'é', 'ഐ': 'ai', 'ഓ': 'o', 'ഒ': 'ŏ', 'ഔ': 'au',
+                'ി': 'i', 'ു': 'u', 'േ': 'e', 'െ': 'é', 'ൈ': 'ai', 'ോ': 'o', 'ൊ': 'ŏ', 'ൗ': 'au', 'ാ': 'aa',
+                'ം': 'ng', 'ഃ': 'h', 'ർ': 'r', '്': ''
+            };
+            
+            // Map consonants
+            const revCons = {};
+            for (let k in consonants) revCons[consonants[k]] = k;
+            
+            const sortedCons = Object.keys(revCons).sort((a,b) => b.length - a.length);
+            sortedCons.forEach(k => {
+                const regex = new RegExp(k, 'g');
+                res = res.replace(regex, revCons[k]);
+            });
+
+            const sortedVowels = Object.keys(revMap).sort((a,b) => b.length - a.length);
+            sortedVowels.forEach(k => {
+                const regex = new RegExp(k, 'g');
+                res = res.replace(regex, revMap[k]);
+            });
+
+            return res;
+        }
+
+        // --- UTILS ---
+        function showNotification() {
+            const n = document.getElementById('notification');
+            n.classList.add('show');
+            setTimeout(() => n.classList.remove('show'), 2000);
+        }
+
+        function copyInput() {
+            if (!inputArea.value) return;
+            inputArea.select();
+            document.execCommand('copy');
+            showNotification();
+        }
+
+        function copyOutput() {
+            if (!outputArea.value) return;
+            outputArea.select();
+            document.execCommand('copy');
+            showNotification();
+        }
+
+        function clearText() {
+            inputArea.value = "";
+            outputArea.value = "";
+            inputArea.focus();
+        }
+
+        function toggleInfo() {
+            document.getElementById('infoBoard').classList.toggle('hidden');
+        }
+    </script>
+</body>
+</html>
