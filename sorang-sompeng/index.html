@@ -1,0 +1,364 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sorang Sompeng Transliterasi</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Sora+Sompeng&display=swap" rel="stylesheet">
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <style>
+        body {
+            font-family: 'ui-sans-serif', system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+        }
+        .aksara-font {
+            font-family: 'Noto Sans Sora Sompeng', sans-serif;
+        }
+        /* Custom scrollbar for better look */
+        ::-webkit-scrollbar {
+            width: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #e2e8f0;
+            border-radius: 10px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #cbd5e1;
+        }
+        .modal-enter {
+            animation: modalFadeIn 0.3s ease-out;
+        }
+        @keyframes modalFadeIn {
+            from { opacity: 0; transform: scale(0.95); }
+            to { opacity: 1; transform: scale(1); }
+        }
+        .toast-enter {
+            animation: toastSlideUp 0.3s ease-out forwards;
+        }
+        @keyframes toastSlideUp {
+            from { transform: translate(-50%, 100%); opacity: 0; }
+            to { transform: translate(-50%, 0); opacity: 1; }
+        }
+    </style>
+</head>
+<body class="bg-slate-50 text-slate-900 min-h-screen p-4 md:p-8">
+
+    <div class="max-w-4xl mx-auto">
+        <!-- Header -->
+        <header class="mb-8 text-center">
+            <h1 class="text-3xl md:text-4xl font-bold text-indigo-700 mb-2">
+                Sorang Sompeng <span class="text-slate-400 font-normal aksara-font">𑃐𑃦𑃝𑃗 𑃐𑃦𑃖𑃛𑃣𑃗</span>
+            </h1>
+            <p class="text-slate-600">Transliterasi Aksara Sora untuk Bahasa Jawa</p>
+        </header>
+
+        <!-- Main Interface -->
+        <div class="bg-white rounded-3xl shadow-xl border border-slate-100 overflow-hidden">
+            <div class="flex flex-col md:flex-row divide-y md:divide-y-0 md:divide-x divide-slate-100">
+                
+                <!-- Input Side -->
+                <div class="flex-1 p-6">
+                    <div class="flex justify-between items-center mb-4">
+                        <span id="inputLabel" class="text-sm font-semibold uppercase tracking-wider text-slate-400">
+                            Latin / Jawa
+                        </span>
+                        <button id="clearBtn" class="p-2 hover:bg-red-50 text-red-400 rounded-full transition-colors" title="Bersihkan">
+                            <i data-lucide="trash-2" class="w-5 h-5"></i>
+                        </button>
+                    </div>
+                    <textarea id="userInput" 
+                        class="w-full h-40 md:h-64 text-xl md:text-2xl p-0 border-none focus:ring-0 resize-none placeholder-slate-300 bg-transparent"
+                        placeholder="Ketik teks Latin di sini..."></textarea>
+                </div>
+
+                <!-- Interaction Bar -->
+                <div class="flex items-center justify-center p-4 bg-slate-50 md:bg-white">
+                    <button id="toggleMode" class="bg-indigo-600 hover:bg-indigo-700 text-white p-4 rounded-full shadow-lg transform transition-transform active:scale-95">
+                        <i data-lucide="arrow-left-right" id="toggleIcon"></i>
+                    </button>
+                </div>
+
+                <!-- Output Side -->
+                <div class="flex-1 p-6 bg-slate-50 md:bg-white">
+                    <div class="flex justify-between items-center mb-4">
+                        <span id="outputLabel" class="text-sm font-semibold uppercase tracking-wider text-slate-400">
+                            Aksara Sorang Sompeng
+                        </span>
+                        <button id="copyBtn" class="flex items-center gap-2 px-3 py-1.5 rounded-full text-sm font-medium transition-all bg-indigo-50 text-indigo-600 hover:bg-indigo-100">
+                            <i data-lucide="copy" class="w-4 h-4" id="copyIcon"></i>
+                            <span id="copyText">Salin</span>
+                        </button>
+                    </div>
+                    <div id="outputDisplay" class="w-full h-40 md:h-64 text-2xl md:text-3xl font-medium overflow-auto break-words leading-relaxed aksara-font">
+                        <span class="text-slate-300 italic text-xl">Hasil muncul di sini...</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Action Buttons -->
+        <div class="mt-8 flex justify-center gap-4">
+            <button id="infoBtn" class="flex items-center gap-2 px-6 py-3 bg-white border border-slate-200 rounded-2xl text-slate-600 font-medium hover:border-indigo-300 hover:text-indigo-600 transition-all shadow-sm">
+                <i data-lucide="info" class="w-5 h-5"></i>
+                Panduan & Informasi
+            </button>
+        </div>
+
+        <!-- Footer -->
+        <footer class="mt-12 text-center text-slate-400 text-sm">
+            <p>© 2024 Sorang Sompeng Transliteration Tool</p>
+            <p class="mt-1 italic">Dibuat khusus untuk adaptasi aksara Sora dalam fonetik Bahasa Jawa</p>
+        </footer>
+    </div>
+
+    <!-- Info Modal -->
+    <div id="infoModal" class="fixed inset-0 z-50 hidden flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm">
+        <div class="bg-white rounded-3xl max-w-2xl w-full max-h-[90vh] overflow-hidden flex flex-col shadow-2xl modal-enter">
+            <div class="p-6 border-b border-slate-100 flex justify-between items-center bg-indigo-50">
+                <h2 class="text-xl font-bold text-indigo-900">Panduan Sorang Sompeng</h2>
+                <button id="closeInfo" class="p-2 hover:bg-indigo-100 rounded-full text-indigo-900">
+                    <i data-lucide="x" class="w-6 h-6"></i>
+                </button>
+            </div>
+            <div class="p-8 overflow-y-auto space-y-6 text-slate-600">
+                <section>
+                    <h3 class="font-bold text-lg text-slate-800 mb-2">Tentang Aksara</h3>
+                    <p class="leading-relaxed">
+                        Aksara <strong>Sorang Sompeng</strong> adalah sistem alfabet yang digunakan untuk bahasa Sora. Berbeda dengan Aksara Jawa (Hanacaraka) yang merupakan <em>Abugida</em> (suku kata), Sorang Sompeng adalah <strong>Alfabet</strong> murni di mana vokal ditulis sebagai huruf terpisah.
+                    </p>
+                </section>
+
+                <section>
+                    <h3 class="font-bold text-lg text-slate-800 mb-2">Sistem Medial & Final</h3>
+                    <p class="leading-relaxed">
+                        Karena ini adalah alfabet, tidak ada bentuk khusus "Pasangan" atau "Sandhangan" seperti di Aksara Jawa:
+                    </p>
+                    <ul class="list-disc ml-5 mt-2 space-y-1">
+                        <li><strong>Medial (Pengkal/Cakra):</strong> Ditulis langsung menggunakan huruf 𑃜 (Y) atau 𑃝 (R).</li>
+                        <li><strong>Final (Cecak/Layar/Wignyan):</strong> Ditulis langsung menggunakan huruf 𑃗 (NG), 𑃝 (R), atau 𑃞 (H) di akhir kata.</li>
+                        <li><strong>Aksara Rekan:</strong> Fonem f, v, q, kh, sy disesuaikan dengan huruf terdekat dalam Sorang Sompeng.</li>
+                    </ul>
+                </section>
+
+                <section>
+                    <h3 class="font-bold text-lg text-slate-800 mb-2">Tabel Vokal (Sandhangan)</h3>
+                    <div class="grid grid-cols-2 md:grid-cols-3 gap-3">
+                        <div class="flex justify-between p-2 bg-slate-50 rounded-lg border border-slate-100"><span class="font-mono">a</span><span class="text-xl font-bold text-indigo-600 aksara-font">𑃠</span></div>
+                        <div class="flex justify-between p-2 bg-slate-50 rounded-lg border border-slate-100"><span class="font-mono">i</span><span class="text-xl font-bold text-indigo-600 aksara-font">𑃢</span></div>
+                        <div class="flex justify-between p-2 bg-slate-50 rounded-lg border border-slate-100"><span class="font-mono">u</span><span class="text-xl font-bold text-indigo-600 aksara-font">𑃤</span></div>
+                        <div class="flex justify-between p-2 bg-slate-50 rounded-lg border border-slate-100"><span class="font-mono">e (pepet)</span><span class="text-xl font-bold text-indigo-600 aksara-font">𑃡</span></div>
+                        <div class="flex justify-between p-2 bg-slate-50 rounded-lg border border-slate-100"><span class="font-mono">é (taling)</span><span class="text-xl font-bold text-indigo-600 aksara-font">𑃥</span></div>
+                        <div class="flex justify-between p-2 bg-slate-50 rounded-lg border border-slate-100"><span class="font-mono">o</span><span class="text-xl font-bold text-indigo-600 aksara-font">𑃣</span></div>
+                    </div>
+                </section>
+
+                <section>
+                    <h3 class="font-bold text-lg text-slate-800 mb-2">Angka</h3>
+                    <div class="grid grid-cols-5 gap-2">
+                        <div class="flex flex-col items-center p-2 bg-slate-50 rounded-lg"><span class="text-xs text-slate-400">0</span><span class="text-lg font-bold aksara-font">𑃰</span></div>
+                        <div class="flex flex-col items-center p-2 bg-slate-50 rounded-lg"><span class="text-xs text-slate-400">1</span><span class="text-lg font-bold aksara-font">𑃱</span></div>
+                        <div class="flex flex-col items-center p-2 bg-slate-50 rounded-lg"><span class="text-xs text-slate-400">2</span><span class="text-lg font-bold aksara-font">𑃲</span></div>
+                        <div class="flex flex-col items-center p-2 bg-slate-50 rounded-lg"><span class="text-xs text-slate-400">3</span><span class="text-lg font-bold aksara-font">𑃳</span></div>
+                        <div class="flex flex-col items-center p-2 bg-slate-50 rounded-lg"><span class="text-xs text-slate-400">4</span><span class="text-lg font-bold aksara-font">𑃴</span></div>
+                        <div class="flex flex-col items-center p-2 bg-slate-50 rounded-lg"><span class="text-xs text-slate-400">5</span><span class="text-lg font-bold aksara-font">𑃵</span></div>
+                        <div class="flex flex-col items-center p-2 bg-slate-50 rounded-lg"><span class="text-xs text-slate-400">6</span><span class="text-lg font-bold aksara-font">𑃶</span></div>
+                        <div class="flex flex-col items-center p-2 bg-slate-50 rounded-lg"><span class="text-xs text-slate-400">7</span><span class="text-lg font-bold aksara-font">𑃷</span></div>
+                        <div class="flex flex-col items-center p-2 bg-slate-50 rounded-lg"><span class="text-xs text-slate-400">8</span><span class="text-lg font-bold aksara-font">𑃸</span></div>
+                        <div class="flex flex-col items-center p-2 bg-slate-50 rounded-lg"><span class="text-xs text-slate-400">9</span><span class="text-lg font-bold aksara-font">𑃹</span></div>
+                    </div>
+                </section>
+            </div>
+            <div class="p-6 border-t border-slate-100 bg-slate-50">
+                <button id="understandBtn" class="w-full py-3 bg-indigo-600 text-white font-bold rounded-xl hover:bg-indigo-700 transition-colors">
+                    Mengerti
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast Notification -->
+    <div id="copyToast" class="fixed bottom-8 left-1/2 -translate-x-1/2 bg-slate-900 text-white px-6 py-3 rounded-full shadow-2xl hidden items-center gap-3 z-[60] toast-enter">
+        <i data-lucide="check-circle-2" class="text-green-400 w-5 h-5"></i>
+        <span class="font-medium">Aksara Berhasil Disalin</span>
+    </div>
+
+    <script>
+        // Initialization
+        lucide.createIcons();
+
+        // State
+        let mode = 'latin-to-aksara';
+        let currentOutput = '';
+
+        // Elements
+        const userInput = document.getElementById('userInput');
+        const outputDisplay = document.getElementById('outputDisplay');
+        const inputLabel = document.getElementById('inputLabel');
+        const outputLabel = document.getElementById('outputLabel');
+        const toggleModeBtn = document.getElementById('toggleMode');
+        const clearBtn = document.getElementById('clearBtn');
+        const copyBtn = document.getElementById('copyBtn');
+        const infoBtn = document.getElementById('infoBtn');
+        const infoModal = document.getElementById('infoModal');
+        const closeInfo = document.getElementById('closeInfo');
+        const understandBtn = document.getElementById('understandBtn');
+        const copyToast = document.getElementById('copyToast');
+
+        // Mappings
+        const latinToSorang = {
+            'ng': '𑃗', 'ny': '𑃙𑃜', 'th': '𑃑', 'dh': '𑃔', 'kh': '𑃟', 'sy': '𑃐',
+            's': '𑃐', 't': '𑃑', 'b': '𑃒', 'c': '𑃓', 'd': '𑃔', 'g': '𑃕', 'm': '𑃖', 
+            'l': '𑃘', 'n': '𑃙', 'w': '𑃚', 'p': '𑃛', 'y': '𑃜', 'r': '𑃝', 'h': '𑃞', 
+            'k': '𑃟', 'f': '𑃛', 'v': '𑃒', 'z': '𑃐', 'q': '𑃟', 'j': '𑃓',
+            'a': '𑃠', 'i': '𑃢', 'u': '𑃤', 'e': '𑃡', 'é': '𑃥', 'o': '𑃣',
+            '0': '𑃰', '1': '𑃱', '2': '𑃲', '3': '𑃳', '4': '𑃴', '5': '𑃵', 
+            '6': '𑃶', '7': '𑃷', '8': '𑃸', '9': '𑃹', ' ': ' '
+        };
+
+        const sorangToLatin = {};
+        Object.entries(latinToSorang).forEach(([lat, sor]) => {
+            if (!sorangToLatin[sor] || lat.length === 1) {
+                sorangToLatin[sor] = lat;
+            }
+        });
+
+        const specialSorangToLatin = { '𑃙𑃜': 'ny', '𑃗': 'ng' };
+
+        // Functions
+        function transliterateToSorang(text) {
+            let result = text.toLowerCase();
+            let processed = "";
+            let i = 0;
+            while (i < result.length) {
+                let found = false;
+                if (i + 1 < result.length) {
+                    let pair = result.substring(i, i + 2);
+                    if (latinToSorang[pair]) {
+                        processed += latinToSorang[pair];
+                        i += 2;
+                        found = true;
+                    }
+                }
+                if (!found) {
+                    let char = result[i];
+                    processed += latinToSorang[char] || char;
+                    i++;
+                }
+            }
+            return processed;
+        }
+
+        function transliterateToLatin(text) {
+            let result = "";
+            let i = 0;
+            while (i < text.length) {
+                let found = false;
+                if (i + 1 < text.length) {
+                    let pair = text[i] + text[i+1];
+                    if (specialSorangToLatin[pair]) {
+                        result += specialSorangToLatin[pair];
+                        i += 2;
+                        found = true;
+                    }
+                }
+                if (!found) {
+                    let char = text[i];
+                    result += sorangToLatin[char] || char;
+                    i++;
+                }
+            }
+            return result;
+        }
+
+        function updateTransliteration() {
+            const text = userInput.value;
+            if (!text) {
+                outputDisplay.innerHTML = '<span class="text-slate-300 italic text-xl">Hasil muncul di sini...</span>';
+                currentOutput = '';
+                return;
+            }
+
+            if (mode === 'latin-to-aksara') {
+                currentOutput = transliterateToSorang(text);
+                outputDisplay.textContent = currentOutput;
+                outputDisplay.classList.add('aksara-font');
+            } else {
+                currentOutput = transliterateToLatin(text);
+                outputDisplay.textContent = currentOutput;
+                outputDisplay.classList.remove('aksara-font');
+            }
+        }
+
+        // Event Listeners
+        userInput.addEventListener('input', updateTransliteration);
+
+        toggleModeBtn.addEventListener('click', () => {
+            mode = mode === 'latin-to-aksara' ? 'aksara-to-latin' : 'latin-to-aksara';
+            
+            // Swap labels and placeholders
+            if (mode === 'latin-to-aksara') {
+                inputLabel.textContent = 'Latin / Jawa';
+                outputLabel.textContent = 'Aksara Sorang Sompeng';
+                userInput.placeholder = "Ketik teks Latin di sini...";
+                userInput.classList.remove('aksara-font');
+                document.getElementById('toggleIcon').style.transform = 'rotate(0deg)';
+            } else {
+                inputLabel.textContent = 'Aksara Sorang Sompeng';
+                outputLabel.textContent = 'Latin / Jawa';
+                userInput.placeholder = "Tempel aksara 𑃐𑃦𑃝𑃗 di sini...";
+                userInput.classList.add('aksara-font');
+                document.getElementById('toggleIcon').style.transform = 'rotate(180deg)';
+            }
+
+            // Move output to input and trigger update
+            const temp = currentOutput;
+            userInput.value = temp;
+            updateTransliteration();
+        });
+
+        clearBtn.addEventListener('click', () => {
+            userInput.value = '';
+            updateTransliteration();
+        });
+
+        copyBtn.addEventListener('click', () => {
+            if (!currentOutput) return;
+            
+            const textArea = document.createElement("textarea");
+            textArea.value = currentOutput;
+            document.body.appendChild(textArea);
+            textArea.select();
+            
+            try {
+                document.execCommand('copy');
+                // Show toast
+                copyToast.classList.remove('hidden');
+                copyToast.classList.add('flex');
+                setTimeout(() => {
+                    copyToast.classList.add('hidden');
+                    copyToast.classList.remove('flex');
+                }, 2000);
+            } catch (err) {
+                console.error('Gagal menyalin text', err);
+            }
+            document.body.removeChild(textArea);
+        });
+
+        // Modal Logic
+        infoBtn.addEventListener('click', () => {
+            infoModal.classList.remove('hidden');
+        });
+
+        const closeModal = () => infoModal.classList.add('hidden');
+        closeInfo.addEventListener('click', closeModal);
+        understandBtn.addEventListener('click', closeModal);
+        infoModal.addEventListener('click', (e) => {
+            if (e.target === infoModal) closeModal();
+        });
+
+    </script>
+</body>
+</html>
