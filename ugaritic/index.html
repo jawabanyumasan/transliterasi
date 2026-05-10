@@ -1,0 +1,290 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Transliterasi Ugarit untuk Bahasa Jawa</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Ugaritic&family=Inter:wght@400;600&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f1f5f9;
+        }
+        .ugaritic-font {
+            font-family: 'Noto Sans Ugaritic', sans-serif;
+            font-size: 1.8rem;
+        }
+        .custom-shadow {
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1);
+        }
+        /* Perbaikan CSS Tombol agar teks tidak tertutup */
+        .mode-btn {
+            transition: all 0.2s ease;
+            border: 2px solid #3b82f6;
+            color: #3b82f6;
+            background-color: transparent;
+        }
+        .mode-btn:hover {
+            background-color: #eff6ff;
+        }
+        .mode-btn.btn-active {
+            background-color: #3b82f6 !important;
+            color: #ffffff !important;
+            box-shadow: 0 4px 6px -1px rgba(59, 130, 246, 0.4);
+        }
+        #toast {
+            visibility: hidden;
+            min-width: 250px;
+            background-color: #059669;
+            color: white;
+            text-align: center;
+            border-radius: 12px;
+            padding: 16px;
+            position: fixed;
+            z-index: 50;
+            left: 50%;
+            bottom: 30px;
+            transform: translateX(-50%);
+            transition: opacity 0.3s, bottom 0.3s;
+            opacity: 0;
+        }
+        #toast.show {
+            visibility: visible;
+            opacity: 1;
+            bottom: 40px;
+        }
+    </style>
+</head>
+<body class="p-4 md:p-8">
+
+    <div class="max-w-3xl mx-auto bg-white rounded-[2rem] p-6 md:p-10 custom-shadow border border-gray-100">
+        <header class="text-center mb-8">
+            <h1 class="text-3xl font-extrabold text-gray-900 mb-2">Ugarit-Jawa Canvas</h1>
+            <p class="text-gray-500 font-medium">Transliterasi Latin ke Aksara Ugarit (Kanaan Kuno)</p>
+        </header>
+
+        <!-- Mode Toggle -->
+        <div class="flex justify-center mb-8 p-1 bg-gray-100 rounded-2xl w-fit mx-auto">
+            <button id="toUgariticBtn" onclick="setMode('toUgaritic')" class="mode-btn px-6 py-2.5 rounded-xl font-bold text-sm uppercase tracking-wider">
+                Latin ➔ Ugarit
+            </button>
+            <button id="toLatinBtn" onclick="setMode('toLatin')" class="mode-btn px-6 py-2.5 rounded-xl font-bold text-sm uppercase tracking-wider ml-1">
+                Ugarit ➔ Latin
+            </button>
+        </div>
+
+        <!-- Input Area -->
+        <div class="mb-6">
+            <label id="inputLabel" class="block text-sm font-bold text-gray-700 mb-3 ml-1">MASUKKAN TEKS LATIN:</label>
+            <textarea id="inputText" class="w-full h-44 p-5 border-2 border-gray-100 rounded-2xl focus:ring-4 focus:ring-blue-100 focus:border-blue-400 outline-none transition resize-none text-lg bg-gray-50/50" placeholder="Ketik kalimat di sini..."></textarea>
+        </div>
+
+        <!-- Action Buttons -->
+        <div class="grid grid-cols-4 gap-3 mb-8">
+            <button onclick="clearText()" class="col-span-1 py-4 bg-white border-2 border-gray-200 text-gray-600 rounded-2xl font-bold hover:bg-gray-50 transition active:scale-95">
+                Hapus
+            </button>
+            <button onclick="copyResult()" class="col-span-2 py-4 bg-blue-600 text-white rounded-2xl font-bold hover:bg-blue-700 transition shadow-lg shadow-blue-200 active:scale-95 flex items-center justify-center gap-2">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                    <path d="M8 3a1 1 0 011-1h2a1 1 0 110 2H9a1 1 0 01-1-1z" />
+                    <path d="M6 3a2 2 0 00-2 2v11a2 2 0 002 2h8a2 2 0 002-2V5a2 2 0 00-2-2 3 3 0 01-3 3H9a3 3 0 01-3-3z" />
+                </svg>
+                Salin Aksara
+            </button>
+            <button onclick="toggleInfo()" class="col-span-1 py-4 bg-indigo-50 text-indigo-600 rounded-2xl font-black text-xl hover:bg-indigo-100 transition active:scale-95">
+                ?
+            </button>
+        </div>
+
+        <!-- Output Area -->
+        <div class="bg-slate-900 rounded-[1.5rem] p-8 min-h-[180px] shadow-inner relative overflow-hidden">
+            <div class="absolute top-0 right-0 p-3">
+                <span class="text-[10px] font-bold text-slate-500 uppercase tracking-widest">Preview Hasil</span>
+            </div>
+            <label class="block text-xs font-bold text-blue-400 mb-4 tracking-widest uppercase">Hasil Transliterasi:</label>
+            <div id="outputText" class="ugaritic-font text-white break-words whitespace-pre-wrap leading-relaxed min-h-[60px]"></div>
+        </div>
+    </div>
+
+    <!-- Info Modal -->
+    <div id="infoModal" class="fixed inset-0 bg-slate-900/80 hidden flex items-center justify-center p-4 z-40 backdrop-blur-sm">
+        <div class="bg-white rounded-[2.5rem] max-w-2xl w-full max-h-[85vh] overflow-y-auto p-8 md:p-12 relative shadow-2xl">
+            <button onclick="toggleInfo()" class="absolute top-8 right-8 text-gray-400 hover:text-gray-900 transition">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                </svg>
+            </button>
+            
+            <h2 class="text-3xl font-black mb-6 text-gray-900 border-b pb-4">Panduan Ugarit-Jawa</h2>
+            
+            <div class="space-y-8 text-gray-600 leading-relaxed">
+                <section>
+                    <h3 class="font-bold text-gray-900 text-lg mb-3 flex items-center gap-2">
+                        <span class="w-2 h-6 bg-blue-500 rounded-full"></span>
+                        Karakter Fonetik Jawa
+                    </h3>
+                    <div class="grid grid-cols-2 gap-4">
+                        <div class="p-3 bg-gray-50 rounded-xl"><strong>th & dh:</strong> 𐎉 & 𐎏</div>
+                        <div class="p-3 bg-gray-50 rounded-xl"><strong>c & j:</strong> 𐎒 & 𐎇</div>
+                        <div class="p-3 bg-gray-50 rounded-xl"><strong>ng & ny:</strong> 𐎙 & 𐎕</div>
+                        <div class="p-3 bg-gray-50 rounded-xl"><strong>é (taling):</strong> 𐎛</div>
+                    </div>
+                </section>
+
+                <section>
+                    <h3 class="font-bold text-gray-900 text-lg mb-3 flex items-center gap-2">
+                        <span class="w-2 h-6 bg-green-500 rounded-full"></span>
+                        Sistem Penulisan
+                    </h3>
+                    <p>Ugarit bersifat <strong>linear</strong>. Tidak ada tumpukan (pasangan) atau tanda di atas/bawah huruf (sandhangan).</p>
+                    <ul class="list-disc pl-5 mt-2 space-y-2">
+                        <li><strong>Medial (Cakra/Pengkal):</strong> Ditulis berurutan. Contoh: "Pra" (P-R-A) ➔ 𐎔𐎗𐎀.</li>
+                        <li><strong>Final (Panyigeg):</strong> Ditulis dengan huruf konsonan asli di akhir. Contoh: "Mas" (M-A-S) ➔ 𐎎𐎀𐎒.</li>
+                    </ul>
+                </section>
+
+                <section class="bg-blue-50 p-6 rounded-2xl border border-blue-100">
+                    <h3 class="font-bold text-blue-900 mb-2">Huruf Serapan & Angka</h3>
+                    <p class="text-blue-800 text-sm">Aplikasi mendukung f, v, z, kh, sy, q dan angka 0-9. Tanda pemisah kata otomatis menggunakan 𐎟.</p>
+                </section>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast Notification -->
+    <div id="toast">Aksara Berhasil Disalin</div>
+
+    <script>
+        let currentMode = 'toUgaritic';
+        
+        // Map Lengkap untuk Latin ke Ugarit
+        const ugaritMap = {
+            'th': '𐎉', 'dh': '𐎏', 'ng': '𐎙', 'ny': '𐎕',
+            'kh': '𐎃', 'sy': '𐎌', 'sh': '𐎌', 'gh': '𐎙',
+            'c': '𐎒', 'j': '𐎇', 'q': '𐎖', 'f': '𐎔',
+            'v': '𐎆', 'z': '𐎇', 'ḥ': '𐎈',
+            'a': '𐎀', 'b': '𐎁', 'g': '𐎂', 'd': '𐎄',
+            'h': '𐎅', 'w': '𐎆', 'y': '𐎊', 'k': '𐎋', 
+            'l': '𐎍', 'm': '𐎎', 'n': '𐎐', 's': '𐎒', 
+            'p': '𐎔', 'r': '𐎗', 't': '𐎚', 'i': '𐎛', 
+            'u': '𐎜', 'e': '𐎀', 'é': '𐎛', 'o': '𐎆', 
+            ' ': '𐎟',
+            '0': '0', '1': '1', '2': '2', '3': '3', '4': '4',
+            '5': '5', '6': '6', '7': '7', '8': '8', '9': '9'
+        };
+
+        // Reverse Map untuk Ugarit ke Latin
+        const latinMap = {};
+        // Prioritas reverse untuk karakter multi-huruf
+        const specialReverse = {
+            '𐎟': ' ', '𐎙': 'ng', '𐎉': 'th', '𐎏': 'dh', 
+            '𐎕': 'ny', '𐎃': 'kh', '𐎌': 'sy', '𐎖': 'q',
+            '𐎒': 'c', '𐎇': 'j'
+        };
+        
+        for (let key in ugaritMap) {
+            if (!latinMap[ugaritMap[key]]) {
+                latinMap[ugaritMap[key]] = key;
+            }
+        }
+        // Apply special overrides
+        Object.assign(latinMap, specialReverse);
+
+        function setMode(mode) {
+            currentMode = mode;
+            const toUBtn = document.getElementById('toUgariticBtn');
+            const toLBtn = document.getElementById('toLatinBtn');
+            
+            if (mode === 'toUgaritic') {
+                toUBtn.classList.add('btn-active');
+                toLBtn.classList.remove('btn-active');
+                document.getElementById('inputLabel').innerText = 'MASUKKAN TEKS LATIN:';
+                document.getElementById('inputText').classList.remove('ugaritic-font');
+                document.getElementById('outputText').classList.add('ugaritic-font');
+            } else {
+                toLBtn.classList.add('btn-active');
+                toUBtn.classList.remove('btn-active');
+                document.getElementById('inputLabel').innerText = 'MASUKKAN AKSARA UGARIT:';
+                document.getElementById('inputText').classList.add('ugaritic-font');
+                document.getElementById('outputText').classList.remove('ugaritic-font');
+            }
+            
+            document.getElementById('inputText').value = '';
+            document.getElementById('outputText').innerText = '';
+        }
+
+        function transliterate() {
+            const input = document.getElementById('inputText').value.toLowerCase();
+            let result = '';
+
+            if (currentMode === 'toUgaritic') {
+                let i = 0;
+                while (i < input.length) {
+                    // Cek urutan 2 karakter (ng, th, dh, dll)
+                    let pair = input.substr(i, 2);
+                    if (ugaritMap[pair]) {
+                        result += ugaritMap[pair];
+                        i += 2;
+                    } else {
+                        let single = input[i];
+                        // Pertahankan angka dan karakter tak dikenal
+                        result += ugaritMap[single] !== undefined ? ugaritMap[single] : single;
+                        i++;
+                    }
+                }
+            } else {
+                // Konversi ke Latin
+                for (let char of input) {
+                    result += latinMap[char] !== undefined ? latinMap[char] : char;
+                }
+            }
+
+            document.getElementById('outputText').innerText = result;
+        }
+
+        function copyResult() {
+            const text = document.getElementById('outputText').innerText;
+            if (!text) return;
+
+            // Menggunakan execCommand sebagai fallback sesuai instruksi
+            const tempInput = document.createElement('textarea');
+            tempInput.value = text;
+            document.body.appendChild(tempInput);
+            tempInput.select();
+            try {
+                document.execCommand('copy');
+                showToast();
+            } catch (err) {
+                console.error('Gagal menyalin: ', err);
+            }
+            document.body.removeChild(tempInput);
+        }
+
+        function clearText() {
+            document.getElementById('inputText').value = '';
+            document.getElementById('outputText').innerText = '';
+            document.getElementById('inputText').focus();
+        }
+
+        function showToast() {
+            const toast = document.getElementById('toast');
+            toast.classList.add('show');
+            setTimeout(() => {
+                toast.classList.remove('show');
+            }, 3000);
+        }
+
+        function toggleInfo() {
+            const modal = document.getElementById('infoModal');
+            modal.classList.toggle('hidden');
+        }
+
+        // Jalankan saat load
+        window.onload = () => {
+            setMode('toUgaritic');
+            document.getElementById('inputText').addEventListener('input', transliterate);
+        };
+    </script>
+</body>
+</html>
