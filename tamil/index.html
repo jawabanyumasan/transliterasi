@@ -1,0 +1,350 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Transliterasi Aksara Tamil - Jawa</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+Tamil:wght@400;700&family=Noto+Sans:wght@400;700&display=swap');
+        
+        body {
+            font-family: 'Noto Sans', sans-serif;
+            background-color: #f0f2f5;
+        }
+        .tamil-text {
+            font-family: 'Noto Sans Tamil', sans-serif;
+        }
+        .toast {
+            visibility: hidden;
+            min-width: 250px;
+            background-color: #333;
+            color: #fff;
+            text-align: center;
+            border-radius: 12px;
+            padding: 16px;
+            position: fixed;
+            z-index: 100;
+            left: 50%;
+            transform: translateX(-50%);
+            bottom: 30px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+        }
+        .toast.show {
+            visibility: visible;
+            animation: fadein 0.5s, fadeout 0.5s 2.5s;
+        }
+        @keyframes fadein { from {bottom: 0; opacity: 0;} to {bottom: 30px; opacity: 1;} }
+        @keyframes fadeout { from {bottom: 30px; opacity: 1;} to {bottom: 0; opacity: 0;} }
+    </style>
+</head>
+<body class="p-4 md:p-8">
+
+    <div class="max-w-4xl mx-auto bg-white rounded-3xl shadow-2xl overflow-hidden border border-gray-100">
+        <!-- Header -->
+        <div class="bg-gradient-to-r from-indigo-700 to-purple-800 p-8 text-white">
+            <h1 class="text-3xl font-extrabold tracking-tight">Transliterasi Tamil - Jawa</h1>
+            <p class="text-indigo-100 mt-2 opacity-90 text-sm md:text-base">Konversi alfabet Latin ke Aksara Tamil dengan sistem vokal Jawa (é, ŏ) dan sistem medial (Pengkal, Cakra).</p>
+        </div>
+
+        <div class="p-6 md:p-8 space-y-6">
+            <!-- Mode Switcher -->
+            <div class="flex justify-center">
+                <button onclick="swapMode()" id="modeBtn" class="group flex items-center gap-4 bg-white hover:bg-indigo-50 text-indigo-700 px-8 py-3 rounded-2xl font-bold transition-all border-2 border-indigo-100 shadow-sm active:scale-95">
+                    <span id="labelSource" class="w-16 text-center">Latin</span>
+                    <div class="bg-indigo-600 p-2 rounded-full text-white group-hover:rotate-180 transition-transform duration-500">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4" />
+                        </svg>
+                    </div>
+                    <span id="labelTarget" class="w-16 text-center">Tamil</span>
+                </button>
+            </div>
+
+            <!-- Input/Output Area -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                <div class="space-y-3">
+                    <label id="inputTitle" class="block text-xs font-black text-gray-400 uppercase tracking-widest">Teks Input</label>
+                    <textarea id="sourceInput" class="w-full h-56 p-5 border-2 border-gray-100 rounded-2xl focus:border-indigo-400 focus:ring-4 focus:ring-indigo-50 focus:outline-none transition-all text-lg resize-none" placeholder="ketik di sini"></textarea>
+                </div>
+
+                <div class="space-y-3">
+                    <label id="outputTitle" class="block text-xs font-black text-gray-400 uppercase tracking-widest">Hasil Transliterasi</label>
+                    <textarea id="targetOutput" class="tamil-text w-full h-56 p-5 border-2 border-gray-100 rounded-2xl bg-gray-50 focus:outline-none text-2xl leading-relaxed resize-none" readonly placeholder="Hasil muncul di sini..."></textarea>
+                </div>
+            </div>
+
+            <!-- Toolbar -->
+            <div class="flex flex-wrap gap-4 items-center justify-between border-t border-gray-100 pt-8">
+                <div class="flex gap-3">
+                    <button onclick="copyToClipboard()" class="bg-indigo-600 hover:bg-indigo-700 text-white px-8 py-3 rounded-xl font-bold shadow-lg shadow-indigo-200 transition-all flex items-center gap-2 active:scale-95">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                            <path d="M8 3a1 1 0 011-1h2a1 1 0 110 2H9a1 1 0 01-1-1z" />
+                            <path d="M6 3a2 2 0 00-2 2v11a2 2 0 002 2h8a2 2 0 002-2V5a2 2 0 00-2-2 3 3 0 01-3 3H9a3 3 0 01-3-3z" />
+                        </svg>
+                        Salin Teks
+                    </button>
+                    <button onclick="clearFields()" class="bg-gray-100 hover:bg-red-50 text-gray-600 hover:text-red-600 px-6 py-3 rounded-xl font-bold transition-all active:scale-95">
+                        Bersihkan
+                    </button>
+                </div>
+                
+                <button onclick="openModal()" class="text-indigo-600 hover:bg-indigo-50 px-4 py-2 rounded-lg font-bold flex items-center gap-2 transition-colors">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0116 0z" />
+                    </svg>
+                    Panduan Papan Info
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Panduan -->
+    <div id="modal" class="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+        <div class="bg-white rounded-3xl max-w-2xl w-full max-h-[85vh] overflow-hidden shadow-2xl flex flex-col scale-in">
+            <div class="p-6 border-b flex justify-between items-center bg-gray-50">
+                <h2 class="text-xl font-bold text-gray-800">Panduan Transliterasi Tamil</h2>
+                <button onclick="closeModal()" class="text-gray-400 hover:text-gray-800 text-3xl font-light leading-none">&times;</button>
+            </div>
+            <div class="p-8 overflow-y-auto space-y-6 text-gray-700">
+                <section>
+                    <h3 class="font-bold text-indigo-700 mb-2">Vokal Mandiri & Sandhangan</h3>
+                    <div class="grid grid-cols-2 gap-4 bg-indigo-50 p-4 rounded-2xl border border-indigo-100">
+                        <div><span class="font-mono text-indigo-600">a/i/u</span> : அ / இ / உ</div>
+                        <div><span class="font-mono text-indigo-600">e / é</span> : ஏ / எ (Taling)</div>
+                        <div><span class="font-mono text-indigo-600">o / ŏ</span> : ஓ / ஒ (Pepet)</div>
+                        <div><span class="font-mono text-indigo-600">ai / au</span> : ஐ / ஔ</div>
+                    </div>
+                </section>
+                <section>
+                    <h3 class="font-bold text-indigo-700 mb-2">Sistem Medial & Final</h3>
+                    <ul class="space-y-3 text-sm">
+                        <li class="flex items-start gap-2">
+                            <span class="font-bold bg-indigo-100 text-indigo-700 px-2 py-0.5 rounded">Pengkal (y)</span>
+                            <span>Konsonan + y (contoh: <strong>kya</strong> menjadi க்ய)</span>
+                        </li>
+                        <li class="flex items-start gap-2">
+                            <span class="font-bold bg-indigo-100 text-indigo-700 px-2 py-0.5 rounded">Cakra (r)</span>
+                            <span>Konsonan + r (contoh: <strong>kra</strong> menjadi க்ர)</span>
+                        </li>
+                        <li class="flex items-start gap-2">
+                            <span class="font-bold bg-indigo-100 text-indigo-700 px-2 py-0.5 rounded">Layar (r mati)</span>
+                            <span>Huruf r di tengah (contoh: <strong>arka</strong> menjadi அர்க)</span>
+                        </li>
+                        <li class="flex items-start gap-2">
+                            <span class="font-bold bg-indigo-100 text-indigo-700 px-2 py-0.5 rounded">Wignyan (h mati)</span>
+                            <span>Gunakan h (contoh: <strong>kah</strong> menjadi கஃ)</span>
+                        </li>
+                    </ul>
+                </section>
+                <section>
+                    <h3 class="font-bold text-indigo-700 mb-2">Huruf Pinjaman (Grantha)</h3>
+                    <div class="grid grid-cols-3 gap-2 text-center text-sm">
+                        <div class="border rounded-lg p-2">f : ஃப</div>
+                        <div class="border rounded-lg p-2">z : ஃஜ</div>
+                        <div class="border rounded-lg p-2">v : வ</div>
+                        <div class="border rounded-lg p-2">sy : ஶ்</div>
+                        <div class="border rounded-lg p-2">kh : க்</div>
+                        <div class="border rounded-lg p-2">sh : ஷ</div>
+                    </div>
+                </section>
+            </div>
+            <div class="p-6 bg-gray-50 text-center">
+                <button onclick="closeModal()" class="bg-indigo-600 hover:bg-indigo-700 text-white px-12 py-3 rounded-xl font-bold transition-colors">Tutup Panduan</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Notification -->
+    <div id="toast" class="toast">Aksara Berhasil Disalin</div>
+
+    <script>
+        // Mapping Data
+        const latinToTamilMap = {
+            'ai': 'ஐ', 'au': 'ஔ',
+            'a': 'அ', 'i': 'இ', 'u': 'உ', 'é': 'எ', 'e': 'ஏ', 'ŏ': 'ஒ', 'o': 'ஓ',
+            'f': 'ஃப', 'v': 'வ', 'z': 'ஃஜ', 'kh': 'க்', 'sy': 'ஶ்', 'sh': 'ஷ', 'q': 'க்',
+            'ng': 'ங', 'ny': 'ஞ', 'th': 'த', 'dh': 'த', 'zh': 'ழ',
+            '0': '௦', '1': '௧', '2': '௨', '3': '௩', '4': '௪', '5': '௫', '6': '௬', '7': '௭', '8': '௮', '9': '௯',
+            'k': 'க', 'g': 'க', 'c': 'ச', 'j': 'ஜ', 't': 'ட', 'd': 'ட', 'n': 'ந', 'p': 'ப', 'b': 'ப', 'm': 'ம',
+            'y': 'ய', 'r': 'ர', 'l': 'ல', 'v': 'வ', 's': 'ஸ', 'h': 'ஹ'
+        };
+
+        const vowelMarks = {
+            'a': '', 'i': 'ி', 'u': 'ு', 'é': 'ெ', 'e': 'ே', 'ai': 'ை', 'ŏ': 'ொ', 'o': 'ோ', 'au': 'ௌ'
+        };
+
+        // Tamil to Latin basic reverse map
+        const tamilToLatinMap = {
+            'அ': 'a', 'இ': 'i', 'உ': 'u', 'எ': 'é', 'ஏ': 'e', 'ஐ': 'ai', 'ஒ': 'ŏ', 'ஓ': 'o', 'ஔ': 'au',
+            'க': 'k', 'ங': 'ng', 'ச': 'c', 'ஞ': 'ny', 'ட': 't', 'ண': 'n', 'த': 'th', 'ந': 'n', 'ப': 'p', 'ம': 'm',
+            'ய': 'y', 'ர': 'r', 'ல': 'l', 'வ': 'v', 'ழ': 'zh', 'ள': 'l', 'ற': 'r', 'ன': 'n',
+            'ஜ': 'j', 'ஷ': 'sh', 'ஸ': 's', 'ஹ': 'h', 'க்': 'kh'
+        };
+
+        let isLatinToTamil = true;
+        const sourceInput = document.getElementById('sourceInput');
+        const targetOutput = document.getElementById('targetOutput');
+
+        function transliterateToTamil(text) {
+            if (!text) return "";
+            let result = "";
+            let i = 0;
+            const input = text.toLowerCase();
+
+            while (i < input.length) {
+                let char = input[i];
+                let match = false;
+
+                if (char === ' ' || char === '\n' || /[.,!?;:()"-]/.test(char)) {
+                    result += char;
+                    i++;
+                    continue;
+                }
+
+                // Cluster 3-char (kya, kra)
+                if (i + 2 < input.length) {
+                    let t3 = input.substr(i, 3);
+                    let base = latinToTamilMap[t3[0]];
+                    if (base && (t3[1] === 'y' || t3[1] === 'r' || t3[1] === 'l')) {
+                        let medial = (t3[1] === 'y' ? '்ய' : (t3[1] === 'r' ? '்ர' : '்ல'));
+                        let vMark = vowelMarks[t3[2]] !== undefined ? vowelMarks[t3[2]] : "";
+                        result += base + medial + vMark;
+                        i += 3;
+                        match = true;
+                    }
+                }
+
+                // Double char (ng, ny, vowels like ai)
+                if (!match && i + 1 < input.length) {
+                    let t2 = input.substr(i, 2);
+                    if (latinToTamilMap[t2]) {
+                        let next = input[i+2];
+                        if (vowelMarks[t2] !== undefined) {
+                            // Ini adalah vokal mandiri di awal
+                            if (i === 0 || /\s/.test(input[i-1])) {
+                                result += latinToTamilMap[t2];
+                                i += 2;
+                            } else {
+                                // Seharusnya vokal mark ditangani di bagian konsonan
+                                result += latinToTamilMap[t2];
+                                i += 2;
+                            }
+                        } else {
+                            // Ini konsonan (ng, ny, th)
+                            let vMark = (next && vowelMarks[next] !== undefined) ? vowelMarks[next] : "்";
+                            result += latinToTamilMap[t2] + vMark;
+                            i += (vMark !== "்" ? 3 : 2);
+                        }
+                        match = true;
+                    }
+                }
+
+                // Single char
+                if (!match) {
+                    if (latinToTamilMap[char]) {
+                        if (vowelMarks[char] !== undefined && (i === 0 || /\s/.test(input[i-1]))) {
+                            result += latinToTamilMap[char];
+                            i++;
+                        } else if (vowelMarks[char] === undefined) {
+                            let next = input[i+1];
+                            let next2 = input.substr(i+1, 2);
+                            let mark = "்";
+                            let skip = 1;
+
+                            if (next2 && vowelMarks[next2] !== undefined) {
+                                mark = vowelMarks[next2];
+                                skip = 3;
+                            } else if (next && vowelMarks[next] !== undefined) {
+                                mark = vowelMarks[next];
+                                skip = 2;
+                            }
+                            result += latinToTamilMap[char] + mark;
+                            i += skip;
+                        } else {
+                            result += latinToTamilMap[char];
+                            i++;
+                        }
+                        match = true;
+                    } else {
+                        result += char;
+                        i++;
+                    }
+                }
+            }
+            return result;
+        }
+
+        // Basic Tamil to Latin (Simple conversion for demonstration)
+        function transliterateToLatin(text) {
+            if (!text) return "";
+            let result = "";
+            for(let char of text) {
+                if (tamilToLatinMap[char]) result += tamilToLatinMap[char];
+                else if (char === 'ி') result = result.slice(0,-1) + 'i';
+                else if (char === 'ு') result = result.slice(0,-1) + 'u';
+                else if (char === '்') result = result; // already handles consonant death logic basically
+                else result += char;
+            }
+            return result;
+        }
+
+        sourceInput.addEventListener('input', () => {
+            if (isLatinToTamil) {
+                targetOutput.value = transliterateToTamil(sourceInput.value);
+            } else {
+                targetOutput.value = transliterateToLatin(sourceInput.value);
+            }
+        });
+
+        function swapMode() {
+            isLatinToTamil = !isLatinToTamil;
+            const labelSource = document.getElementById('labelSource');
+            const labelTarget = document.getElementById('labelTarget');
+            const inputTitle = document.getElementById('inputTitle');
+            const outputTitle = document.getElementById('outputTitle');
+
+            if (isLatinToTamil) {
+                labelSource.innerText = "Latin";
+                labelTarget.innerText = "Tamil";
+                sourceInput.placeholder = "ketik di sini";
+                targetOutput.placeholder = "Hasil muncul di sini...";
+            } else {
+                labelSource.innerText = "Tamil";
+                labelTarget.innerText = "Latin";
+                sourceInput.placeholder = "Ketik atau tempel aksara Tamil di sini";
+                targetOutput.placeholder = "Transliterasi Latin muncul di sini...";
+            }
+            clearFields();
+        }
+
+        function clearFields() {
+            sourceInput.value = "";
+            targetOutput.value = "";
+        }
+
+        function copyToClipboard() {
+            const val = targetOutput.value;
+            if (!val) return;
+            const el = document.createElement('textarea');
+            el.value = val;
+            document.body.appendChild(el);
+            el.select();
+            document.execCommand('copy');
+            document.body.removeChild(el);
+            
+            const toast = document.getElementById("toast");
+            toast.className = "toast show";
+            setTimeout(() => { toast.className = toast.className.replace("show", ""); }, 3000);
+        }
+
+        function openModal() { document.getElementById('modal').classList.remove('hidden'); }
+        function closeModal() { document.getElementById('modal').classList.add('hidden'); }
+
+        // Start with empty fields to show placeholders
+        window.onload = () => {
+            clearFields();
+        };
+    </script>
+</body>
+</html>
