@@ -1,0 +1,298 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tifinagh Javanese Converter</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Plus+Jakarta+Sans', sans-serif;
+            background-color: #f8fafc;
+        }
+        .tifinagh-font {
+            font-family: 'Segoe UI Historic', 'Noto Sans Tifinagh', serif;
+        }
+        .custom-scrollbar::-webkit-scrollbar {
+            width: 6px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-track {
+            background: #f1f1f1;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+            background: #cbd5e1;
+            border-radius: 10px;
+        }
+        .modal-enter {
+            animation: fadeIn 0.2s ease-out;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: scale(0.95); }
+            to { opacity: 1; transform: scale(1); }
+        }
+        .toast-active {
+            bottom: 2rem;
+            opacity: 1;
+        }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col items-center p-4 md:p-8">
+
+    <div class="max-w-4xl w-full bg-white rounded-3xl shadow-xl shadow-slate-200/60 overflow-hidden border border-slate-100">
+        <!-- Header -->
+        <div class="bg-indigo-600 p-6 text-white flex justify-between items-center">
+            <div>
+                <h1 class="text-2xl font-bold">ⵜⵉⴼⵉⵏⴰⵖ ⵊⴰⵯⴰ</h1>
+                <p class="text-indigo-100 text-sm">Konverter Alfabet Tifinagh untuk Lidah Jawa</p>
+            </div>
+            <button onclick="toggleInfo()" class="p-2 bg-white/10 hover:bg-white/20 rounded-full transition-colors" title="Panduan Penggunaan">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d=" outdoor_grill 13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    <circle cx="12" cy="12" r="10" />
+                    <line x1="12" y1="16" x2="12" y2="12" />
+                    <line x1="12" y1="8" x2="12.01" y2="8" />
+                </svg>
+            </button>
+        </div>
+
+        <!-- Main Content -->
+        <div class="p-6 space-y-6">
+            <div class="grid md:grid-cols-2 gap-6">
+                <!-- Input Latin -->
+                <div class="space-y-2">
+                    <label class="text-sm font-semibold text-slate-600 flex justify-between">
+                        LATIN (JAWA & UMUM)
+                        <span class="text-xs font-normal opacity-60">Ketik di sini...</span>
+                    </label>
+                    <textarea 
+                        id="latinInput" 
+                        placeholder="Contoh: dhahar sega, sate, khabari, syariat..."
+                        class="w-full h-48 p-4 bg-slate-50 border border-slate-200 rounded-2xl focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none transition-all resize-none custom-scrollbar text-lg"
+                    ></textarea>
+                </div>
+
+                <!-- Result Tifinagh -->
+                <div class="space-y-2">
+                    <label class="text-sm font-semibold text-slate-600 flex justify-between">
+                        TIFINAGH
+                        <span class="text-xs font-normal opacity-60">Hasil konversi</span>
+                    </label>
+                    <textarea 
+                        id="tifinaghOutput" 
+                        readonly
+                        class="w-full h-48 p-4 bg-indigo-50/30 border border-indigo-100 rounded-2xl text-indigo-900 tifinagh-font text-2xl resize-none custom-scrollbar outline-none"
+                    ></textarea>
+                </div>
+            </div>
+
+            <!-- Action Buttons -->
+            <div class="flex flex-wrap gap-3 justify-center pt-2">
+                <button onclick="copyText()" class="flex items-center gap-2 px-6 py-3 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl font-semibold transition-all shadow-lg shadow-indigo-200 active:scale-95">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                        <path d="M8 3a1 1 0 011-1h2a1 1 0 110 2H9a1 1 0 01-1-1z" />
+                        <path d="M6 3a2 2 0 00-2 2v11a2 2 0 002 2h8a2 2 0 002-2V5a2 2 0 00-2-2 3 3 0 01-3 3H9a3 3 0 01-3-3z" />
+                    </svg>
+                    Salin Tifinagh
+                </button>
+                <button onclick="clearText()" class="flex items-center gap-2 px-6 py-3 bg-white border border-slate-200 text-slate-600 hover:bg-slate-50 rounded-xl font-semibold transition-all active:scale-95">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                        <path fill-rule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z" clip-rule="evenodd" />
+                    </svg>
+                    Bersihkan
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Info Modal -->
+    <div id="infoModal" class="fixed inset-0 bg-slate-900/40 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+        <div class="bg-white max-w-2xl w-full max-h-[90vh] rounded-3xl overflow-hidden shadow-2xl modal-enter flex flex-col">
+            <div class="p-6 border-b flex justify-between items-center bg-slate-50">
+                <h2 class="text-xl font-bold text-slate-800">Panduan & Informasi Sistem</h2>
+                <button onclick="toggleInfo()" class="text-slate-400 hover:text-slate-600">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                </button>
+            </div>
+            <div class="p-6 overflow-y-auto custom-scrollbar space-y-6">
+                <!-- Analisis Medial/Final -->
+                <section>
+                    <h3 class="font-bold text-indigo-600 mb-2">Sistem Medial & Final (Aksara Jawa vs Tifinagh)</h3>
+                    <div class="bg-indigo-50 p-4 rounded-xl text-sm text-indigo-900 space-y-3">
+                        <p>Setelah diperiksa, sistem <strong>Tifinagh</strong> (khususnya Neo-Tifinagh) berbeda secara fundamental dengan Aksara Jawa:</p>
+                        <ul class="list-disc ml-5 space-y-1">
+                            <li><strong>Tidak Ada Sandhangan:</strong> Tifinagh bersifat <em>Alfabetis murni</em> (seperti Latin). Tidak ada sistem tumpuk atau penanda di atas/bawah untuk vokal atau konsonan medial.</li>
+                            <li><strong>Medial (Pengkal/Cakra):</strong> Ditulis secara linear. Contoh 'Kya' ditulis 'K' + 'y' + 'a' (ⴽⵢⴰ), bukan dengan simbol khusus yang melekat pada kaki huruf.</li>
+                            <li><strong>Final (Cecak/Wignyan):</strong> Konsonan mati di akhir kata ditulis sebagai huruf utuh. Contoh 'mangan' ditulis 'm-a-n-g-a-n'.</li>
+                        </ul>
+                    </div>
+                </section>
+
+                <!-- Mapping Table -->
+                <section>
+                    <h3 class="font-bold text-slate-800 mb-2">Pemetaan Fonetik Jawa ke Tifinagh</h3>
+                    <div class="grid grid-cols-2 md:grid-cols-3 gap-2">
+                        <div class="p-2 border rounded-lg text-center"><span class="font-bold">th</span> ➔ ⵟ</div>
+                        <div class="p-2 border rounded-lg text-center"><span class="font-bold">dh</span> ➔ ⴹ</div>
+                        <div class="p-2 border rounded-lg text-center"><span class="font-bold">ng</span> ➔ ⵏⴳ</div>
+                        <div class="p-2 border rounded-lg text-center"><span class="font-bold">ny</span> ➔ ⵏⵢ</div>
+                        <div class="p-2 border rounded-lg text-center"><span class="font-bold">é</span> ➔ ⴻ</div>
+                        <div class="p-2 border rounded-lg text-center"><span class="font-bold">kh</span> ➔ ⵅ</div>
+                        <div class="p-2 border rounded-lg text-center"><span class="font-bold">sy</span> ➔ ⵛ</div>
+                        <div class="p-2 border rounded-lg text-center"><span class="font-bold">f</span> ➔ ⴼ</div>
+                        <div class="p-2 border rounded-lg text-center"><span class="font-bold">v</span> ➔ ⵖ</div>
+                        <div class="p-2 border rounded-lg text-center"><span class="font-bold">q</span> ➔ ⵇ</div>
+                    </div>
+                </section>
+
+                <p class="text-xs text-slate-400 text-center italic">Dikembangkan untuk eksperimen tipografi budaya Jawa-Berber.</p>
+            </div>
+            <div class="p-4 bg-slate-50 border-t flex justify-end">
+                <button onclick="toggleInfo()" class="px-6 py-2 bg-slate-200 hover:bg-slate-300 rounded-lg font-semibold transition-colors">Tutup</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast Notification -->
+    <div id="toast" class="fixed bottom-[-100px] left-1/2 -translate-x-1/2 bg-slate-800 text-white px-6 py-3 rounded-2xl shadow-2xl transition-all duration-300 opacity-0 z-[60] flex items-center gap-3">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-green-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+        </svg>
+        Aksara Berhasil Disalin
+    </div>
+
+    <script>
+        // Mapping Latin to Tifinagh
+        const charMap = {
+            // Digraphs (Must come first)
+            'kh': 'ⵅ',
+            'sy': 'ⵛ',
+            'th': 'ⵟ',
+            'dh': 'ⴹ',
+            'ng': 'ⵏⴳ',
+            'ny': 'ⵏⵢ',
+            
+            // Single letters
+            'a': 'ⴰ',
+            'b': 'ⴱ',
+            'c': 'ⵛ', // No 'c' in standard Tifinagh, often mapped to 'sh/sh' or 'ch'
+            'd': 'ⴷ',
+            'e': 'ⴻ',
+            'é': 'ⴻ',
+            'f': 'ⴼ',
+            'g': 'ⴳ',
+            'h': 'ⵀ',
+            'i': 'ⵉ',
+            'j': 'ⵊ',
+            'k': 'ⴽ',
+            'l': 'ⵍ',
+            'm': 'ⵎ',
+            'n': 'ⵏ',
+            'o': 'ⵓ', // Tifinagh uses U for O
+            'p': 'ⴱ', // Tifinagh doesn't have P natively, usually P uses B
+            'q': 'ⵇ',
+            'r': 'ⵔ',
+            's': 'ⵙ',
+            't': 'ⵜ',
+            'u': 'ⵓ',
+            'v': 'ⵖ', // Often mapped to GH or B
+            'w': 'ⵡ',
+            'x': 'ⵅ',
+            'y': 'ⵢ',
+            'z': 'ⵣ',
+
+            // Numbers
+            '0': '0', // Tifinagh commonly uses standard digits now, but let's keep them
+            '1': '1',
+            '2': '2',
+            '3': '3',
+            '4': '4',
+            '5': '5',
+            '6': '6',
+            '7': '7',
+            '8': '8',
+            '9': '9'
+        };
+
+        // Create inverse map for Tifinagh to Latin
+        const inverseMap = {};
+        for (const [key, val] of Object.entries(charMap)) {
+            // Only add single characters to avoid confusion in simple inverse
+            if (val.length === 1 && !inverseMap[val]) {
+                inverseMap[val] = key;
+            }
+        }
+
+        const latinInput = document.getElementById('latinInput');
+        const tifinaghOutput = document.getElementById('tifinaghOutput');
+        const toast = document.getElementById('toast');
+
+        // Conversion Logic
+        latinInput.addEventListener('input', (e) => {
+            const text = e.target.value.toLowerCase();
+            let result = '';
+            let i = 0;
+
+            while (i < text.length) {
+                // Check for 2-char matches
+                let match = false;
+                if (i + 1 < text.length) {
+                    const digraph = text.substring(i, i + 2);
+                    if (charMap[digraph]) {
+                        result += charMap[digraph];
+                        i += 2;
+                        match = true;
+                    }
+                }
+
+                // Check for 1-char match
+                if (!match) {
+                    const char = text[i];
+                    result += charMap[char] || char;
+                    i++;
+                }
+            }
+            tifinaghOutput.value = result;
+        });
+
+        function clearText() {
+            latinInput.value = '';
+            tifinaghOutput.value = '';
+        }
+
+        function copyText() {
+            const text = tifinaghOutput.value;
+            if (!text) return;
+
+            // Use the recommended clipboard fallback
+            const dummy = document.createElement("textarea");
+            document.body.appendChild(dummy);
+            dummy.value = text;
+            dummy.select();
+            document.execCommand("copy");
+            document.body.removeChild(dummy);
+
+            // Show Toast
+            toast.classList.add('toast-active');
+            setTimeout(() => {
+                toast.classList.remove('toast-active');
+            }, 2500);
+        }
+
+        function toggleInfo() {
+            const modal = document.getElementById('infoModal');
+            modal.classList.toggle('hidden');
+        }
+
+        // Close modal on click outside
+        window.onclick = function(event) {
+            const modal = document.getElementById('infoModal');
+            if (event.target == modal) {
+                modal.classList.add('hidden');
+            }
+        }
+    </script>
+</body>
+</html>
