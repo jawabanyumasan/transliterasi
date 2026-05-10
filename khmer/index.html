@@ -1,0 +1,338 @@
+<!DOCTYPE html>
+<html lang="km">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Khmer Script Converter for Javanese Context</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Kantumruy+Pro:wght@400;700&family=Noto+Sans+Khmer:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Kantumruy Pro', 'Noto Sans Khmer', sans-serif;
+            background-color: #f8fafc;
+        }
+        .khmer-font {
+            font-family: 'Noto Sans Khmer', sans-serif;
+        }
+        .custom-scrollbar::-webkit-scrollbar {
+            width: 6px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+            background-color: #cbd5e1;
+            border-radius: 10px;
+        }
+        .toast {
+            visibility: hidden;
+            min-width: 250px;
+            background-color: #333;
+            color: #fff;
+            text-align: center;
+            border-radius: 8px;
+            padding: 16px;
+            position: fixed;
+            z-index: 50;
+            left: 50%;
+            bottom: 30px;
+            transform: translateX(-50%);
+        }
+        .toast.show {
+            visibility: visible;
+            animation: fadein 0.5s, fadeout 0.5s 2.5s;
+        }
+        @keyframes fadein { from { bottom: 0; opacity: 0; } to { bottom: 30px; opacity: 1; } }
+        @keyframes fadeout { from { bottom: 30px; opacity: 1; } to { bottom: 0; opacity: 0; } }
+    </style>
+</head>
+<body class="p-4 md:p-8">
+
+    <div class="max-w-5xl mx-auto">
+        <!-- Header -->
+        <header class="text-center mb-8">
+            <h1 class="text-3xl font-bold text-indigo-800 mb-2">បំប្លែងអក្សរខ្មែរ (Khmer Converter)</h1>
+            <p class="text-gray-600">Transliterasi Latin ke Aksara Khmer (អក្សរខ្មែរ) - Konteks Jawa & Abugida</p>
+        </header>
+
+        <!-- Main Card -->
+        <div class="bg-white rounded-2xl shadow-xl overflow-hidden border border-gray-100">
+            <!-- Mode Switcher -->
+            <div class="bg-indigo-50 p-4 flex flex-col md:flex-row justify-between items-center gap-4 border-b border-gray-200">
+                <div class="flex items-center space-x-3">
+                    <span id="label-input" class="font-bold text-indigo-700">Latin</span>
+                    <button id="btn-swap" class="bg-indigo-600 hover:bg-indigo-700 text-white p-2 rounded-full transition-transform active:scale-95">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4" />
+                        </svg>
+                    </button>
+                    <span id="label-output" class="font-bold text-indigo-700 khmer-font">អក្សរខ្មែរ</span>
+                </div>
+                <div class="flex gap-2">
+                    <button id="btn-info" class="bg-indigo-100 text-indigo-700 px-4 py-2 rounded-lg font-medium hover:bg-indigo-200 transition text-sm">
+                        📖 Buka Panduan
+                    </button>
+                    <button id="btn-clear" class="bg-red-100 text-red-700 px-4 py-2 rounded-lg font-medium hover:bg-red-200 transition text-sm">
+                        🗑️ Bersihkan
+                    </button>
+                </div>
+            </div>
+
+            <!-- Editor Areas -->
+            <div class="grid grid-cols-1 md:grid-cols-2 divide-y md:divide-y-0 md:divide-x divide-gray-200">
+                <!-- Input Section -->
+                <div class="p-6">
+                    <div class="flex justify-between items-center mb-3">
+                        <h3 class="text-xs font-bold text-gray-400 uppercase tracking-widest">Input Latin</h3>
+                        <button onclick="copyText('input-text')" class="text-indigo-600 text-xs font-bold hover:underline uppercase">Salin Input</button>
+                    </div>
+                    <textarea id="input-text" placeholder="Ketik: lahap, kangen, qi, qu, qa, za, fa..." class="w-full h-48 md:h-64 resize-none border-none focus:ring-0 text-xl custom-scrollbar"></textarea>
+                </div>
+
+                <!-- Result Section -->
+                <div class="p-6 bg-gray-50/50">
+                    <div class="flex justify-between items-center mb-3">
+                        <h3 class="text-xs font-bold text-gray-400 uppercase tracking-widest">Hasil Aksara</h3>
+                        <button onclick="copyText('output-text')" class="text-indigo-600 text-xs font-bold hover:underline uppercase">Salin Hasil</button>
+                    </div>
+                    <div id="output-text" class="w-full h-48 md:h-64 text-4xl khmer-font overflow-y-auto custom-scrollbar leading-relaxed text-indigo-900"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Info Board -->
+        <div id="info-board" class="hidden mt-8 bg-white rounded-2xl shadow-lg border border-gray-200 overflow-hidden">
+            <div class="bg-indigo-700 p-4 flex justify-between items-center">
+                <h2 class="text-xl font-bold text-white">Panduan Aksara Khmer (Update Syllable)</h2>
+                <button id="btn-close-info" class="text-indigo-200 hover:text-white text-3xl leading-none">&times;</button>
+            </div>
+            
+            <div class="p-6 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+                <!-- Vokal Mandiri -->
+                <div class="space-y-3">
+                    <h4 class="font-bold text-indigo-800 border-b pb-1">Vokal Mandiri</h4>
+                    <div class="grid grid-cols-2 gap-2 text-sm">
+                        <div class="flex justify-between p-1 bg-gray-50 rounded"><span>a</span><span class="khmer-font text-lg">អ</span></div>
+                        <div class="flex justify-between p-1 bg-gray-50 rounded"><span>i</span><span class="khmer-font text-lg">ឥ</span></div>
+                        <div class="flex justify-between p-1 bg-gray-50 rounded"><span>u</span><span class="khmer-font text-lg">ឧ</span></div>
+                        <div class="flex justify-between p-1 bg-gray-50 rounded"><span>e/é</span><span class="khmer-font text-lg">ឯ</span></div>
+                        <div class="flex justify-between p-1 bg-gray-50 rounded"><span>o</span><span class="khmer-font text-lg">ឱ</span></div>
+                        <div class="flex justify-between p-1 bg-gray-50 rounded"><span>ai</span><span class="khmer-font text-lg">ឰ</span></div>
+                        <div class="flex justify-between p-1 bg-gray-50 rounded"><span>au</span><span class="khmer-font text-lg">ឳ</span></div>
+                    </div>
+                </div>
+
+                <!-- Konsonan Utama -->
+                <div class="space-y-3">
+                    <h4 class="font-bold text-indigo-800 border-b pb-1">Konsonan Utama</h4>
+                    <div class="grid grid-cols-2 gap-2 text-sm">
+                        <div class="flex justify-between p-1 bg-gray-50 rounded"><span>qa</span><span class="khmer-font text-lg">ក</span></div>
+                        <div class="flex justify-between p-1 bg-gray-50 rounded"><span>kha</span><span class="khmer-font text-lg">ខ</span></div>
+                        <div class="flex justify-between p-1 bg-gray-50 rounded"><span>za</span><span class="khmer-font text-lg">ជ</span></div>
+                        <div class="flex justify-between p-1 bg-gray-50 rounded"><span>fa</span><span class="khmer-font text-lg">ផ</span></div>
+                        <div class="flex justify-between p-1 bg-gray-50 rounded"><span>ng</span><span class="khmer-font text-lg">ង</span></div>
+                        <div class="flex justify-between p-1 bg-gray-50 rounded"><span>h</span><span class="khmer-font text-lg">ហ</span></div>
+                    </div>
+                    <p class="text-[10px] text-gray-500">* h/ng otomatis menjadi konsonan jika diikuti vokal (misal: lahap -> លហប៑).</p>
+                </div>
+
+                <!-- Sandangan Vokal -->
+                <div class="space-y-3">
+                    <h4 class="font-bold text-indigo-800 border-b pb-1">Sandangan Vokal</h4>
+                    <div class="grid grid-cols-1 gap-1 text-sm">
+                        <div class="flex justify-between p-1 bg-blue-50 rounded"><span>qi (i)</span><span class="khmer-font text-lg">កិ</span></div>
+                        <div class="flex justify-between p-1 bg-blue-50 rounded"><span>qu (u)</span><span class="khmer-font text-lg">កុ</span></div>
+                        <div class="flex justify-between p-1 bg-blue-50 rounded"><span>king (Anusvara)</span><span class="khmer-font text-lg">កិំ</span></div>
+                        <div class="flex justify-between p-1 bg-blue-50 rounded"><span>kuh (Visarga)</span><span class="khmer-font text-lg">កុះ</span></div>
+                    </div>
+                </div>
+
+                <!-- Angka -->
+                <div class="space-y-3">
+                    <h4 class="font-bold text-indigo-800 border-b pb-1">Angka Khmer</h4>
+                    <div class="grid grid-cols-5 gap-2 text-center text-sm">
+                        <div class="p-1 bg-orange-50 rounded"><div class="text-xs">0</div><div class="khmer-font text-lg">០</div></div>
+                        <div class="p-1 bg-orange-50 rounded"><div class="text-xs">1</div><div class="khmer-font text-lg">១</div></div>
+                        <div class="p-1 bg-orange-50 rounded"><div class="text-xs">2</div><div class="khmer-font text-lg">២</div></div>
+                        <div class="p-1 bg-orange-50 rounded"><div class="text-xs">3</div><div class="khmer-font text-lg">៣</div></div>
+                        <div class="p-1 bg-orange-50 rounded"><div class="text-xs">4</div><div class="khmer-font text-lg">៤</div></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="toast" class="toast">Aksara Berhasil Disalin</div>
+
+    <script>
+        const vowels = ['a', 'i', 'u', 'e', 'o', 'é', 'ā'];
+
+        const consonants = {
+            'kh': 'ខ', 'gh': 'ឃ', 'ng': 'ង', 'ch': 'ឆ', 'jh': 'ឈ', 'ny': 'ញ', 
+            'th': 'ថ', 'dh': 'ធ', 'ph': 'ផ', 'bh': 'ភ', 'sh': 'ឝ', 'st': 'ស្ដ',
+            'sy': 'ស្យ', 'ky': 'ក្យ', 'kr': 'ក្រ', 'kl': 'ក្ល', 'kw': 'ក្វ',
+            'k': 'ក', 'g': 'គ', 'c': 'ច', 'j': 'ជ', 't': 'ត', 'd': 'ទ', 'n': 'ន', 
+            'p': 'ប', 'b': 'ព', 'm': 'ម', 'y': 'យ', 'r': 'រ', 'l': 'ល', 'w': 'វ', 
+            's': 'ស', 'h': 'ហ', 'v': 'វ', 'f': 'ផ', 'z': 'ជ', 'q': 'ក'
+        };
+
+        const dependentVowels = {
+            'ang': 'ំ', 'ing': 'ិំ', 'ung': 'ុំ', 'eng': 'េំ', 'ong': 'ោំ', 'éng': 'េំ',
+            'ah': 'ះ', 'ih': 'ិះ', 'uh': 'ុះ', 'eh': 'េះ', 'oh': 'ោះ', 'éh': 'េះ',
+            'ai': 'ៃ', 'au': 'ៅ', 'ā': 'ា', 'i': 'ិ', 'u': 'ុ', 'e': 'េ', 'é': 'េ', 'o': 'ោ', 'a': ''
+        };
+
+        const independentVowels = {
+            'ang': 'អំ', 'ah': 'អះ', 'ai': 'ឰ', 'au': 'ឳ',
+            'a': 'អ', 'i': 'ឥ', 'u': 'ឧ', 'e': 'ឯ', 'é': 'ឯ', 'o': 'ឱ'
+        };
+
+        const numbers = { '0': '០', '1': '១', '2': '២', '3': '៣', '4': '៤', '5': '៥', '6': '៦', '7': '៧', '8': '៨', '9': '៩' };
+
+        function isVowel(char) {
+            return vowels.includes(char);
+        }
+
+        function transliterate(text) {
+            if (!text) return "";
+            let lowerText = text.toLowerCase();
+            let result = "";
+            let i = 0;
+            
+            while (i < lowerText.length) {
+                let matched = false;
+
+                if (lowerText[i] === " " || lowerText[i] === "\n") {
+                    result += lowerText[i];
+                    i++;
+                    continue;
+                }
+
+                if (numbers[lowerText[i]]) {
+                    result += numbers[lowerText[i]];
+                    i++;
+                    continue;
+                }
+
+                // Try Consonant + Vowel
+                const consKeys = Object.keys(consonants).sort((a, b) => b.length - a.length);
+                for (let cKey of consKeys) {
+                    if (lowerText.startsWith(cKey, i)) {
+                        let nextPos = i + cKey.length;
+                        const vowlKeys = Object.keys(dependentVowels).sort((a, b) => b.length - a.length);
+                        
+                        let vMatch = false;
+                        for (let vKey of vowlKeys) {
+                            if (lowerText.startsWith(vKey, nextPos)) {
+                                // CRITICAL CHECK: Jika sandangan mengandung 'h' atau 'ng' (Anusvara/Visarga)
+                                // Periksa apakah setelahnya ada vokal lagi.
+                                if (vKey.endsWith('ng') || vKey.endsWith('h')) {
+                                    let charAfterVKey = lowerText[nextPos + vKey.length];
+                                    if (charAfterVKey && isVowel(charAfterVKey)) {
+                                        // Skip sandangan ini, biarkan 'h' atau 'ng' jadi konsonan baru
+                                        continue; 
+                                    }
+                                }
+                                
+                                result += consonants[cKey] + dependentVowels[vKey];
+                                i = nextPos + vKey.length;
+                                vMatch = true;
+                                break;
+                            }
+                        }
+                        
+                        if (!vMatch) {
+                            result += consonants[cKey] + "៑";
+                            i = nextPos;
+                        }
+                        matched = true;
+                        break;
+                    }
+                }
+
+                // Try Standalone Vowels
+                if (!matched) {
+                    const indVowlKeys = Object.keys(independentVowels).sort((a, b) => b.length - a.length);
+                    for (let ivKey of indVowlKeys) {
+                        if (lowerText.startsWith(ivKey, i)) {
+                            // Cek lookahead untuk standalone 'ang'/'ah' juga
+                            if (ivKey.endsWith('ng') || ivKey.endsWith('h')) {
+                                let charAfterIvKey = lowerText[i + ivKey.length];
+                                if (charAfterIvKey && isVowel(charAfterIvKey)) continue;
+                            }
+                            result += independentVowels[ivKey];
+                            i += ivKey.length;
+                            matched = true;
+                            break;
+                        }
+                    }
+                }
+
+                if (!matched) {
+                    result += lowerText[i];
+                    i++;
+                }
+            }
+            return result;
+        }
+
+        const inputText = document.getElementById('input-text');
+        const outputText = document.getElementById('output-text');
+        const btnSwap = document.getElementById('btn-swap');
+        const btnClear = document.getElementById('btn-clear');
+        const btnInfo = document.getElementById('btn-info');
+        const btnCloseInfo = document.getElementById('btn-close-info');
+        const infoBoard = document.getElementById('info-board');
+        const labelInput = document.getElementById('label-input');
+        const labelOutput = document.getElementById('label-output');
+
+        function updateResult() {
+            outputText.innerText = transliterate(inputText.value);
+        }
+
+        function copyText(elementId) {
+            const el = document.getElementById(elementId);
+            const text = (el.tagName === 'TEXTAREA') ? el.value : el.innerText;
+            if (!text) return;
+            const dummy = document.createElement("textarea");
+            document.body.appendChild(dummy);
+            dummy.value = text;
+            dummy.select();
+            document.execCommand('copy');
+            document.body.removeChild(dummy);
+            showToast("Aksara Berhasil Disalin");
+        }
+
+        function showToast(msg) {
+            const toast = document.getElementById("toast");
+            toast.innerText = msg;
+            toast.className = "toast show";
+            setTimeout(() => { toast.className = toast.className.replace("show", ""); }, 3000);
+        }
+
+        inputText.addEventListener('input', updateResult);
+
+        btnSwap.addEventListener('click', () => {
+            const tempLabel = labelInput.innerText;
+            labelInput.innerText = labelOutput.innerText;
+            labelOutput.innerText = tempLabel;
+            labelInput.classList.toggle('khmer-font');
+            labelOutput.classList.toggle('khmer-font');
+            const currentOut = outputText.innerText;
+            inputText.value = currentOut;
+            updateResult();
+        });
+
+        btnClear.addEventListener('click', () => {
+            inputText.value = "";
+            updateResult();
+        });
+
+        btnInfo.addEventListener('click', () => {
+            infoBoard.classList.toggle('hidden');
+            if (!infoBoard.classList.contains('hidden')) infoBoard.scrollIntoView({ behavior: 'smooth' });
+        });
+
+        btnCloseInfo.addEventListener('click', () => infoBoard.classList.add('hidden'));
+
+        window.onload = updateResult;
+    </script>
+</body>
+</html>
