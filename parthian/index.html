@@ -1,0 +1,335 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Inscription Parthian</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;900&display=swap');
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+        .parthian-text {
+            line-height: 1.6;
+        }
+        /* Custom scrollbar for better aesthetics on white bg */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #f1f1f1;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #d4d4d8;
+            border-radius: 10px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #a1a1aa;
+        }
+    </style>
+</head>
+<body class="bg-white text-slate-900 min-h-screen">
+
+    <div id="app" class="max-w-4xl mx-auto py-12 px-4">
+        <!-- Notification Toast -->
+        <div id="notification" class="fixed top-8 left-1/2 -translate-x-1/2 z-[100] flex items-center gap-3 bg-slate-800 text-white px-8 py-4 rounded-2xl shadow-2xl transition-all opacity-0 pointer-events-none">
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>
+            <span class="font-bold" id="notification-text">Aksara Berhasil Disalin</span>
+        </div>
+
+        <!-- Header -->
+        <div class="text-center mb-12">
+            <h1 class="text-5xl md:text-6xl font-black tracking-tighter text-slate-900 mb-4">
+                Inscription Parthian
+            </h1>
+            <div class="h-1.5 w-24 bg-amber-500 mx-auto rounded-full mb-4"></div>
+            <p class="text-slate-500 text-xs font-bold tracking-[0.3em] uppercase">Panyalin Aksara & Angka Parthia</p>
+        </div>
+
+        <!-- Controls -->
+        <div class="flex flex-col sm:flex-row gap-4 mb-8">
+            <div class="flex bg-slate-100 p-1.5 rounded-2xl border border-slate-200 flex-1">
+                <button id="btn-latin-to-parthian" onclick="setMode('latinToParthian')" class="flex-1 py-3.5 px-6 rounded-xl text-xs font-black transition-all bg-white text-slate-900 shadow-sm">
+                    LATIN → PARTHIA
+                </button>
+                <button id="btn-parthian-to-latin" onclick="setMode('parthianToLatin')" class="flex-1 py-3.5 px-6 rounded-xl text-xs font-black transition-all text-slate-500 hover:text-slate-900">
+                    PARTHIA → LATIN
+                </button>
+            </div>
+            
+            <div class="flex gap-3">
+                <button onclick="clearText()" class="p-4 bg-slate-100 text-slate-500 hover:text-red-500 border border-slate-200 rounded-2xl transition-all hover:bg-red-50" title="Hapus">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/><line x1="10" x2="10" y1="11" y2="17"/><line x1="14" x2="14" y1="11" y2="17"/></svg>
+                </button>
+                <button onclick="toggleInfo(true)" class="p-4 bg-slate-100 text-slate-500 hover:text-amber-600 border border-slate-200 rounded-2xl transition-all hover:bg-amber-50" title="Informasi">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/></svg>
+                </button>
+            </div>
+        </div>
+
+        <!-- Work Area -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+            <div>
+                <label id="label-input" class="text-[10px] font-black text-slate-400 uppercase tracking-[0.3em] mb-3 block ml-2">Area Input</label>
+                <textarea id="input-text" oninput="handleInput()" class="w-full h-72 p-8 bg-slate-50 border border-slate-200 rounded-[2rem] focus:ring-4 focus:ring-amber-500/10 focus:border-amber-500 outline-none resize-none text-xl leading-relaxed transition-all placeholder:text-slate-300" placeholder="Ketik di sini..."></textarea>
+            </div>
+
+            <div class="relative">
+                <label id="label-output" class="text-[10px] font-black text-slate-400 uppercase tracking-[0.3em] mb-3 block ml-2">Hasil Transliterasi</label>
+                <div class="relative">
+                    <textarea id="output-text" readonly class="w-full h-72 p-8 bg-slate-50 border border-slate-200 rounded-[2rem] text-4xl leading-relaxed text-amber-700 outline-none resize-none transition-all" placeholder="..."></textarea>
+                    <button id="btn-copy" onclick="copyResult()" class="absolute bottom-8 right-8 p-5 bg-slate-900 text-white rounded-2xl shadow-xl hover:bg-slate-800 active:scale-95 transition-all opacity-0 pointer-events-none">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="14" height="14" x="8" y="8" rx="2" ry="2"/><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"/></svg>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <div class="mt-12 text-center">
+            <span class="px-6 py-2 bg-slate-100 border border-slate-200 rounded-full text-[10px] text-slate-400 font-bold tracking-widest uppercase">
+                Inscription Parthian Unicode Standard
+            </span>
+        </div>
+    </div>
+
+    <!-- Modal Info -->
+    <div id="modal-info" class="fixed inset-0 z-[200] flex items-center justify-center p-6 bg-slate-900/40 backdrop-blur-sm hidden animate-in fade-in duration-300">
+        <div class="bg-white border border-slate-200 w-full max-w-2xl rounded-[2.5rem] overflow-hidden shadow-2xl">
+            <div class="p-10">
+                <div class="flex justify-between items-start mb-8">
+                    <div>
+                        <h2 class="text-3xl font-black text-slate-900 mb-1">Pituduh Karakter</h2>
+                        <p class="text-amber-600 text-xs font-bold uppercase tracking-widest">Sistem Angka & Huruf</p>
+                    </div>
+                    <button onclick="toggleInfo(false)" class="text-slate-400 hover:text-slate-900 transition-colors">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
+                    </button>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8 text-sm text-slate-600">
+                    <div class="bg-slate-50 p-6 rounded-3xl border border-slate-100">
+                        <h3 class="text-slate-900 font-bold mb-4 flex items-center gap-2">
+                            <span class="w-1 h-4 bg-amber-500 rounded-full"></span> Vokal & Karakter
+                        </h3>
+                        <div class="space-y-3">
+                            <div class="flex justify-between items-center"><span>c / ts</span> <span class="text-amber-700 text-xl font-bold">𐭑</span></div>
+                            <div class="flex justify-between items-center"><span>j / g</span> <span class="text-amber-700 text-xl font-bold">𐭂</span></div>
+                            <div class="flex justify-between items-center"><span>i / é / y</span> <span class="text-amber-700 text-xl font-bold">𐭉</span></div>
+                            <div class="flex justify-between items-center"><span>u / o / w</span> <span class="text-amber-700 text-xl font-bold">𐭅</span></div>
+                        </div>
+                    </div>
+
+                    <div class="bg-slate-50 p-6 rounded-3xl border border-slate-100">
+                        <h3 class="text-slate-900 font-bold mb-4 flex items-center gap-2">
+                            <span class="w-1 h-4 bg-amber-500 rounded-full"></span> Angka Parthia
+                        </h3>
+                        <div class="space-y-1 font-mono text-[12px]">
+                            <div class="flex justify-between"><span>1000</span> <span class="text-amber-700">𐭟</span></div>
+                            <div class="flex justify-between"><span>100</span> <span class="text-amber-700">𐭞</span></div>
+                            <div class="flex justify-between"><span>20</span> <span class="text-amber-700">𐭝</span></div>
+                            <div class="flex justify-between"><span>10</span> <span class="text-amber-700">𐭜</span></div>
+                            <div class="flex justify-between"><span>1</span> <span class="text-amber-700">𐭘</span></div>
+                        </div>
+                        <p class="mt-4 text-[10px] italic">Sistem aditif (dijumlahkan).</p>
+                    </div>
+                </div>
+
+                <button onclick="toggleInfo(false)" class="w-full py-5 bg-slate-900 text-white font-black rounded-2xl hover:bg-slate-800 transition-all shadow-xl active:scale-95 uppercase text-xs tracking-widest">
+                    Tutup
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let currentMode = 'latinToParthian';
+
+        const charMapping = {
+            'ng': '𐭍𐭂', 'ny': '𐭍𐭉', 'th': '𐭈', 'dh': '𐭃', 'kh': '𐭇', 'sy': '𐭔', 'ts': '𐭑',
+            'a': '𐭀', 'b': '𐭁', 'g': '𐭂', 'd': '𐭃', 'h': '𐭄', 'w': '𐭅', 'z': '𐭆', 
+            't': '𐭈', 'y': '𐭉', 'k': '𐭊', 'l': '𐭋', 'm': '𐭌', 'n': '𐭍', 's': '𐭎', 
+            'p': '𐭐', 'q': '𐭒', 'r': '𐭓', 'ta': '𐭕', 'é': '𐭉', 'e': '𐭀', 'f': '𐭐', 'v': '𐭁',
+            'c': '𐭑', 'j': '𐭂', 'u': '𐭅', 'i': '𐭉', 'o': '𐭅',
+            '?': '؟', ' ': ' '
+        };
+
+        const numUnits = [
+            { v: 1000, s: '𐭟' },
+            { v: 100, s: '𐭞' },
+            { v: 20, s: '𐭝' },
+            { v: 10, s: '𐭜' },
+            { v: 4, s: '𐭛' },
+            { v: 3, s: '𐭚' },
+            { v: 2, s: '𐭙' },
+            { v: 1, s: '𐭘' }
+        ];
+
+        const numberToParthian = (numStr) => {
+            let num = parseInt(numStr, 10);
+            if (isNaN(num) || num <= 0) return '';
+            let result = '';
+            for (const unit of numUnits) {
+                while (num >= unit.v) {
+                    result += unit.s;
+                    num -= unit.v;
+                }
+            }
+            return result;
+        };
+
+        const parthianToNumber = (pStr) => {
+            let sum = 0;
+            for (let char of pStr) {
+                const unit = numUnits.find(u => u.s === char);
+                if (unit) sum += unit.v;
+            }
+            return sum > 0 ? sum.toString() : '';
+        };
+
+        function setMode(mode) {
+            currentMode = mode;
+            const btnLatin = document.getElementById('btn-latin-to-parthian');
+            const btnParthian = document.getElementById('btn-parthian-to-latin');
+            const inputEl = document.getElementById('input-text');
+            const outputEl = document.getElementById('output-text');
+
+            if (mode === 'latinToParthian') {
+                btnLatin.classList.add('bg-white', 'text-slate-900', 'shadow-sm');
+                btnLatin.classList.remove('text-slate-500');
+                btnParthian.classList.remove('bg-white', 'text-slate-900', 'shadow-sm');
+                btnParthian.classList.add('text-slate-500');
+                inputEl.dir = 'ltr';
+                inputEl.placeholder = "Ketik teks atau angka...";
+                outputEl.dir = 'rtl';
+            } else {
+                btnParthian.classList.add('bg-white', 'text-slate-900', 'shadow-sm');
+                btnParthian.classList.remove('text-slate-500');
+                btnLatin.classList.remove('bg-white', 'text-slate-900', 'shadow-sm');
+                btnLatin.classList.add('text-slate-500');
+                inputEl.dir = 'rtl';
+                inputEl.placeholder = "Tempel aksara Parthia...";
+                outputEl.dir = 'ltr';
+            }
+            handleInput();
+        }
+
+        function translate(text, isToParthian) {
+            if (!text) return '';
+            let result = '';
+            let i = 0;
+
+            if (isToParthian) {
+                const lowerText = text.toLowerCase();
+                const keys = Object.keys(charMapping).sort((a, b) => b.length - a.length);
+
+                while (i < lowerText.length) {
+                    const numMatch = lowerText.substring(i).match(/^\d+/);
+                    if (numMatch) {
+                        result += numberToParthian(numMatch[0]);
+                        i += numMatch[0].length;
+                        continue;
+                    }
+
+                    let matched = false;
+                    for (const key of keys) {
+                        if (lowerText.substr(i, key.length) === key) {
+                            result += charMapping[key];
+                            i += key.length;
+                            matched = true;
+                            break;
+                        }
+                    }
+                    if (!matched) {
+                        result += lowerText[i];
+                        i++;
+                    }
+                }
+            } else {
+                const revMap = Object.entries(charMapping).reduce((acc, [k, v]) => {
+                    if (!acc[v] || k.length > acc[v].length) acc[v] = k;
+                    return acc;
+                }, {});
+                const pKeys = Object.keys(revMap).sort((a, b) => b.length - a.length);
+                const numSymbols = numUnits.map(u => u.s);
+
+                while (i < text.length) {
+                    if (numSymbols.includes(text[i])) {
+                        let numCluster = '';
+                        while (i < text.length && numSymbols.includes(text[i])) {
+                            numCluster += text[i];
+                            i++;
+                        }
+                        result += parthianToNumber(numCluster);
+                        continue;
+                    }
+
+                    let matched = false;
+                    for (const pKey of pKeys) {
+                        if (text.substr(i, pKey.length) === pKey) {
+                            result += revMap[pKey];
+                            i += pKey.length;
+                            matched = true;
+                            break;
+                        }
+                    }
+                    if (!matched) {
+                        result += text[i];
+                        i++;
+                    }
+                }
+            }
+            return result;
+        }
+
+        function handleInput() {
+            const input = document.getElementById('input-text').value;
+            const output = translate(input, currentMode === 'latinToParthian');
+            document.getElementById('output-text').value = output;
+            
+            const copyBtn = document.getElementById('btn-copy');
+            if (output) {
+                copyBtn.classList.remove('opacity-0', 'pointer-events-none');
+            } else {
+                copyBtn.classList.add('opacity-0', 'pointer-events-none');
+            }
+        }
+
+        function clearText() {
+            document.getElementById('input-text').value = '';
+            handleInput();
+        }
+
+        function copyResult() {
+            const text = document.getElementById('output-text').value;
+            const textArea = document.createElement("textarea");
+            textArea.value = text;
+            document.body.appendChild(textArea);
+            textArea.select();
+            document.execCommand('copy');
+            document.body.removeChild(textArea);
+            showNotification('Aksara Berhasil Disalin');
+        }
+
+        function showNotification(msg) {
+            const toast = document.getElementById('notification');
+            document.getElementById('notification-text').innerText = msg;
+            toast.classList.remove('opacity-0', 'pointer-events-none');
+            toast.classList.add('opacity-100');
+            setTimeout(() => {
+                toast.classList.remove('opacity-100');
+                toast.classList.add('opacity-0', 'pointer-events-none');
+            }, 3000);
+        }
+
+        function toggleInfo(show) {
+            const modal = document.getElementById('modal-info');
+            if (show) {
+                modal.classList.remove('hidden');
+            } else {
+                modal.classList.add('hidden');
+            }
+        }
+    </script>
+</body>
+</html>
