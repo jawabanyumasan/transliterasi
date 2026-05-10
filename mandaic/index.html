@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Transliterasi Aksara Mandaic - Jawa</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+        body { font-family: 'Inter', sans-serif; }
+        .mandaic-text { font-family: serif; line-height: 1.4; }
+    </style>
+</head>
+<body class="bg-slate-50 text-slate-900 min-h-screen p-4 md:p-8">
+
+    <div class="max-w-3xl mx-auto space-y-6">
+        <!-- Header -->
+        <header class="text-center space-y-2">
+            <h1 class="text-3xl font-bold text-indigo-700 flex items-center justify-center gap-2">
+                Aksara Mandaic <i data-lucide="arrow-right-left" class="w-6 h-6"></i> Jawa
+            </h1>
+            <p class="text-slate-500 italic">Transliterasi alfabet lengkap A-Z ke aksara Mandaic</p>
+        </header>
+
+        <!-- Panel Utama -->
+        <div class="bg-white rounded-2xl shadow-xl overflow-hidden border border-slate-200">
+            
+            <!-- Bar Kontrol -->
+            <div class="bg-slate-100 p-4 flex flex-wrap items-center justify-between gap-4 border-b border-slate-200">
+                <div class="flex items-center gap-2">
+                    <span id="label-left" class="px-3 py-1 rounded-full text-sm font-medium bg-indigo-600 text-white">Latin</span>
+                    <button onclick="toggleMode()" class="p-2 hover:bg-slate-200 rounded-full transition-colors" title="Tukar Mode">
+                        <i data-lucide="arrow-right-left" class="w-5 h-5 text-indigo-600"></i>
+                    </button>
+                    <span id="label-right" class="px-3 py-1 rounded-full text-sm font-medium bg-slate-200 text-slate-600">Mandaic</span>
+                </div>
+
+                <div class="flex gap-2">
+                    <button onclick="openModal()" class="flex items-center gap-2 px-3 py-1.5 bg-blue-50 text-blue-600 rounded-lg hover:bg-blue-100 transition-colors text-sm font-medium">
+                        <i data-lucide="info" class="w-4 h-4"></i> Panduan
+                    </button>
+                    <button onclick="clearText()" class="flex items-center gap-2 px-3 py-1.5 bg-red-50 text-red-600 rounded-lg hover:bg-red-100 transition-colors text-sm font-medium">
+                        <i data-lucide="trash-2" class="w-4 h-4"></i> Bersihkan
+                    </button>
+                </div>
+            </div>
+
+            <!-- Area Editor -->
+            <div class="grid md:grid-cols-2 gap-0 divide-y md:divide-y-0 md:divide-x divide-slate-200">
+                <!-- Kolom Input -->
+                <div class="p-4 space-y-2">
+                    <label class="text-xs font-bold text-slate-400 uppercase tracking-wider">Input Teks</label>
+                    <textarea id="input-area" 
+                        class="w-full h-48 p-4 text-xl border-0 focus:ring-0 resize-none placeholder:text-slate-300 bg-transparent"
+                        placeholder="Ketik teks (A-Z, contoh: gajah, taxi, jalan)..."></textarea>
+                </div>
+
+                <!-- Kolom Hasil -->
+                <div class="p-4 space-y-2 bg-slate-50/50">
+                    <div class="flex justify-between items-center">
+                        <label class="text-xs font-bold text-slate-400 uppercase tracking-wider">Hasil</label>
+                        <button onclick="copyToClipboard()" class="p-1.5 hover:bg-white rounded-md text-slate-500 hover:text-indigo-600 transition-all border border-transparent hover:border-slate-200" title="Salin Hasil">
+                            <i data-lucide="copy" class="w-4 h-4"></i>
+                        </button>
+                    </div>
+                    <div id="output-area" class="w-full h-48 p-4 text-3xl mandaic-text text-indigo-900 overflow-auto whitespace-pre-wrap break-words text-right" dir="rtl">
+                        <span class="text-slate-200 text-xl italic">Hasil akan muncul di sini...</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast Notifikasi -->
+    <div id="toast" class="fixed bottom-8 left-1/2 -translate-x-1/2 bg-green-600 text-white px-6 py-3 rounded-full shadow-2xl flex items-center gap-3 transition-all transform translate-y-20 opacity-0 pointer-events-none">
+        <i data-lucide="check-circle-2" class="w-5 h-5"></i>
+        <span class="font-medium">Aksara Berhasil Disalin</span>
+    </div>
+
+    <!-- Modal Info -->
+    <div id="info-modal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 hidden items-center justify-center p-4">
+        <div class="bg-white rounded-2xl max-w-2xl w-full max-h-[80vh] overflow-hidden shadow-2xl flex flex-col">
+            <div class="p-6 border-b border-slate-100 flex justify-between items-center bg-indigo-50">
+                <h2 class="text-xl font-bold text-indigo-900 flex items-center gap-2">
+                    <i data-lucide="info" class="w-5 h-5"></i> Panduan Alfabet Lengkap
+                </h2>
+                <button onclick="closeModal()" class="p-2 hover:bg-white rounded-full transition-colors">
+                    <i data-lucide="x" class="w-5 h-5"></i>
+                </button>
+            </div>
+            
+            <div class="p-6 overflow-y-auto space-y-6 text-slate-700">
+                <section>
+                    <h3 class="font-bold text-lg mb-2 text-slate-900 border-l-4 border-indigo-500 pl-3">Dukungan Seluruh Alfabet</h3>
+                    <p>Sistem mendukung pemetaan lengkap A sampai Z ke aksara Mandaic:</p>
+                    <ul class="list-disc ml-5 space-y-1">
+                        <li>Huruf <strong>j</strong> dipetakan ke <strong>Zma (ࡆ)</strong>.</li>
+                        <li>Huruf <strong>x</strong> dipetakan ke kombinasi <strong>Ka + Sa (ࡊࡎ)</strong>.</li>
+                        <li>Huruf <strong>c, s, sh, sy</strong> menggunakan <strong>Sha (ࡔ)</strong> atau <strong>Sa (ࡎ)</strong>.</li>
+                        <li>Vokal <strong>e, é</strong> dipetakan ke <strong>Ya (ࡉ)</strong> dan <strong>o</strong> ke <strong>Wa (ࡅ)</strong>.</li>
+                    </ul>
+                </section>
+
+                <section>
+                    <h3 class="font-bold text-lg mb-2 text-slate-900 border-l-4 border-indigo-500 pl-3">Petunjuk Penggunaan</h3>
+                    <p class="mb-2">Gunakan kolom kiri untuk mengetik teks Latin. Kolom kanan akan menampilkan aksara Mandaic secara real-time dengan arah penulisan kanan-ke-kiri (RTL).</p>
+                </section>
+            </div>
+            
+            <div class="p-4 bg-slate-50 text-center">
+                <button onclick="closeModal()" class="px-8 py-2 bg-indigo-600 text-white rounded-full font-bold hover:bg-indigo-700 transition-all">
+                    Saya Mengerti
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const MANDAIC_MAP = {
+            'a': 'ࡀ', 'b': 'ࡁ', 'c': 'ࡔ', 'd': 'ࡃ', 'e': 'ࡉ', 'é': 'ࡉ', 'f': 'ࡐ',
+            'g': 'ࡂ', 'h': 'ࡄ', 'i': 'ࡉ', 'j': 'ࡆ', 'k': 'ࡊ', 'l': 'ࡋ', 'm': 'ࡌ',
+            'n': 'ࡍ', 'o': 'ࡅ', 'p': 'ࡐ', 'q': 'ࡒ', 'r': 'ࡓ', 's': 'ࡎ', 't': 'ࡕ',
+            'u': 'ࡅ', 'v': 'ࡅ', 'w': 'ࡅ', 'x': 'ࡊࡎ', 'y': 'ࡉ', 'z': 'ࡆ',
+            'ẖ': 'ࡇ', 'kh': 'ࡇ', 'ṭ': 'ࡈ', 'th': 'ࡈ', 'š': 'ࡔ', 'sh': 'ࡔ', 'sy': 'ࡔ',
+            'ḏ': 'ࡖ', 'dh': 'ࡃ', 'ng': 'ࡍࡂ', 'ny': 'ࡍࡉ', 'ʿ': 'ࡏ', 'ṣ': 'ࡑ',
+            '0': '٠', '1': '١', '2': '٢', '3': '٣', '4': '٤', '5': '٥', '6': '٦', '7': '٧', '8': '٨', '9': '٩',
+            '?': '؟'
+        };
+
+        const LATIN_MAP = {};
+        for (const [key, val] of Object.entries(MANDAIC_MAP)) {
+            if (key.length === 1 && !LATIN_MAP[val]) LATIN_MAP[val] = key;
+        }
+
+        let currentMode = 'latin-to-mandaic';
+        const inputArea = document.getElementById('input-area');
+        const outputArea = document.getElementById('output-area');
+        const labelLeft = document.getElementById('label-left');
+        const labelRight = document.getElementById('label-right');
+
+        function transliterate(text) {
+            if (!text) return '';
+            let result = text.toLowerCase();
+
+            if (currentMode === 'latin-to-mandaic') {
+                const multiChars = ['kh', 'th', 'sh', 'sy', 'ng', 'ny', 'dh', 'ks'];
+                multiChars.forEach(char => {
+                    const regex = new RegExp(char, 'g');
+                    result = result.replace(regex, MANDAIC_MAP[char] || char);
+                });
+                return result.split('').map(char => MANDAIC_MAP[char] || char).join('');
+            } else {
+                return text.split('').map(char => LATIN_MAP[char] || char).join('');
+            }
+        }
+
+        function updateOutput() {
+            const result = transliterate(inputArea.value);
+            if (!result) {
+                outputArea.innerHTML = '<span class="text-slate-200 text-xl italic">Hasil akan muncul di sini...</span>';
+            } else {
+                outputArea.textContent = result;
+            }
+        }
+
+        function toggleMode() {
+            currentMode = (currentMode === 'latin-to-mandaic') ? 'mandaic-to-latin' : 'latin-to-mandaic';
+            
+            // Swap labels
+            if (currentMode === 'latin-to-mandaic') {
+                labelLeft.textContent = 'Latin';
+                labelLeft.className = 'px-3 py-1 rounded-full text-sm font-medium bg-indigo-600 text-white';
+                labelRight.textContent = 'Mandaic';
+                labelRight.className = 'px-3 py-1 rounded-full text-sm font-medium bg-slate-200 text-slate-600';
+                inputArea.dir = 'ltr';
+                inputArea.className = inputArea.className.replace('text-right', 'text-left');
+                outputArea.dir = 'rtl';
+                outputArea.className = outputArea.className.replace('text-left', 'text-right');
+            } else {
+                labelLeft.textContent = 'Mandaic';
+                labelLeft.className = 'px-3 py-1 rounded-full text-sm font-medium bg-indigo-600 text-white';
+                labelRight.textContent = 'Latin';
+                labelRight.className = 'px-3 py-1 rounded-full text-sm font-medium bg-slate-200 text-slate-600';
+                inputArea.dir = 'rtl';
+                inputArea.className = inputArea.className.replace('text-left', 'text-right');
+                outputArea.dir = 'ltr';
+                outputArea.className = outputArea.className.replace('text-right', 'text-left');
+            }
+
+            const temp = inputArea.value;
+            inputArea.value = outputArea.textContent.includes('Hasil') ? '' : outputArea.textContent;
+            updateOutput();
+        }
+
+        function clearText() {
+            inputArea.value = '';
+            updateOutput();
+        }
+
+        function copyToClipboard() {
+            const text = outputArea.textContent;
+            if (!text || text.includes('Hasil')) return;
+
+            const textArea = document.createElement("textarea");
+            textArea.value = text;
+            document.body.appendChild(textArea);
+            textArea.select();
+            document.execCommand('copy');
+            document.body.removeChild(textArea);
+
+            showToast();
+        }
+
+        function showToast() {
+            const toast = document.getElementById('toast');
+            toast.classList.remove('translate-y-20', 'opacity-0', 'pointer-events-none');
+            setTimeout(() => {
+                toast.classList.add('translate-y-20', 'opacity-0', 'pointer-events-none');
+            }, 2000);
+        }
+
+        function openModal() {
+            document.getElementById('info-modal').classList.remove('hidden');
+            document.getElementById('info-modal').classList.add('flex');
+        }
+
+        function closeModal() {
+            document.getElementById('info-modal').classList.add('hidden');
+            document.getElementById('info-modal').classList.remove('flex');
+        }
+
+        inputArea.addEventListener('input', updateOutput);
+
+        // Initialize Lucide icons
+        lucide.createIcons();
+    </script>
+</body>
+</html>
