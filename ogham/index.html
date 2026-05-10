@@ -1,0 +1,282 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ogham Jawa Transliterasi</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f8fafc;
+        }
+        .ogham-text {
+            font-size: 1.5rem;
+            letter-spacing: 0.1em;
+            line-height: 2;
+        }
+        /* Custom scrollbar for textareas */
+        textarea::-webkit-scrollbar {
+            width: 8px;
+        }
+        textarea::-webkit-scrollbar-track {
+            background: #f1f1f1;
+        }
+        textarea::-webkit-scrollbar-thumb {
+            background: #cbd5e1;
+            border-radius: 4px;
+        }
+        textarea::-webkit-scrollbar-thumb:hover {
+            background: #94a3b8;
+        }
+        .toast {
+            transition: opacity 0.3s, transform 0.3s;
+        }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col items-center p-4 md:p-8">
+
+    <div class="max-w-4xl w-full bg-white rounded-2xl shadow-xl overflow-hidden border border-slate-200">
+        <!-- Header -->
+        <div class="bg-indigo-700 p-6 text-white text-center relative">
+            <h1 class="text-2xl md:text-3xl font-bold mb-2">᚛ᚑᚌᚐᚋ᚜ Ogham Jawa</h1>
+            <p class="text-indigo-100 text-sm md:text-base">Adaptasi Alfabet Ogham untuk Penulisan Bahasa Jawa</p>
+            <button onclick="toggleInfo()" class="absolute top-6 right-6 hover:bg-indigo-600 p-2 rounded-full transition">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="Status 13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+            </button>
+        </div>
+
+        <!-- Main Content -->
+        <div class="p-6 space-y-6">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 relative">
+                
+                <!-- Input Latin -->
+                <div class="flex flex-col space-y-2">
+                    <label class="text-sm font-semibold text-slate-600 flex justify-between">
+                        LATIN
+                        <span class="text-xs font-normal text-slate-400">Gunakan é untuk taling</span>
+                    </label>
+                    <textarea 
+                        id="latinInput" 
+                        class="w-full h-40 p-4 border border-slate-300 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none resize-none transition"
+                        placeholder="Ketik teks di sini..."
+                    ></textarea>
+                </div>
+
+                <!-- Swap Button (Mobile Hidden Text) -->
+                <div class="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 z-10 hidden md:block">
+                    <div class="bg-white p-2 rounded-full border border-slate-200 shadow-md">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-indigo-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4" />
+                        </svg>
+                    </div>
+                </div>
+
+                <!-- Output Ogham -->
+                <div class="flex flex-col space-y-2">
+                    <label class="text-sm font-semibold text-slate-600">OGHAM</label>
+                    <textarea 
+                        id="oghamOutput" 
+                        class="w-full h-40 p-4 border border-slate-300 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none resize-none ogham-text bg-slate-50 transition"
+                        placeholder="᚛ᚑᚌᚐᚋ᚜"
+                    ></textarea>
+                </div>
+            </div>
+
+            <!-- Action Buttons -->
+            <div class="flex flex-wrap gap-3 justify-center md:justify-end border-t pt-6">
+                <button onclick="clearText()" class="px-6 py-2 bg-slate-100 text-slate-700 rounded-lg hover:bg-slate-200 font-medium transition flex items-center gap-2">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                        <path fill-rule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z" clip-rule="evenodd" />
+                    </svg>
+                    Bersihkan
+                </button>
+                <button onclick="copyToClipboard()" class="px-6 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 font-medium transition shadow-md flex items-center gap-2">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                        <path d="M8 3a1 1 0 011-1h2a1 1 0 110 2H9a1 1 0 01-1-1z" />
+                        <path d="M6 3a2 2 0 00-2 2v11a2 2 0 002 2h8a2 2 0 002-2V5a2 2 0 00-2-2 3 3 0 01-3 3H9a3 3 0 01-3-3z" />
+                    </svg>
+                    Salin Aksara
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Notification Toast -->
+    <div id="toast" class="fixed bottom-8 bg-slate-800 text-white px-6 py-3 rounded-xl shadow-2xl opacity-0 transform translate-y-10 pointer-events-none transition-all duration-300 z-50">
+        Aksara Berhasil Disalin
+    </div>
+
+    <!-- Info Modal -->
+    <div id="infoModal" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center p-4 z-40">
+        <div class="bg-white rounded-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto p-6 md:p-8">
+            <div class="flex justify-between items-center mb-6">
+                <h2 class="text-xl font-bold text-slate-800">Panduan Ogham Jawa</h2>
+                <button onclick="toggleInfo()" class="text-slate-400 hover:text-slate-600">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                </button>
+            </div>
+            
+            <div class="space-y-4 text-slate-600 text-sm md:text-base">
+                <p>Ogham adalah sistem penulisan Irlandia Kuno. Dalam aplikasi ini, karakter Ogham diadaptasi untuk memenuhi kebutuhan fonetik Bahasa Jawa.</p>
+                
+                <h3 class="font-bold text-slate-800 mt-4 border-b pb-1">Vokal & Sandhangan</h3>
+                <ul class="list-disc pl-5 grid grid-cols-2 gap-2">
+                    <li><strong>a</strong> : ᚐ (Ailm)</li>
+                    <li><strong>i</strong> : ᚔ (Idad)</li>
+                    <li><strong>u</strong> : ᚒ (Ur)</li>
+                    <li><strong>e (pepet)</strong> : ᚓ (Ebad)</li>
+                    <li><strong>é (taling)</strong> : ᚕ (Eabhadh)</li>
+                    <li><strong>o</strong> : ᚑ (Onn)</li>
+                </ul>
+
+                <h3 class="font-bold text-slate-800 mt-4 border-b pb-1">Konsonan Jawa (Digraph)</h3>
+                <ul class="list-disc pl-5 grid grid-cols-2 gap-2">
+                    <li><strong>th</strong> : ᚈ (Tinne)</li>
+                    <li><strong>dh</strong> : ᚇ (Duir)</li>
+                    <li><strong>ng (cecak)</strong> : ᚂ (Ngetal)</li>
+                    <li><strong>ny</strong> : ᚖ (Eamhancholl)</li>
+                </ul>
+
+                <h3 class="font-bold text-slate-800 mt-4 border-b pb-1">Huruf Serapan & Khusus</h3>
+                <ul class="list-disc pl-5 grid grid-cols-2 gap-2">
+                    <li><strong>f/v</strong> : ᚠ (Fearn)</li>
+                    <li><strong>kh</strong> : ᚗ (Uilleann)</li>
+                    <li><strong>sy</strong> : ᚘ (Ifin)</li>
+                    <li><strong>z</strong> : ᚉ (Straif)</li>
+                    <li><strong>h (wignyan)</strong> : ᚆ (Huath)</li>
+                    <li><strong>r (layar)</strong> : ᚏ (Ruis)</li>
+                </ul>
+
+                <h3 class="font-bold text-slate-800 mt-4 border-b pb-1">Sistem Medial (Clusters)</h3>
+                <p>Ogham ditulis secara linier. Medial seperti <strong>Cakra (-r-)</strong> dan <strong>Pengkal (-y-)</strong> ditulis langsung setelah konsonan induknya. 
+                   Contoh: <em>"pra"</em> ditulis <strong>p + r + a</strong>.</p>
+                
+                <h3 class="font-bold text-slate-800 mt-4 border-b pb-1">Tanda Baca</h3>
+                <p>Setiap kalimat diawali dengan ᚛ (bulu awal) dan diakhiri dengan ᚜ (bulu akhir).</p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const latinToOghamMap = {
+            'ng': 'ᚂ', 'ny': 'ᚖ', 'th': 'ᚈ', 'dh': 'ᚇ', 'kh': 'ᚗ', 'sy': 'ᚘ',
+            'a': 'ᚐ', 'i': 'ᚔ', 'u': 'ᚒ', 'e': 'ᚓ', 'é': 'ᚕ', 'o': 'ᚑ',
+            'b': ' ', 'l': 'ᚁ', 'f': 'ᚠ', 'v': 'ᚠ', 's': 'ᚅ', 'n': 'ᚅ',
+            'h': 'ᚆ', 'd': 'ᚇ', 't': 'ᚈ', 'c': 'ᚉ', 'q': 'ᚊ', 'm': 'ᚋ',
+            'g': 'ᚌ', 'z': 'ᚉ', 'r': 'ᚏ', 'p': 'ᚚ', 'y': 'ᚔ', 'j': 'ᚉ',
+            'w': 'ᚒ', 'k': 'ᚉ', 'x': 'ᚉ',
+            // Numbers (Mapping to strokes/standard numeric representations)
+            '1': 'Ⅰ', '2': 'Ⅱ', '3': 'Ⅲ', '4': 'Ⅳ', '5': 'Ⅴ',
+            '6': 'Ⅵ', '7': 'Ⅶ', '8': 'Ⅷ', '9': 'Ⅸ', '0': '𐄇',
+            ' ': ' '
+        };
+
+        // Create reverse map for Ogham to Latin
+        const oghamToLatinMap = {};
+        for (const [latin, ogham] of Object.entries(latinToOghamMap)) {
+            if (!oghamToLatinMap[ogham]) oghamToLatinMap[ogham] = latin;
+        }
+
+        const latinInput = document.getElementById('latinInput');
+        const oghamOutput = document.getElementById('oghamOutput');
+
+        // Transliteration Function
+        function transliterateToOgham(text) {
+            if (!text) return "";
+            let result = "᚛";
+            let i = 0;
+            let lowerText = text.toLowerCase();
+
+            while (i < lowerText.length) {
+                // Check digraphs (2 chars)
+                let digraph = lowerText.substr(i, 2);
+                if (latinToOghamMap[digraph]) {
+                    result += latinToOghamMap[digraph];
+                    i += 2;
+                } else {
+                    let char = lowerText[i];
+                    result += latinToOghamMap[char] || char;
+                    i++;
+                }
+            }
+            return result + "᚜";
+        }
+
+        function transliterateToLatin(text) {
+            if (!text) return "";
+            let cleanText = text.replace(/[᚛᚜]/g, '');
+            let result = "";
+            for (let char of cleanText) {
+                result += oghamToLatinMap[char] || char;
+            }
+            return result;
+        }
+
+        // Event Listeners
+        latinInput.addEventListener('input', (e) => {
+            oghamOutput.value = transliterateToOgham(e.target.value);
+        });
+
+        oghamOutput.addEventListener('input', (e) => {
+            latinInput.value = transliterateToLatin(e.target.value);
+        });
+
+        // UI Helpers
+        function clearText() {
+            latinInput.value = "";
+            oghamOutput.value = "";
+        }
+
+        function copyToClipboard() {
+            const textToCopy = oghamOutput.value;
+            if (!textToCopy) return;
+
+            // Using standard method for iframe compatibility
+            const el = document.createElement('textarea');
+            el.value = textToCopy;
+            document.body.appendChild(el);
+            el.select();
+            document.execCommand('copy');
+            document.body.removeChild(el);
+
+            showToast();
+        }
+
+        function showToast() {
+            const toast = document.getElementById('toast');
+            toast.style.opacity = '1';
+            toast.style.transform = 'translateY(0)';
+            
+            setTimeout(() => {
+                toast.style.opacity = '0';
+                toast.style.transform = 'translateY(40px)';
+            }, 2000);
+        }
+
+        function toggleInfo() {
+            const modal = document.getElementById('infoModal');
+            if (modal.classList.contains('hidden')) {
+                modal.classList.remove('hidden');
+                modal.classList.add('flex');
+            } else {
+                modal.classList.add('hidden');
+                modal.classList.remove('flex');
+            }
+        }
+
+        // Close modal on outside click
+        window.onclick = function(event) {
+            const modal = document.getElementById('infoModal');
+            if (event.target == modal) {
+                toggleInfo();
+            }
+        }
+    </script>
+</body>
+</html>
