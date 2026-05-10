@@ -1,0 +1,370 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Konverter Aksara Phags-pa (ꡏꡡꡃꡣꡡꡙꡐꡜꡞ)</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Phags+Pa&family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f8fafc;
+        }
+        .phagspa-font {
+            font-family: 'Noto Sans Phags Pa', serif;
+            line-height: 1.5;
+        }
+        .custom-scrollbar::-webkit-scrollbar {
+            width: 6px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-track {
+            background: #f1f1f1;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+            background: #cbd5e1;
+            border-radius: 10px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+            background: #94a3b8;
+        }
+        /* Vertical display support simulation */
+        .vertical-text {
+            writing-mode: vertical-lr;
+            text-orientation: mixed;
+        }
+        .toast {
+            visibility: hidden;
+            min-width: 250px;
+            margin-left: -125px;
+            background-color: #334155;
+            color: #fff;
+            text-align: center;
+            border-radius: 8px;
+            padding: 16px;
+            position: fixed;
+            z-index: 50;
+            left: 50%;
+            bottom: 30px;
+            transition: 0.3s;
+        }
+        .toast.show {
+            visibility: visible;
+            animation: fadein 0.5s, fadeout 0.5s 2.5s;
+        }
+        @keyframes fadein { from { bottom: 0; opacity: 0; } to { bottom: 30px; opacity: 1; } }
+        @keyframes fadeout { from { bottom: 30px; opacity: 1; } to { bottom: 0; opacity: 0; } }
+    </style>
+</head>
+<body class="p-4 md:p-8">
+
+    <div class="max-w-4xl mx-auto bg-white rounded-2xl shadow-xl overflow-hidden border border-slate-200">
+        <!-- Header -->
+        <div class="bg-indigo-700 p-6 text-white flex justify-between items-center">
+            <div>
+                <h1 class="text-2xl font-bold">Konverter Phags-pa</h1>
+                <p class="text-indigo-100 text-sm">Untuk Pengguna Aksara Jawa</p>
+            </div>
+            <button id="infoBtn" class="bg-indigo-600 hover:bg-indigo-500 p-2 rounded-full transition duration-300">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+            </button>
+        </div>
+
+        <!-- Main Content -->
+        <div class="p-6 space-y-6">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <!-- Latin Input -->
+                <div class="space-y-2">
+                    <label class="block text-sm font-semibold text-slate-700">Teks Latin (Support é, ng, ny, th, dh)</label>
+                    <textarea id="latinInput" 
+                        class="w-full h-48 p-4 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-transparent outline-none transition custom-scrollbar text-lg"
+                        placeholder="Ketik teks latin di sini..."></textarea>
+                    <div class="flex space-x-2">
+                        <button onclick="copyText('latinInput')" class="flex-1 bg-slate-100 hover:bg-slate-200 text-slate-700 font-medium py-2 rounded-lg transition duration-200 flex items-center justify-center gap-2">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2m0 0h2a2 2 0 012 2v3m2 4H10m0 0l3-3m-3 3l3 3" />
+                            </svg>
+                            Salin Latin
+                        </button>
+                        <button onclick="clearText()" class="px-4 bg-red-50 hover:bg-red-100 text-red-600 font-medium py-2 rounded-lg transition duration-200 flex items-center justify-center gap-2">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                            </svg>
+                            Bersihkan
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Phags-pa Output -->
+                <div class="space-y-2">
+                    <label class="block text-sm font-semibold text-slate-700">Aksara Phags-pa (ꡏꡡꡃꡣꡡꡙ)</label>
+                    <textarea id="phagspaInput" 
+                        class="phagspa-font w-full h-48 p-4 bg-indigo-50 border border-indigo-100 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-transparent outline-none transition custom-scrollbar text-2xl"
+                        placeholder="ꡏꡡꡃꡣꡡꡙ..."></textarea>
+                    <button onclick="copyText('phagspaInput')" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-semibold py-2 rounded-lg transition duration-200 flex items-center justify-center gap-2 shadow-lg shadow-indigo-200">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+                        </svg>
+                        Salin Aksara
+                    </button>
+                </div>
+            </div>
+
+            <!-- Javanese Mapping Info -->
+            <div class="bg-slate-50 p-4 rounded-xl border border-slate-200">
+                <h3 class="font-semibold text-slate-800 mb-2 flex items-center gap-2">
+                    <span class="bg-indigo-100 text-indigo-700 px-2 py-0.5 rounded text-xs uppercase">Sistem</span>
+                    Aturan Medial & Final
+                </h3>
+                <div class="grid grid-cols-2 md:grid-cols-4 gap-4 text-xs">
+                    <div class="p-2 bg-white rounded border border-slate-100 shadow-sm">
+                        <p class="text-slate-500">Pengkal (-ya)</p>
+                        <p class="font-mono font-bold text-slate-800">kya → ꡀꡨ</p>
+                    </div>
+                    <div class="p-2 bg-white rounded border border-slate-100 shadow-sm">
+                        <p class="text-slate-500">Cakra (-ra)</p>
+                        <p class="font-mono font-bold text-slate-800">kra → ꡀꡱ</p>
+                    </div>
+                    <div class="p-2 bg-white rounded border border-slate-100 shadow-sm">
+                        <p class="text-slate-500">Ganti (-la)</p>
+                        <p class="font-mono font-bold text-slate-800">kla → ꡀꡙ</p>
+                    </div>
+                    <div class="p-2 bg-white rounded border border-slate-100 shadow-sm">
+                        <p class="text-slate-500">Ganti (-wa)</p>
+                        <p class="font-mono font-bold text-slate-800">kwa → ꡀꡧ</p>
+                    </div>
+                    <div class="p-2 bg-white rounded border border-slate-100 shadow-sm">
+                        <p class="text-slate-500">Cecak (-ng)</p>
+                        <p class="font-mono font-bold text-slate-800">kang → ꡳꡀ</p>
+                    </div>
+                    <div class="p-2 bg-white rounded border border-slate-100 shadow-sm">
+                        <p class="text-slate-500">Wignyan (-h)</p>
+                        <p class="font-mono font-bold text-slate-800">kah → ꡀꡜ</p>
+                    </div>
+                    <div class="p-2 bg-white rounded border border-slate-100 shadow-sm">
+                        <p class="text-slate-500">Layar (-r)</p>
+                        <p class="font-mono font-bold text-slate-800">arka → ꡝꡘ ꡀ</p>
+                    </div>
+                    <div class="p-2 bg-white rounded border border-slate-100 shadow-sm">
+                        <p class="text-slate-500">Angka</p>
+                        <p class="font-mono font-bold text-slate-800">123 → ꡚꡛꡜ (Custom)</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Info Modal -->
+    <div id="infoModal" class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm hidden flex items-center justify-center p-4 z-50">
+        <div class="bg-white rounded-2xl max-w-2xl w-full max-h-[90vh] overflow-hidden flex flex-col shadow-2xl">
+            <div class="p-6 border-b flex justify-between items-center">
+                <h2 class="text-xl font-bold text-slate-800">Panduan Transliterasi Phags-pa</h2>
+                <button id="closeInfo" class="text-slate-400 hover:text-slate-600">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                </button>
+            </div>
+            <div class="p-6 overflow-y-auto custom-scrollbar space-y-4">
+                <section>
+                    <h3 class="font-bold text-indigo-700 mb-2">Vokal & Sandhangan</h3>
+                    <ul class="grid grid-cols-2 gap-2 text-sm text-slate-600">
+                        <li>a: ꡝ</li>
+                        <li>ā: ꡝꡖ</li>
+                        <li>i: ꡞ</li>
+                        <li>u: ꡟ</li>
+                        <li>e / é: ꡠ</li>
+                        <li>ai: ꡠꡖ</li>
+                        <li>o: ꡡ</li>
+                        <li>au: ꡡꡖ</li>
+                    </ul>
+                </section>
+                <section>
+                    <h3 class="font-bold text-indigo-700 mb-2">Huruf Khusus & Serapan</h3>
+                    <ul class="grid grid-cols-3 gap-2 text-sm text-slate-600">
+                        <li>ng: ꡃ</li>
+                        <li>ny: ꡇ</li>
+                        <li>th: ꡉ</li>
+                        <li>dh: ꡊ</li>
+                        <li>kh: ꡣ</li>
+                        <li>sy: ꡚ</li>
+                        <li>f / v: ꡤ</li>
+                        <li>z: ꡕ</li>
+                        <li>q: ꡢ</li>
+                    </ul>
+                </section>
+                <section>
+                    <h3 class="font-bold text-indigo-700 mb-2">Penjelasan Sistem</h3>
+                    <p class="text-sm text-slate-600 leading-relaxed">
+                        Aplikasi ini menggunakan logika penempatan karakter sesuai prinsip Phags-pa yang dipadukan dengan pemetaan fungsi aksara Jawa. Huruf <strong>é</strong> (taling) dipetakan ke vokal 'e' Phags-pa. Nasal akhir <strong>'ng'</strong> (Cecak) diletakkan di depan konsonan sesuai beberapa tradisi manuskrip. <strong>'r'</strong> (Layar) dan <strong>'h'</strong> (Wignyan) ditulis secara eksplisit sebagai pemati.
+                    </p>
+                </section>
+            </div>
+            <div class="p-4 bg-slate-50 text-center">
+                <button id="closeInfoBtn" class="bg-indigo-600 text-white px-8 py-2 rounded-lg hover:bg-indigo-700 transition">Tutup Panduan</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="toast" class="toast">Aksara Berhasil Disalin</div>
+
+    <script>
+        // Mapping Latin to Phags-pa
+        const map = {
+            // Numbers
+            '0': 'ꡐ', '1': 'ꡑ', '2': 'ꡒ', '3': 'ꡓ', '4': 'ꡔ', '5': 'ꡕ', '6': 'ꡖ', '7': 'ꡗ', '8': 'ꡘ', '9': 'ꡙ',
+            
+            // Multigraphs (Sort by length descending)
+            'ng': 'ꡃ',
+            'ny': 'ꡇ',
+            'th': 'ꡉ',
+            'dh': 'ꡊ',
+            'kh': 'ꡣ',
+            'sy': 'ꡚ',
+            'ai': 'ꡠꡖ',
+            'au': 'ꡡꡖ',
+            'ā': 'ꡝꡖ',
+            
+            // Medials
+            'ky': 'ꡀꡨ', 'kr': 'ꡀꡱ', 'kl': 'ꡀꡙ', 'kw': 'ꡀꡧ',
+            'gy': 'ꡂꡨ', 'gr': 'ꡂꡱ', 'gl': 'ꡂꡙ', 'gw': 'ꡂꡧ',
+            
+            // Consonants & Special
+            'a': 'ꡝ',
+            'i': 'ꡞ',
+            'u': 'ꡟ',
+            'e': 'ꡠ',
+            'é': 'ꡠ',
+            'o': 'ꡡ',
+            'k': 'ꡀ',
+            'g': 'ꡂ',
+            'c': 'ꡄ',
+            'j': 'ꡆ',
+            't': 'ꡈ',
+            'd': 'ꡊ',
+            'n': 'ꡋ',
+            'p': 'ꡌ',
+            'b': 'ꡎ',
+            'm': 'ꡏ',
+            'y': 'ꡗ',
+            'r': 'ꡘ',
+            'l': 'ꡙ',
+            'w': 'ꡓ',
+            's': 'ꡔ',
+            'h': 'ꡜ',
+            'q': 'ꡢ',
+            'f': 'ꡤ',
+            'v': 'ꡤ',
+            'z': 'ꡕ',
+            ' ': ' '
+        };
+
+        // Custom Javanese patterns logic
+        const latinInput = document.getElementById('latinInput');
+        const phagspaInput = document.getElementById('phagspaInput');
+        const infoBtn = document.getElementById('infoBtn');
+        const infoModal = document.getElementById('infoModal');
+        const closeInfo = document.getElementById('closeInfo');
+        const closeInfoBtn = document.getElementById('closeInfoBtn');
+
+        function latinToPhagspa(text) {
+            let result = text.toLowerCase();
+            
+            // 1. Handle Medials & Special clusters
+            // Handle "kang" style (nasal before k) - user specific request
+            result = result.replace(/([a-z])ang/g, 'ꡳ$1'); // simplified pattern for demonstration
+
+            // 2. Handle Multigraphs Consonants
+            const sortedKeys = Object.keys(map).sort((a, b) => b.length - a.length);
+            
+            let i = 0;
+            let output = "";
+            while (i < result.length) {
+                let found = false;
+                for (let key of sortedKeys) {
+                    if (result.substr(i, key.length) === key) {
+                        output += map[key];
+                        i += key.length;
+                        found = true;
+                        break;
+                    }
+                }
+                if (!found) {
+                    output += result[i];
+                    i++;
+                }
+            }
+            return output;
+        }
+
+        function phagspaToLatin(text) {
+            let result = text;
+            const reverseMap = {};
+            Object.keys(map).forEach(key => {
+                reverseMap[map[key]] = key;
+            });
+
+            const sortedKeys = Object.keys(reverseMap).sort((a, b) => b.length - a.length);
+            
+            let i = 0;
+            let output = "";
+            while (i < result.length) {
+                let found = false;
+                for (let key of sortedKeys) {
+                    if (result.substr(i, key.length) === key) {
+                        output += reverseMap[key];
+                        i += key.length;
+                        found = true;
+                        break;
+                    }
+                }
+                if (!found) {
+                    output += result[i];
+                    i++;
+                }
+            }
+            return output;
+        }
+
+        // Event Listeners
+        latinInput.addEventListener('input', (e) => {
+            phagspaInput.value = latinToPhagspa(e.target.value);
+        });
+
+        phagspaInput.addEventListener('input', (e) => {
+            latinInput.value = phagspaToLatin(e.target.value);
+        });
+
+        function clearText() {
+            latinInput.value = "";
+            phagspaInput.value = "";
+        }
+
+        function showToast() {
+            const toast = document.getElementById("toast");
+            toast.className = "toast show";
+            setTimeout(() => { toast.className = toast.className.replace("show", ""); }, 3000);
+        }
+
+        function copyText(id) {
+            const el = document.getElementById(id);
+            el.select();
+            el.setSelectionRange(0, 99999); // For mobile
+            document.execCommand('copy');
+            
+            if (el.value.length > 0) {
+                showToast();
+            }
+        }
+
+        // Modal Logic
+        infoBtn.onclick = () => infoModal.classList.remove('hidden');
+        closeInfo.onclick = () => infoModal.classList.add('hidden');
+        closeInfoBtn.onclick = () => infoModal.classList.add('hidden');
+        window.onclick = (e) => { if (e.target == infoModal) infoModal.classList.add('hidden'); };
+
+    </script>
+</body>
+</html>
