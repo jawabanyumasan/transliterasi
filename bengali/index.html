@@ -1,0 +1,450 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Transliterasi Latin - Bengali (Bangla)</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Bengali:wght@400;700&family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Poppins', sans-serif;
+            background-color: #f0f4f8;
+        }
+        .bengali-font {
+            font-family: 'Noto Sans Bengali', sans-serif;
+        }
+        .custom-shadow {
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1);
+        }
+        textarea {
+            resize: none;
+        }
+        .fade-in {
+            animation: fadeIn 0.3s ease-in;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .notification {
+            position: fixed;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: #333;
+            color: white;
+            padding: 10px 20px;
+            border-radius: 30px;
+            display: none;
+            z-index: 1000;
+        }
+    </style>
+</head>
+<body class="p-4 md:p-8">
+
+    <div class="max-w-4xl mx-auto">
+        <!-- Header -->
+        <header class="text-center mb-8">
+            <h1 class="text-3xl font-bold text-indigo-800 mb-2">Transliterasi Aksara Bengali</h1>
+            <p class="text-gray-600">Alat bantu tulis aksara Bengali (Bangla) untuk penutur bahasa Jawa/Indonesia.</p>
+        </header>
+
+        <!-- Main Card -->
+        <div class="bg-white rounded-2xl p-6 custom-shadow mb-8">
+            <!-- Mode Switcher -->
+            <div class="flex items-center justify-between mb-4 bg-indigo-50 p-3 rounded-xl">
+                <div class="text-sm font-semibold text-indigo-700" id="currentModeLabel">
+                    LATIN ➔ BENGALI
+                </div>
+                <button id="switchBtn" class="bg-indigo-600 hover:bg-indigo-700 text-white p-2 rounded-full transition-all transform active:scale-95">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4" />
+                    </svg>
+                </button>
+            </div>
+
+            <!-- Input Area -->
+            <div class="mb-6">
+                <label class="block text-sm font-medium text-gray-700 mb-2" id="inputLabel">Input Teks Latin:</label>
+                <textarea id="inputText" class="w-full h-32 p-4 border border-gray-300 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-transparent outline-none transition-all text-lg" placeholder="Ketik di sini (Contoh: kang, kah, angka)..."></textarea>
+                <div class="flex gap-2 mt-2">
+                    <button id="copyInputBtn" class="flex-1 bg-gray-100 hover:bg-gray-200 text-gray-700 text-sm py-2 rounded-lg transition-colors font-medium">Salin Input</button>
+                    <button id="clearBtn" class="flex-1 bg-red-50 hover:bg-red-100 text-red-600 text-sm py-2 rounded-lg transition-colors font-medium">Bersihkan</button>
+                </div>
+            </div>
+
+            <!-- Result Area -->
+            <div class="mb-4">
+                <label class="block text-sm font-medium text-gray-700 mb-2" id="resultLabel">Hasil Aksara Bengali:</label>
+                <div id="resultText" class="w-full min-h-[128px] p-4 bg-indigo-50 border border-indigo-100 rounded-xl text-2xl bengali-font break-words leading-relaxed"></div>
+                <button id="copyResultBtn" class="w-full mt-2 bg-indigo-600 hover:bg-indigo-700 text-white py-3 rounded-xl transition-all font-semibold flex items-center justify-center gap-2">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                        <path d="M8 3a1 1 0 011-1h2a1 1 0 110 2H9a1 1 0 01-1-1z" />
+                        <path d="M6 3a2 2 0 00-2 2v11a2 2 0 002 2h8a2 2 0 002-2V5a2 2 0 00-2-2 3 3 0 01-3 3H9a3 3 0 01-3-3z" />
+                    </svg>
+                    Salin Hasil
+                </button>
+            </div>
+        </div>
+
+        <!-- Info Button -->
+        <div class="text-center">
+            <button id="infoBtn" class="text-indigo-600 font-semibold hover:underline flex items-center justify-center mx-auto gap-1">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                    <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd" />
+                </svg>
+                Lihat Panduan Aksara
+            </button>
+        </div>
+
+        <!-- Footer -->
+        <footer class="mt-12 text-center text-gray-500 text-sm">
+            <p>&copy; 2024 Transliterasi Bengali-Jawa. Referensi: Wikipedia & Aksharamukha.</p>
+        </footer>
+    </div>
+
+    <!-- Info Modal -->
+    <div id="infoModal" class="fixed inset-0 bg-black bg-opacity-50 z-50 hidden flex items-center justify-center p-4">
+        <div class="bg-white rounded-2xl w-full max-w-2xl max-h-[90vh] overflow-y-auto p-6 relative">
+            <button id="closeModal" class="absolute top-4 right-4 text-gray-500 hover:text-gray-800">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                </svg>
+            </button>
+            <h2 class="text-2xl font-bold text-indigo-800 mb-6">Panduan Aksara Bengali</h2>
+            
+            <div class="space-y-8 text-sm">
+                <!-- Vokal -->
+                <section>
+                    <h3 class="font-bold border-b pb-1 mb-3 text-indigo-700">Vokal Mandiri & Sandangan (Kar)</h3>
+                    <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+                        <div class="bg-gray-50 p-2 rounded text-center"><span class="block text-xs text-gray-400">a</span> <span class="text-xl bengali-font">অ</span></div>
+                        <div class="bg-gray-50 p-2 rounded text-center"><span class="block text-xs text-gray-400">ā / a</span> <span class="text-xl bengali-font">আ (া)</span></div>
+                        <div class="bg-gray-50 p-2 rounded text-center"><span class="block text-xs text-gray-400">i</span> <span class="text-xl bengali-font">ই (ি)</span></div>
+                        <div class="bg-gray-50 p-2 rounded text-center"><span class="block text-xs text-gray-400">u</span> <span class="text-xl bengali-font">উ (ু)</span></div>
+                        <div class="bg-gray-50 p-2 rounded text-center"><span class="block text-xs text-gray-400">e / é</span> <span class="text-xl bengali-font">এ (ে)</span></div>
+                        <div class="bg-gray-50 p-2 rounded text-center"><span class="block text-xs text-gray-400">o</span> <span class="text-xl bengali-font">ও (ো)</span></div>
+                        <div class="bg-gray-50 p-2 rounded text-center"><span class="block text-xs text-gray-400">ai</span> <span class="text-xl bengali-font">ঐ (ৈ)</span></div>
+                        <div class="bg-gray-50 p-2 rounded text-center"><span class="block text-xs text-gray-400">au</span> <span class="text-xl bengali-font">ঔ (ৌ)</span></div>
+                    </div>
+                </section>
+
+                <!-- Konsonan Utama -->
+                <section>
+                    <h3 class="font-bold border-b pb-1 mb-3 text-indigo-700">Konsonan Utama</h3>
+                    <div class="grid grid-cols-3 md:grid-cols-6 gap-2">
+                        <div class="bg-gray-50 p-2 rounded text-center"><span class="text-xs text-gray-400">k</span> <span class="text-lg bengali-font">ক</span></div>
+                        <div class="bg-gray-50 p-2 rounded text-center"><span class="text-xs text-gray-400">kh</span> <span class="text-lg bengali-font">খ</span></div>
+                        <div class="bg-gray-50 p-2 rounded text-center"><span class="text-xs text-gray-400">g</span> <span class="text-lg bengali-font">গ</span></div>
+                        <div class="bg-gray-50 p-2 rounded text-center"><span class="text-xs text-gray-400">gh</span> <span class="text-lg bengali-font">ঘ</span></div>
+                        <div class="bg-gray-50 p-2 rounded text-center"><span class="text-xs text-gray-400">ng</span> <span class="text-lg bengali-font">ঙ</span></div>
+                        <div class="bg-gray-50 p-2 rounded text-center"><span class="text-xs text-gray-400">c</span> <span class="text-lg bengali-font">চ</span></div>
+                        <div class="bg-gray-50 p-2 rounded text-center"><span class="text-xs text-gray-400">ch</span> <span class="text-lg bengali-font">ছ</span></div>
+                        <div class="bg-gray-50 p-2 rounded text-center"><span class="text-xs text-gray-400">j</span> <span class="text-lg bengali-font">জ</span></div>
+                        <div class="bg-gray-50 p-2 rounded text-center"><span class="text-xs text-gray-400">jh</span> <span class="text-lg bengali-font">ঝ</span></div>
+                        <div class="bg-gray-50 p-2 rounded text-center"><span class="text-xs text-gray-400">ny</span> <span class="text-lg bengali-font">ঞ</span></div>
+                        <div class="bg-gray-50 p-2 rounded text-center"><span class="text-xs text-gray-400">t</span> <span class="text-lg bengali-font">ত</span></div>
+                        <div class="bg-gray-50 p-2 rounded text-center"><span class="text-xs text-gray-400">th</span> <span class="text-lg bengali-font">ঠ</span></div>
+                    </div>
+                </section>
+
+                <!-- Medial/Final -->
+                <section>
+                    <h3 class="font-bold border-b pb-1 mb-3 text-indigo-700">Sandangan Medial & Final</h3>
+                    <div class="space-y-2">
+                        <div class="flex justify-between p-2 bg-indigo-50 rounded">
+                            <span>Pangkon (Hasanta)</span>
+                            <span class="bengali-font">অক্ (ak)</span>
+                        </div>
+                        <div class="flex justify-between p-2 bg-indigo-50 rounded">
+                            <span>Ng Mandiri (Nga)</span>
+                            <span class="bengali-font">ঙ (nga)</span>
+                        </div>
+                        <div class="flex justify-between p-2 bg-indigo-50 rounded">
+                            <span>H Mandiri (Ha)</span>
+                            <span class="bengali-font">হ (ha)</span>
+                        </div>
+                        <div class="flex justify-between p-2 bg-indigo-50 rounded">
+                            <span>Medial Ya (Pengkal)</span>
+                            <span class="bengali-font">ক্য (kya)</span>
+                        </div>
+                        <div class="flex justify-between p-2 bg-indigo-50 rounded">
+                            <span>Medial Ra (Cakra)</span>
+                            <span class="bengali-font">ক্র (kra)</span>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Angka -->
+                <section>
+                    <h3 class="font-bold border-b pb-1 mb-3 text-indigo-700">Angka</h3>
+                    <div class="grid grid-cols-5 md:grid-cols-10 gap-1">
+                        <div class="bg-gray-50 p-1 text-center"><span class="block text-[10px]">0</span><span class="bengali-font">০</span></div>
+                        <div class="bg-gray-50 p-1 text-center"><span class="block text-[10px]">1</span><span class="bengali-font">১</span></div>
+                        <div class="bg-gray-50 p-1 text-center"><span class="block text-[10px]">2</span><span class="bengali-font">২</span></div>
+                        <div class="bg-gray-50 p-1 text-center"><span class="block text-[10px]">3</span><span class="bengali-font">৩</span></div>
+                        <div class="bg-gray-50 p-1 text-center"><span class="block text-[10px]">4</span><span class="bengali-font">৪</span></div>
+                        <div class="bg-gray-50 p-1 text-center"><span class="block text-[10px]">5</span><span class="bengali-font">৫</span></div>
+                        <div class="bg-gray-50 p-1 text-center"><span class="block text-[10px]">6</span><span class="bengali-font">৬</span></div>
+                        <div class="bg-gray-50 p-1 text-center"><span class="block text-[10px]">7</span><span class="bengali-font">৭</span></div>
+                        <div class="bg-gray-50 p-1 text-center"><span class="block text-[10px]">8</span><span class="bengali-font">৮</span></div>
+                        <div class="bg-gray-50 p-1 text-center"><span class="block text-[10px]">9</span><span class="bengali-font">৯</span></div>
+                    </div>
+                </section>
+            </div>
+        </div>
+    </div>
+
+    <!-- Notification -->
+    <div id="notif" class="notification">Aksara Berhasil Disalin</div>
+
+    <script>
+        // --- Data Mapping ---
+        const latinToBengaliMap = {
+            'a': 'অ', 'aa': 'আ', 'i': 'ই', 'ii': 'ঈ', 'u': 'উ', 'uu': 'ঊ',
+            'e': 'এ', 'é': 'এ', 'ai': 'ঐ', 'o': 'ও', 'au': 'ঔ',
+            'ka': 'ক', 'kha': 'খ', 'ga': 'গ', 'gha': 'ঘ', 'nga': 'ঙ',
+            'ca': 'চ', 'cha': 'ছ', 'ja': 'জ', 'jha': 'ঝ', 'nya': 'ঞ',
+            'ta': 'ত', 'tha': 'থ', 'da': 'দ', 'dha': 'ধ', 'na': 'ন',
+            'pa': 'প', 'pha': 'ফ', 'ba': 'ব', 'bha': 'ভ', 'ma': 'ম',
+            'ya': 'য', 'ra': 'র', 'la': 'ল', 'wa': 'ভ়', 'va': 'ভ়',
+            'sha': 'শ', 'sa': 'স', 'ha': 'হ',
+            '0': '০', '1': '১', '2': '২', '3': '৩', '4': '৪',
+            '5': '৫', '6': '৬', '7': '৭', '8': '৮', '9': '৯'
+        };
+
+        const vowelSigns = {
+            'a': 'া', 'i': 'ি', 'ii': 'ী', 'u': 'ু', 'uu': 'ূ',
+            'e': 'ে', 'é': 'ে', 'ai': 'ৈ', 'o': 'ো', 'au': 'ৌ'
+        };
+
+        const consonantMap = {
+            'k': 'ক', 'kh': 'খ', 'g': 'গ', 'gh': 'ঘ', 'ng': 'ঙ',
+            'c': 'চ', 'ch': 'ছ', 'j': 'জ', 'jh': 'ঝ', 'ny': 'ঞ',
+            't': 'ত', 'th': 'ঠ', 'd': 'দ', 'dh': 'ঢ', 'n': 'ন',
+            'p': 'প', 'ph': 'ফ', 'b': 'ব', 'bh': 'ভ', 'm': 'ম',
+            'y': 'য', 'r': 'র', 'l': 'ল', 'v': 'ভ়', 'w': 'ভ়',
+            'sh': 'শ', 's': 'স', 'h': 'হ', 'f': 'ফ়', 'z': 'জ়', 'q': 'ক়', 'sy': 'শ'
+        };
+
+        const vowelsRegex = /[aeioué]/;
+
+        const reverseVowelMandiri = {
+            'অ': 'a', 'আ': 'a', 'ই': 'i', 'ঈ': 'i', 'উ': 'u', 'ঊ': 'u', 'এ': 'e', 'ঐ': 'ai', 'ও': 'o', 'ঔ': 'au'
+        };
+        const reverseVowelSigns = {
+            'া': 'a', 'ি': 'i', 'ী': 'i', 'ু': 'u', 'ূ': 'u', 'ে': 'e', 'ৈ': 'ai', 'ো': 'o', 'ৌ': 'au'
+        };
+        const reverseConsonants = {
+            'ক': 'k', 'খ': 'kh', 'গ': 'g', 'ঘ': 'gh', 'ঙ': 'ng', 'চ': 'c', 'ছ': 'ch', 'জ': 'j', 'ঝ': 'jh', 'ঞ': 'ny',
+            'ট': 'th', 'ঠ': 'th', 'ড': 'dh', 'ঢ': 'dh', 'ণ': 'n', 'ত': 't', 'থ': 'th', 'দ': 'd', 'ধ': 'dh', 'ন': 'n',
+            'প': 'p', 'ফ': 'ph', 'ব': 'b', 'ভ': 'bh', 'ম': 'm', 'য': 'y', 'র': 'r', 'ল': 'l', 'শ': 'sh', 'ষ': 'sh',
+            'স': 's', 'হ': 'h', 'ড়': 'r', 'ঢ়': 'rh', 'য়': 'y', 'ৎ': 't', 'ং': 'ng', 'ঃ': 'h', 'ঁ': 'n'
+        };
+        const reverseNumbers = {
+            '০': '0', '১': '1', '২': '2', '৩': '3', '৪': '4', '৫': '5', '৬': '6', '৭': '7', '৮': '8', '৯': '9'
+        };
+
+        let isLatinToBengali = true;
+
+        function transliterateLatinToBengali(text) {
+            text = text.toLowerCase();
+            let result = '';
+            let i = 0;
+
+            while (i < text.length) {
+                let char = text[i];
+                let next = text[i + 1] || '';
+                let next2 = text[i + 2] || '';
+
+                if (/[0-9]/.test(char)) {
+                    result += latinToBengaliMap[char];
+                    i++;
+                    continue;
+                }
+
+                let digraph = char + next;
+                let trigraph = char + next + next2;
+                let currentConsonant = "";
+                let skip = 0;
+
+                // Determine consonant and skip length
+                if (trigraph === 'khh') { currentConsonant = 'খ়'; skip = 3; }
+                else if (digraph === 'ng') { currentConsonant = 'ঙ'; skip = 2; }
+                else if (digraph === 'ny') { currentConsonant = 'ঞ'; skip = 2; }
+                else if (digraph === 'th') { currentConsonant = 'ঠ'; skip = 2; }
+                else if (digraph === 'dh') { currentConsonant = 'ঢ'; skip = 2; }
+                else if (digraph === 'kh') { currentConsonant = 'খ'; skip = 2; }
+                else if (digraph === 'sh' || digraph === 'sy') { currentConsonant = 'শ'; skip = 2; }
+                else if (digraph === 'ph') { currentConsonant = 'ফ'; skip = 2; }
+                else if (digraph === 'bh') { currentConsonant = 'ভ'; skip = 2; }
+                else if (digraph === 'gh') { currentConsonant = 'ঘ'; skip = 2; }
+                else if (digraph === 'jh') { currentConsonant = 'ঝ'; skip = 2; }
+                else if (digraph === 'ch') { currentConsonant = 'ছ'; skip = 2; }
+                else if (consonantMap[char]) { currentConsonant = consonantMap[char]; skip = 1; }
+
+                if (currentConsonant !== "") {
+                    let vIdx = i + skip;
+                    let v = text[vIdx] || '';
+                    let v2 = text[vIdx + 1] || '';
+
+                    const isNextVowel = vowelsRegex.test(v);
+
+                    // LOGIKA DIPERBARUI: ng (ঙ) dan h (হ) diperlakukan sebagai konsonan mandiri normal.
+                    // Jika tidak diikuti vokal, maka akan mendapat tanda Hasanta (্).
+                    
+                    if (v === 'y' && vowelsRegex.test(v2)) {
+                        result += currentConsonant + '্য' + (vowelSigns[v2] || '');
+                        i += skip + 2;
+                    } else if (v === 'r' && vowelsRegex.test(v2)) {
+                        result += currentConsonant + '্র' + (vowelSigns[v2] || '');
+                        i += skip + 2;
+                    } else if (v === 'l' && vowelsRegex.test(v2)) {
+                        result += currentConsonant + '্ল' + (vowelSigns[v2] || '');
+                        i += skip + 2;
+                    } else if (isNextVowel) {
+                        // Vokal majemuk ai/au
+                        if (v === 'a' && v2 === 'i') {
+                            result += currentConsonant + vowelSigns['ai'];
+                            i += skip + 2;
+                        } else if (v === 'a' && v2 === 'u') {
+                            result += currentConsonant + vowelSigns['au'];
+                            i += skip + 2;
+                        } else {
+                            result += currentConsonant + (vowelSigns[v] || '');
+                            i += skip + 1;
+                        }
+                    } else {
+                        // Konsonan mati (termasuk ng dan h di akhir atau sebelum konsonan lain)
+                        result += currentConsonant + '্';
+                        i += skip;
+                    }
+                } else if (vowelsRegex.test(char)) {
+                    // Vokal mandiri
+                    if (char === 'a' && next === 'i') {
+                        result += 'ঐ'; i += 2;
+                    } else if (char === 'a' && next === 'u') {
+                        result += 'ঔ'; i += 2;
+                    } else {
+                        result += (latinToBengaliMap[char] || char);
+                        i++;
+                    }
+                } else {
+                    result += char;
+                    i++;
+                }
+            }
+            return result;
+        }
+
+        function transliterateBengaliToLatin(text) {
+            let result = '';
+            for (let i = 0; i < text.length; i++) {
+                let char = text[i];
+                let next = text[i + 1] || '';
+                
+                // Peta balik untuk simbol khusus jika ada
+                if (char === 'ং') { result += 'ng'; }
+                else if (char === 'ঃ') { result += 'h'; }
+                else if (reverseNumbers[char]) { result += reverseNumbers[char]; }
+                else if (reverseConsonants[char]) {
+                    let base = reverseConsonants[char];
+                    if (reverseVowelSigns[next]) {
+                        result += base + reverseVowelSigns[next];
+                        i++;
+                    } else if (next === '্') {
+                        result += base;
+                        i++;
+                    } else if (next === '্য') {
+                        result += base + 'y';
+                        i++;
+                        if (reverseVowelSigns[text[i+1]]) { result += reverseVowelSigns[text[i+1]]; i++; }
+                    } else if (next === '্র') {
+                        result += base + 'r';
+                        i++;
+                        if (reverseVowelSigns[text[i+1]]) { result += reverseVowelSigns[text[i+1]]; i++; }
+                    } else if (/[০-৯]/.test(next) || next === ' ' || next === '\n' || next === '') {
+                        // Asumsikan inherent 'a' jika di akhir atau spasi
+                        result += base + 'a';
+                    } else if (reverseConsonants[next]) {
+                        result += base + 'a';
+                    } else {
+                        result += base;
+                    }
+                } else if (reverseVowelMandiri[char]) {
+                    result += reverseVowelMandiri[char];
+                } else {
+                    result += char;
+                }
+            }
+            return result;
+        }
+
+        const inputArea = document.getElementById('inputText');
+        const resultArea = document.getElementById('resultText');
+        const switchBtn = document.getElementById('switchBtn');
+        const clearBtn = document.getElementById('clearBtn');
+        const modeLabel = document.getElementById('currentModeLabel');
+        const inputLabel = document.getElementById('inputLabel');
+        const resultLabel = document.getElementById('resultLabel');
+        const copyInputBtn = document.getElementById('copyInputBtn');
+        const copyResultBtn = document.getElementById('copyResultBtn');
+        const infoBtn = document.getElementById('infoBtn');
+        const infoModal = document.getElementById('infoModal');
+        const closeModal = document.getElementById('closeModal');
+        const notif = document.getElementById('notif');
+
+        function updateTransliteration() {
+            const text = inputArea.value;
+            if (!text) { resultArea.innerText = ''; return; }
+            resultArea.innerText = isLatinToBengali ? transliterateLatinToBengali(text) : transliterateBengaliToLatin(text);
+        }
+
+        inputArea.addEventListener('input', updateTransliteration);
+
+        switchBtn.addEventListener('click', () => {
+            isLatinToBengali = !isLatinToBengali;
+            inputArea.value = resultArea.innerText;
+            if (isLatinToBengali) {
+                modeLabel.innerText = "LATIN ➔ BENGALI";
+                inputLabel.innerText = "Input Teks Latin:";
+                resultLabel.innerText = "Hasil Aksara Bengali:";
+                inputArea.placeholder = "Ketik di sini (Contoh: kang, kah, angka)...";
+            } else {
+                modeLabel.innerText = "BENGALI ➔ LATIN";
+                inputLabel.innerText = "Input Aksara Bengali:";
+                resultLabel.innerText = "Hasil Teks Latin:";
+                inputArea.placeholder = "টাইপ করুন...";
+            }
+            updateTransliteration();
+        });
+
+        clearBtn.addEventListener('click', () => { inputArea.value = ''; resultArea.innerText = ''; });
+
+        function showNotification() {
+            notif.style.display = 'block';
+            setTimeout(() => { notif.style.display = 'none'; }, 2000);
+        }
+
+        copyInputBtn.addEventListener('click', () => {
+            inputArea.select();
+            document.execCommand('copy');
+            showNotification();
+        });
+
+        copyResultBtn.addEventListener('click', () => {
+            const range = document.createRange();
+            range.selectNode(resultArea);
+            window.getSelection().removeAllRanges();
+            window.getSelection().addRange(range);
+            document.execCommand('copy');
+            window.getSelection().removeAllRanges();
+            showNotification();
+        });
+
+        infoBtn.addEventListener('click', () => { infoModal.classList.remove('hidden'); infoModal.classList.add('fade-in'); });
+        closeModal.addEventListener('click', () => { infoModal.classList.add('hidden'); });
+    </script>
+</body>
+</html>
