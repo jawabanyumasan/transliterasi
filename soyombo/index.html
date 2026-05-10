@@ -1,0 +1,318 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Transliterasi Aksara Soyombo - Jawa</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;900&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f1f5f9;
+        }
+        .soyombo-font {
+            font-size: 2.8rem;
+            line-height: 1.8;
+            min-height: 140px;
+        }
+        textarea {
+            resize: none;
+            overflow-y: auto;
+        }
+        .btn-active:active {
+            transform: scale(0.96);
+        }
+        #toast {
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+    </style>
+</head>
+<body class="min-h-screen p-4 md:p-10 flex flex-col items-center">
+
+    <div class="max-w-4xl w-full bg-white rounded-[2.5rem] shadow-2xl border border-gray-100 overflow-hidden">
+        <!-- Header -->
+        <div class="bg-indigo-900 p-8 text-white text-center">
+            <h1 class="text-3xl md:text-5xl font-black mb-2 tracking-tighter">𑪁𑩖𑩻𑩖𑪌𑩰𑩖 𑩰𑩑𑩢𑩑𑪊</h1>
+            <p class="text-indigo-200 font-semibold opacity-90">Transliterasi Soyombo Javanese v3.5</p>
+        </div>
+
+        <div class="p-6 md:p-10 space-y-6">
+            <!-- Toolbar -->
+            <div class="flex flex-wrap justify-between items-center gap-4 bg-gray-50 p-4 rounded-3xl border border-gray-100">
+                <div class="flex gap-2">
+                    <button id="btnInfo" class="bg-blue-600 text-white px-5 py-2.5 rounded-xl font-bold hover:bg-blue-700 transition btn-active shadow-md">
+                        Panduan
+                    </button>
+                    <button id="btnClear" class="bg-white text-gray-600 border border-gray-200 px-5 py-2.5 rounded-xl font-bold hover:bg-gray-50 transition btn-active">
+                        Bersihkan
+                    </button>
+                </div>
+                <div id="modeLabel" class="bg-indigo-100 text-indigo-700 px-4 py-2 rounded-full text-xs font-black uppercase tracking-widest border border-indigo-200">
+                    Mode: Latin ➔ Soyombo
+                </div>
+            </div>
+
+            <!-- Input Box -->
+            <div class="space-y-2">
+                <label id="labelSrc" class="block text-xs font-black text-gray-400 uppercase tracking-widest ml-1">Ketik Latin</label>
+                <textarea id="inputArea" class="w-full p-6 bg-gray-50 border-2 border-gray-200 rounded-[2rem] focus:border-indigo-500 focus:bg-white outline-none transition h-40 text-xl font-medium" placeholder="Ketik di sini..."></textarea>
+            </div>
+
+            <!-- Switcher -->
+            <div class="flex justify-center -my-3 relative z-10">
+                <button id="btnSwitch" class="bg-indigo-600 text-white p-4 rounded-full shadow-xl hover:bg-indigo-700 hover:rotate-180 transition-all duration-500 border-4 border-white group">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16V4m0 0L3 8m4-4l4 4m6 0v12m0 0l4-4m-4 4l-4-4" />
+                    </svg>
+                </button>
+            </div>
+
+            <!-- Output Box -->
+            <div class="space-y-2">
+                <label id="labelTarget" class="block text-xs font-black text-gray-400 uppercase tracking-widest ml-1">Aksara Soyombo</label>
+                <textarea id="outputArea" readonly class="w-full p-6 bg-indigo-50/20 border-2 border-indigo-100 border-dashed rounded-[2rem] h-52 soyombo-font text-indigo-950 placeholder:text-indigo-200" placeholder="Hasil muncul di sini..."></textarea>
+            </div>
+
+            <!-- Copy Button -->
+            <button id="btnCopy" class="w-full bg-indigo-800 text-white py-5 rounded-[2rem] font-black text-xl hover:bg-black transition shadow-xl flex items-center justify-center gap-4 btn-active">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" viewBox="0 0 20 20" fill="currentColor">
+                    <path d="M8 3a1 1 0 011-1h2a1 1 0 110 2H9a1 1 0 01-1-1z" />
+                    <path d="M6 3a2 2 0 00-2 2v11a2 2 0 002 2h8a2 2 0 002-2V5a2 2 0 00-2-2 3 3 0 01-3 3H9a3 3 0 01-3-3z" />
+                </svg>
+                SALIN HASIL AKSARA
+            </button>
+        </div>
+    </div>
+
+    <!-- Notification -->
+    <div id="toast" class="fixed bottom-10 left-1/2 -translate-x-1/2 bg-gray-900 text-white px-10 py-5 rounded-full shadow-2xl font-bold flex items-center gap-4 z-[100] opacity-0 pointer-events-none translate-y-10">
+        <div class="bg-green-500 rounded-full p-1.5">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-white" viewBox="0 0 20 20" fill="currentColor">
+                <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd" />
+            </svg>
+        </div>
+        Aksara Berhasil Disalin
+    </div>
+
+    <!-- Modal Info -->
+    <div id="modalInfo" class="fixed inset-0 bg-gray-900/40 backdrop-blur-md flex items-center justify-center p-4 z-[110] hidden">
+        <div class="bg-white rounded-[2.5rem] max-w-2xl w-full max-h-[85vh] overflow-hidden shadow-2xl flex flex-col">
+            <div class="p-8 border-b flex justify-between items-center bg-gray-50">
+                <h2 class="text-2xl font-black text-indigo-950">Panduan Transliterasi</h2>
+                <button id="btnCloseModal" class="text-gray-400 hover:text-red-500 transition">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                </button>
+            </div>
+            <div class="p-8 space-y-6 overflow-y-auto text-gray-700 leading-relaxed">
+                <div class="bg-indigo-50 p-6 rounded-[2rem] border border-indigo-100">
+                    <h3 class="font-black text-indigo-900 mb-2">Contoh Penulisan:</h3>
+                    <ul class="text-sm space-y-3 font-medium">
+                        <li class="flex justify-between border-b pb-1"><span>kang (Anusvara)</span> <span class="text-2xl">𑩜𑪖</span></li>
+                        <li class="flex justify-between border-b pb-1"><span>kah (Visarga)</span> <span class="text-2xl">𑩜𑪗</span></li>
+                        <li class="flex justify-between border-b pb-1"><span>kya (Medial Y)</span> <span class="text-2xl">𑩜𑪙𑩻</span></li>
+                        <li class="flex justify-between border-b pb-1"><span>kra (Medial R)</span> <span class="text-2xl">𑩜𑪙𑩼</span></li>
+                        <li class="flex justify-between border-b pb-1"><span>arka (Tumpuk)</span> <span class="text-2xl">𑩐𑩼𑪙𑩜</span></li>
+                    </ul>
+                </div>
+                <div class="bg-amber-50 p-6 rounded-[2rem] border border-amber-100">
+                    <h3 class="font-black text-amber-900 mb-1">Penting</h3>
+                    <p class="text-sm">Gunakan angka Latin (0-9). Sistem secara otomatis mendeteksi Sigeg (ng, h, r) di akhir suku kata.</p>
+                </div>
+            </div>
+            <div class="p-8 border-t bg-gray-50">
+                <button id="btnCloseModalBtn" class="w-full bg-indigo-900 text-white py-4 rounded-2xl font-black text-lg hover:bg-black transition">MENGERTI</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        /** MAPPING DATA AKSARA **/
+        const CONSONANTS = {
+            'kh': '\u{11A5D}', 'sy': '\u{11A6E}', 'ny': '\u{11A61}', 'ng': '\u{11A5E}',
+            'th': '\u{11A68}', 'dh': '\u{11A69}', 'sh': '\u{11A70}',
+            'k': '\u{11A5C}', 'g': '\u{11A5D}', 'c': '\u{11A5F}', 'j': '\u{11A60}',
+            't': '\u{11A62}', 'd': '\u{11A63}', 'n': '\u{11A64}',
+            'p': '\u{11A65}', 'b': '\u{11A66}', 'm': '\u{11A67}',
+            'y': '\u{11A6A}', 'r': '\u{11A6B}', 'l': '\u{11A6C}', 'w': '\u{11A6D}', 'v': '\u{11A6D}',
+            's': '\u{11A6E}', 'h': '\u{11A6F}', 'f': '\u{11A65}', 'z': '\u{11A71}', 'q': '\u{11A5C}'
+        };
+
+        const VOWELS = {
+            'ai': '\u{11A97}', 'au': '\u{11A98}', 'i': '\u{11A91}', 'u': '\u{11A92}', 
+            'e': '\u{11A94}', 'é': '\u{11A94}', 'o': '\u{11A96}', 'a': '' 
+        };
+
+        const SUB_CON = { 
+            'y': '\u{11A7B}', 'r': '\u{11A7C}', 'l': '\u{11A7D}', 'w': '\u{11A7E}' 
+        };
+
+        const FINALS = { 
+            'ng': '\u{11A96}', // Sesuai permintaan: 𑪖
+            'h': '\u{11A97}',  // Sesuai permintaan: 𑪗
+            'r': '\u{11A7C}'   // Subjoined R
+        };
+        
+        const SJ = '\u{11A99}'; // Subjoiner 𑪙
+        const CR = '\u{11A50}'; // Carrier A 𑩐
+
+        const REV_MAP = {};
+        for(let k in CONSONANTS) REV_MAP[CONSONANTS[k]] = k;
+        for(let k in VOWELS) if(VOWELS[k]) REV_MAP[VOWELS[k]] = k;
+        for(let k in FINALS) REV_MAP[FINALS[k]] = k;
+        REV_MAP[CR] = 'a';
+
+        /** TRANSLITERATION ENGINE **/
+        function toSoyombo(text) {
+            if(!text) return "";
+            let res = "";
+            let i = 0;
+            const s = text.toLowerCase();
+            const isV = (c) => /[aiueoé]/.test(c);
+
+            while(i < s.length) {
+                let startPos = i;
+                let char = s[i];
+
+                // Angka & Simbol tetap Latin
+                if(/[0-9]/.test(char) || !/[a-z\u00C0-\u017F]/.test(char)) {
+                    res += char;
+                    i++;
+                    continue;
+                }
+
+                // Logika khusus: ARKA
+                if (s.substr(i, 4) === "arka" && (i === 0 || s[i-1] === " ")) {
+                    res += CR + SUB_CON['r'] + SJ + CONSONANTS['k'];
+                    i += 4;
+                    continue;
+                }
+
+                // 1. Ambil Konsonan Utama
+                let con = "";
+                if(i + 1 < s.length && CONSONANTS[s[i] + s[i+1]]) { con = s[i] + s[i+1]; i += 2; }
+                else if(CONSONANTS[char]) { con = char; i++; }
+
+                let base = con ? CONSONANTS[con] : CR;
+                if(con === 'h' && !isV(s[i] || "")) base = CR;
+
+                // 2. Cek Medial (kya, kra, etc)
+                let med = "";
+                if(i < s.length && SUB_CON[s[i]] && isV(s[i+1] || "")) {
+                    med = SJ + SUB_CON[s[i]];
+                    i++;
+                }
+
+                // 3. Cek Vokal
+                let vow = "";
+                let v2 = s.substr(i, 2);
+                if(VOWELS[v2] !== undefined && v2.length > 1) { vow = VOWELS[v2]; i += 2; }
+                else if(VOWELS[s[i]] !== undefined) { vow = VOWELS[s[i]]; i++; }
+
+                // 4. Cek Final (Sigeg)
+                let fin = "";
+                if(s.substr(i, 2) === 'ng' && !isV(s[i+2] || "")) { 
+                    fin = FINALS['ng']; i += 2; 
+                } else if(s[i] === 'h' && !isV(s[i+1] || "")) { 
+                    fin = FINALS['h']; i++; 
+                } else if(s[i] === 'r' && !isV(s[i+1] || "")) {
+                    // Logic arka-style dalam kata
+                    if(i + 1 < s.length && /[a-z]/.test(s[i+1]) && !isV(s[i+1])) {
+                        fin = FINALS['r'] + SJ; 
+                    } else {
+                        fin = FINALS['r'];
+                    }
+                    i++;
+                }
+
+                res += base + med + vow + fin;
+                if(i === startPos) i++;
+            }
+            return res;
+        }
+
+        function toLatin(text) {
+            if(!text) return "";
+            let res = "";
+            const chars = [...text];
+            for(let i = 0; i < chars.length; i++) {
+                let c = chars[i];
+                if(c in REV_MAP) res += REV_MAP[c];
+                else if(c === SJ) continue;
+                else if(c === '\u{11A7B}') res += 'y';
+                else if(c === '\u{11A7C}') res += 'r';
+                else if(c === '\u{11A7D}') res += 'l';
+                else if(c === '\u{11A7E}') res += 'w';
+                else res += c;
+            }
+            return res;
+        }
+
+        /** UI LOGIC **/
+        let mode = 'L2S';
+        const inputArea = document.getElementById('inputArea');
+        const outputArea = document.getElementById('outputArea');
+        const btnSwitch = document.getElementById('btnSwitch');
+        const btnClear = document.getElementById('btnClear');
+        const btnCopy = document.getElementById('btnCopy');
+        const modeLabel = document.getElementById('modeLabel');
+
+        function update() {
+            const val = inputArea.value;
+            outputArea.value = mode === 'L2S' ? toSoyombo(val) : toLatin(val);
+        }
+
+        inputArea.addEventListener('input', update);
+
+        btnSwitch.addEventListener('click', () => {
+            mode = mode === 'L2S' ? 'S2L' : 'L2S';
+            const oldVal = inputArea.value;
+            inputArea.value = outputArea.value;
+            outputArea.value = oldVal;
+            if(mode === 'L2S') {
+                modeLabel.textContent = "Mode: Latin ➔ Soyombo";
+                inputArea.classList.remove('soyombo-font');
+                outputArea.classList.add('soyombo-font');
+            } else {
+                modeLabel.textContent = "Mode: Soyombo ➔ Latin";
+                inputArea.classList.add('soyombo-font');
+                outputArea.classList.remove('soyombo-font');
+            }
+            update();
+        });
+
+        btnClear.addEventListener('click', () => {
+            inputArea.value = "";
+            outputArea.value = "";
+            inputArea.focus();
+        });
+
+        btnCopy.addEventListener('click', () => {
+            if(!outputArea.value) return;
+            const el = document.createElement('textarea');
+            el.value = outputArea.value;
+            document.body.appendChild(el);
+            el.select();
+            document.execCommand('copy');
+            document.body.removeChild(el);
+
+            const toast = document.getElementById('toast');
+            toast.classList.remove('opacity-0', 'pointer-events-none', 'translate-y-10');
+            toast.classList.add('opacity-100', 'translate-y-0');
+            setTimeout(() => {
+                toast.classList.add('opacity-0', 'pointer-events-none', 'translate-y-10');
+                toast.classList.remove('opacity-100', 'translate-y-0');
+            }, 2000);
+        });
+
+        const modal = document.getElementById('modalInfo');
+        document.getElementById('btnInfo').onclick = () => modal.classList.remove('hidden');
+        document.getElementById('btnCloseModal').onclick = () => modal.classList.add('hidden');
+        document.getElementById('btnCloseModalBtn').onclick = () => modal.classList.add('hidden');
+        window.onclick = (e) => { if(e.target === modal) modal.classList.add('hidden'); };
+
+    </script>
+</body>
+</html>
