@@ -1,0 +1,264 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Transliterasi Aksara Yezidi untuk Jawa</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Yezidi&family=Inter:wght@400;600&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f8fafc;
+        }
+        .yezidi-font {
+            font-family: 'Noto Sans Yezidi', 'Inter', serif;
+            font-size: 1.8rem;
+        }
+        .rtl {
+            direction: rtl;
+        }
+        .copy-toast {
+            visibility: hidden;
+            min-width: 250px;
+            background-color: #333;
+            color: #fff;
+            text-align: center;
+            border-radius: 8px;
+            padding: 16px;
+            position: fixed;
+            z-index: 50;
+            left: 50%;
+            bottom: 30px;
+            transform: translateX(-50%);
+        }
+        .copy-toast.show {
+            visibility: visible;
+            animation: fadein 0.5s, fadeout 0.5s 2.5s;
+        }
+        @keyframes fadein { from { bottom: 0; opacity: 0; } to { bottom: 30px; opacity: 1; } }
+        @keyframes fadeout { from { bottom: 30px; opacity: 1; } to { bottom: 0; opacity: 0; } }
+
+        /* Scrollbar styles */
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: #f1f1f1; }
+        ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+    </style>
+</head>
+<body class="p-4 md:p-8">
+
+    <div class="max-w-4xl mx-auto bg-white rounded-2xl shadow-xl overflow-hidden border border-slate-200">
+        <!-- Header -->
+        <div class="bg-indigo-600 p-6 text-white flex justify-between items-center">
+            <div>
+                <h1 class="text-2xl font-bold">Aksara Yezidi 𐺀𐺁𐺂</h1>
+                <p class="text-indigo-100 text-sm">Transliterasi untuk Penutur Bahasa Jawa</p>
+            </div>
+            <button onclick="toggleInfo()" class="bg-indigo-500 hover:bg-indigo-400 p-2 rounded-full transition shadow-inner">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+            </button>
+        </div>
+
+        <div class="p-6 space-y-6">
+            <!-- Latin Input -->
+            <div class="space-y-2">
+                <label class="block text-sm font-semibold text-slate-700">Latin (Jawa/Indonesia)</label>
+                <textarea id="latinInput" 
+                    class="w-full p-4 border border-slate-300 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition h-32 text-lg outline-none"
+                    placeholder="Ketik di sini (contoh: Sugeng enjang, 123...)"></textarea>
+            </div>
+
+            <!-- Translation Direction Icon -->
+            <div class="flex justify-center -my-4">
+                <div class="bg-slate-100 p-2 rounded-full border border-slate-200">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-slate-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16V4m0 0L3 8m4-4l4 4m6 0v12m0 0l4-4m-4 4l-4-4" />
+                    </svg>
+                </div>
+            </div>
+
+            <!-- Yezidi Input -->
+            <div class="space-y-2">
+                <label class="block text-sm font-semibold text-slate-700">Aksara Yezidi (RTL)</label>
+                <textarea id="yezidiInput" 
+                    class="w-full p-4 border border-slate-300 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition h-32 text-2xl yezidi-font rtl outline-none"
+                    placeholder="𐺀𐺁𐺂..."></textarea>
+            </div>
+
+            <!-- Controls -->
+            <div class="flex flex-wrap gap-3">
+                <button onclick="copyText()" class="flex-1 bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-3 px-6 rounded-xl transition flex items-center justify-center gap-2">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                        <path d="M8 3a1 1 0 011-1h2a1 1 0 110 2H9a1 1 0 01-1-1z" />
+                        <path d="M6 3a2 2 0 00-2 2v11a2 2 0 002 2h8a2 2 0 002-2V5a2 2 0 00-2-2 3 3 0 01-3 3H9a3 3 0 01-3-3z" />
+                    </svg>
+                    Salin Aksara
+                </button>
+                <button onclick="clearText()" class="flex-1 bg-slate-200 hover:bg-slate-300 text-slate-700 font-bold py-3 px-6 rounded-xl transition flex items-center justify-center gap-2">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                        <path fill-rule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z" clip-rule="evenodd" />
+                    </svg>
+                    Bersihkan
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Info Modal -->
+    <div id="infoModal" class="fixed inset-0 bg-black/50 hidden z-50 flex items-center justify-center p-4">
+        <div class="bg-white rounded-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto shadow-2xl">
+            <div class="p-6 border-b sticky top-0 bg-white flex justify-between items-center">
+                <h2 class="text-xl font-bold text-slate-800">Panduan Aksara Yezidi - Jawa</h2>
+                <button onclick="toggleInfo()" class="text-slate-500 hover:text-slate-800">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                </button>
+            </div>
+            <div class="p-6 space-y-6">
+                <section>
+                    <h3 class="font-bold text-indigo-600 mb-2">Simbol & Angka</h3>
+                    <p class="text-slate-600 text-sm mb-3">Angka tetap menggunakan standar Latin untuk kompatibilitas tampilan.</p>
+                    <div class="grid grid-cols-1 gap-2 text-sm text-slate-700">
+                        <div class="bg-slate-50 p-2 border rounded"><strong>?</strong> (Tanda Tanya) → <span class="yezidi-font">؟</span></div>
+                        <div class="bg-slate-50 p-2 border rounded"><strong>Angka</strong> → 0 1 2 3 4 5 6 7 8 9</div>
+                    </div>
+                </section>
+                
+                <section>
+                    <h3 class="font-bold text-indigo-600 mb-2">Pemetaan Fonetik Jawa</h3>
+                    <div class="grid grid-cols-2 gap-2 text-sm text-slate-700">
+                        <div class="bg-slate-50 p-2 border rounded"><strong>th</strong> (Retroflex T) → <span class="yezidi-font">𐺓</span></div>
+                        <div class="bg-slate-50 p-2 border rounded"><strong>dh</strong> (Retroflex D) → <span class="yezidi-font">𐺒</span></div>
+                        <div class="bg-slate-50 p-2 border rounded"><strong>ng</strong> → <span class="yezidi-font">𐺝𐺚</span></div>
+                        <div class="bg-slate-50 p-2 border rounded"><strong>ny</strong> → <span class="yezidi-font">𐺝𐺡</span></div>
+                        <div class="bg-slate-50 p-2 border rounded"><strong>v / f</strong> → <span class="yezidi-font">𐺘 / 𐺗</span></div>
+                        <div class="bg-slate-50 p-2 border rounded"><strong>kh</strong> → <span class="yezidi-font">𐺈</span></div>
+                        <div class="bg-slate-50 p-2 border rounded"><strong>sy / sh</strong> → <span class="yezidi-font">𐺐</span></div>
+                    </div>
+                </section>
+            </div>
+            <div class="p-4 bg-slate-50 text-center">
+                <button onclick="toggleInfo()" class="bg-slate-800 text-white px-8 py-2 rounded-lg font-semibold hover:bg-slate-700 transition">Tutup</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Notification Toast -->
+    <div id="toast" class="copy-toast">Aksara Berhasil Disalin</div>
+
+    <script>
+        const latinInput = document.getElementById('latinInput');
+        const yezidiInput = document.getElementById('yezidiInput');
+        const infoModal = document.getElementById('infoModal');
+
+        // Mapping tanpa angka untuk menghindari 'boxes'
+        const mapping = {
+            'th': '\u{10E93}', 'dh': '\u{10E92}', 'ng': '\u{10E9D}\u{10E9A}', 
+            'ny': '\u{10E9D}\u{10EA1}', 'kh': '\u{10E88}', 'sy': '\u{10E90}',
+            'sh': '\u{10E90}', 'é': '\u{10EA2}', 'è': '\u{10EA2}', 'v': '\u{10E98}',
+            'a': '\u{10E80}', 'i': '\u{10EA1}', 'u': '\u{10E9F}', 
+            'e': '\u{10EA2}', 'o': '\u{10E9F}',
+            'b': '\u{10E81}', 'c': '\u{10E86}', 'd': '\u{10E89}', 'f': '\u{10E97}',
+            'g': '\u{10E9A}', 'h': '\u{10EA3}', 'j': '\u{10E85}', 'k': '\u{10E99}',
+            'l': '\u{10E9B}', 'm': '\u{10E9C}', 'n': '\u{10E9D}', 'p': '\u{10E82}',
+            'q': '\u{10E99}', 'r': '\u{10E8B}', 's': '\u{10E8F}', 't': '\u{10E83}',
+            'w': '\u{10E9F}', 'y': '\u{10EA1}', 'z': '\u{10E8D}',
+            '?': '\u{061F}' 
+        };
+
+        const reverseMapping = {};
+        for (let [key, val] of Object.entries(mapping)) {
+            if (!reverseMapping[val]) reverseMapping[val] = key;
+        }
+
+        function transliterateToYezidi(text) {
+            let result = text.toLowerCase();
+            const keys = Object.keys(mapping).sort((a, b) => b.length - a.length);
+            
+            let output = "";
+            for (let i = 0; i < result.length; ) {
+                let match = null;
+                for (const key of keys) {
+                    if (result.startsWith(key, i)) {
+                        match = key;
+                        break;
+                    }
+                }
+                if (match) {
+                    output += mapping[match];
+                    i += match.length;
+                } else {
+                    // Jika tidak ada di map (termasuk angka), biarkan karakter aslinya
+                    output += result[i];
+                    i++;
+                }
+            }
+            return output;
+        }
+
+        function transliterateToLatin(text) {
+            const chars = Array.from(text);
+            let output = "";
+            let idx = 0;
+            
+            while (idx < chars.length) {
+                let found = false;
+                let combinedTwo = (chars[idx] || "") + (chars[idx+1] || "");
+                let charOne = chars[idx];
+
+                if (reverseMapping[combinedTwo]) {
+                    output += reverseMapping[combinedTwo];
+                    idx += 2;
+                    found = true;
+                } else if (reverseMapping[charOne]) {
+                    output += reverseMapping[charOne];
+                    idx += 1;
+                    found = true;
+                }
+
+                if (!found) {
+                    output += chars[idx];
+                    idx++;
+                }
+            }
+            return output;
+        }
+
+        latinInput.addEventListener('input', (e) => {
+            yezidiInput.value = transliterateToYezidi(e.target.value);
+        });
+
+        yezidiInput.addEventListener('input', (e) => {
+            latinInput.value = transliterateToLatin(e.target.value);
+        });
+
+        function clearText() {
+            latinInput.value = "";
+            yezidiInput.value = "";
+        }
+
+        function copyText() {
+            if (!yezidiInput.value) return;
+            const textToCopy = yezidiInput.value;
+            const textArea = document.createElement("textarea");
+            textArea.value = textToCopy;
+            document.body.appendChild(textArea);
+            textArea.select();
+            document.execCommand('copy');
+            document.body.removeChild(textArea);
+
+            const toast = document.getElementById("toast");
+            toast.className = "copy-toast show";
+            setTimeout(() => { toast.className = toast.className.replace("show", ""); }, 3000);
+        }
+
+        function toggleInfo() {
+            infoModal.classList.toggle('hidden');
+        }
+    </script>
+</body>
+</html>
