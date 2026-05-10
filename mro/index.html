@@ -1,0 +1,338 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Transliterasi Aksara Mro (Mru)</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Plus+Jakarta+Sans', sans-serif;
+            background-color: #f8fafc;
+        }
+        .mro-font {
+            font-family: serif;
+        }
+        .custom-scrollbar::-webkit-scrollbar {
+            width: 6px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+            background-color: #cbd5e1;
+            border-radius: 10px;
+        }
+        .notification {
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            transform: translate(-50%, 20px);
+            opacity: 0;
+            pointer-events: none;
+        }
+        .notification.show {
+            transform: translate(-50%, 0);
+            opacity: 1;
+            pointer-events: auto;
+        }
+        .swap-btn {
+            transition: transform 0.3s ease;
+        }
+        .swap-btn.rotate {
+            transform: rotate(180deg);
+        }
+    </style>
+</head>
+<body class="min-h-screen p-4 md:p-8">
+
+    <div class="max-w-4xl mx-auto">
+        <!-- Header -->
+        <header class="text-center mb-10">
+            <h1 class="text-3xl md:text-4xl font-bold text-slate-800 mb-2">Transliterasi Aksara Mro 𖩃𖩓𖩑</h1>
+            <p class="text-slate-600">Konverter dua arah Latin ↔ Aksara Mru</p>
+        </header>
+
+        <!-- Mode Indicator / Switcher -->
+        <div class="flex justify-center mb-6">
+            <div class="bg-white px-6 py-2 rounded-full shadow-sm border border-slate-100 flex items-center space-x-4">
+                <span id="labelFrom" class="font-bold text-blue-600 uppercase text-xs tracking-widest">Latin</span>
+                <button onclick="switchMode()" class="swap-btn p-2 bg-slate-100 hover:bg-slate-200 rounded-full text-slate-600" id="btnSwitch">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4" />
+                    </svg>
+                </button>
+                <span id="labelTo" class="font-bold text-slate-400 uppercase text-xs tracking-widest">Aksara Mro</span>
+            </div>
+        </div>
+
+        <!-- Main Converter Card -->
+        <div class="bg-white rounded-3xl shadow-xl shadow-slate-200/50 overflow-hidden border border-slate-100">
+            <div class="grid grid-cols-1 md:grid-cols-2">
+                
+                <!-- Box 1 (Input) -->
+                <div class="p-6 border-b md:border-b-0 md:border-r border-slate-100">
+                    <div class="flex items-center justify-between mb-4">
+                        <label id="box1Label" class="font-semibold text-slate-700 uppercase text-xs tracking-wider">Input Teks</label>
+                        <div class="flex space-x-2">
+                            <button onclick="copyText('box1')" class="text-slate-400 hover:text-blue-500 transition-colors" title="Salin Input">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2m0 0h2a2 2 0 012 2v3m2 4H10m0 0l3-3m-3 3l3 3" />
+                                </svg>
+                            </button>
+                            <button onclick="clearText()" class="text-slate-400 hover:text-red-500 transition-colors" title="Hapus teks">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                                </svg>
+                            </button>
+                        </div>
+                    </div>
+                    <textarea id="box1" 
+                        class="w-full h-48 md:h-64 p-0 text-xl border-none focus:ring-0 placeholder-slate-300 resize-none custom-scrollbar" 
+                        placeholder="Ketik di sini..."></textarea>
+                </div>
+
+                <!-- Box 2 (Output) -->
+                <div class="p-6 bg-slate-50/50">
+                    <div class="flex items-center justify-between mb-4">
+                        <label id="box2Label" class="font-semibold text-slate-700 uppercase text-xs tracking-wider">Hasil Transliterasi</label>
+                        <button onclick="copyText('box2')" class="flex items-center space-x-1 text-blue-600 hover:text-blue-800 transition-colors font-medium text-sm">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2m0 0h2a2 2 0 012 2v3m2 4H10m0 0l3-3m-3 3l3 3" />
+                            </svg>
+                            <span>Salin</span>
+                        </button>
+                    </div>
+                    <textarea id="box2" 
+                        class="w-full h-48 md:h-64 p-0 text-xl border-none focus:ring-0 bg-transparent placeholder-slate-300 resize-none custom-scrollbar" 
+                        placeholder="..." readonly></textarea>
+                </div>
+
+            </div>
+        </div>
+
+        <!-- Guide & Info -->
+        <div class="mt-8 flex flex-col md:flex-row items-center justify-between gap-4">
+            <button onclick="toggleGuide()" class="px-6 py-2 bg-slate-800 text-white rounded-full hover:bg-slate-700 transition-all shadow-lg">
+                Panduan Aksara
+            </button>
+            <p class="text-slate-400 text-sm italic">Mro script adalah alfabet linear (seperti Latin), bukan abugida.</p>
+        </div>
+
+        <!-- Guide Modal (Same structure as before) -->
+        <div id="guideModal" class="fixed inset-0 bg-black/40 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+            <div class="bg-white rounded-3xl max-w-2xl w-full max-h-[80vh] overflow-y-auto custom-scrollbar shadow-2xl p-8">
+                <div class="flex justify-between items-center mb-6">
+                    <h2 class="text-2xl font-bold text-slate-800">Panduan Transliterasi</h2>
+                    <button onclick="toggleGuide()" class="p-2 hover:bg-slate-100 rounded-full transition-colors">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" /></svg>
+                    </button>
+                </div>
+                <div class="space-y-6 text-slate-600">
+                    <section>
+                        <h3 class="font-bold text-slate-800 mb-2">Aturan Dasar</h3>
+                        <p class="text-sm">Aksara Mro tidak menggunakan pasangan atau sandhangan. Jika Anda menulis "KA", maka tulis huruf K (𖩌) lalu huruf A (𖩒). <br>Contoh: <strong>Kopi</strong> → 𖩌 (k) 𖩑 (o) 𖩐 (p) 𖩊 (i) = 𖩌𖩑𖩐𖩊.</p>
+                    </section>
+                    <section>
+                        <h3 class="font-bold text-slate-800 mb-2">Pemetaan Khusus</h3>
+                        <div class="grid grid-cols-2 gap-4 text-xs">
+                            <div class="bg-slate-50 p-2 rounded">ng: 𖩁</div>
+                            <div class="bg-slate-50 p-2 rounded">ny/sy/z: 𖩔</div>
+                            <div class="bg-slate-50 p-2 rounded">th: 𖩕</div>
+                            <div class="bg-slate-50 p-2 rounded">dh: 𖩅</div>
+                        </div>
+                    </section>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast -->
+    <div id="toast" class="notification fixed bottom-10 left-1/2 bg-slate-800 text-white px-6 py-3 rounded-full shadow-2xl flex items-center space-x-2 z-[100]">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-green-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+        </svg>
+        <span id="toastMessage" class="font-medium">Teks Berhasil Disalin</span>
+    </div>
+
+    <script>
+        const box1 = document.getElementById('box1');
+        const box2 = document.getElementById('box2');
+        const box1Label = document.getElementById('box1Label');
+        const box2Label = document.getElementById('box2Label');
+        const labelFrom = document.getElementById('labelFrom');
+        const labelTo = document.getElementById('labelTo');
+        const btnSwitch = document.getElementById('btnSwitch');
+        const toast = document.getElementById('toast');
+        const toastMessage = document.getElementById('toastMessage');
+        const guideModal = document.getElementById('guideModal');
+
+        let isLatinToMro = true;
+
+        const dictionary = [
+            // Digraphs & Longest First
+            { l: 'kh', m: '𖩈' },
+            { l: 'ng', m: '𖩁' },
+            { l: 'ny', m: '𖩔' },
+            { l: 'sy', m: '𖩔' },
+            { l: 'th', m: '𖩕' },
+            { l: 'dh', m: '𖩅' },
+            { l: 'ph', m: '𖩇' },
+            { l: 'au', m: '𖩖' },
+            // Vowels
+            { l: 'ā', m: '𖩆' },
+            { l: 'i', m: '𖩊' },
+            { l: 'u', m: '𖩓' },
+            { l: 'e', m: '𖩘' },
+            { l: 'é', m: '𖩘' },
+            { l: 'o', m: '𖩑' },
+            { l: 'ô', m: '𖩝' },
+            { l: 'a', m: '𖩒' },
+            // Consonants
+            { l: 'k', m: '𖩌' },
+            { l: 'q', m: '𖩌' },
+            { l: 'g', m: '𖩃' }, 
+            { l: 'c', m: '𖩋' },
+            { l: 'j', m: '𖩋' },
+            { l: 't', m: '𖩀' },
+            { l: 'd', m: '𖩅' },
+            { l: 'n', m: '𖩏' },
+            { l: 'p', m: '𖩐' },
+            { l: 'f', m: '𖩇' },
+            { l: 'b', m: '𖩄' },
+            { l: 'm', m: '𖩃' },
+            { l: 'y', m: '𖩂' },
+            { l: 'r', m: '𖩓' },
+            { l: 'l', m: '𖩍' },
+            { l: 'w', m: '𖩗' },
+            { l: 'v', m: '𖩗' },
+            { l: 's', m: '𖩔' },
+            { l: 'h', m: '𖩉' },
+            { l: 'z', m: '𖩔' },
+            // Digits
+            { l: '0', m: '𖩠' }, { l: '1', m: '𖩡' }, { l: '2', m: '𖩢' }, { l: '3', m: '𖩣' }, { l: '4', m: '𖩤' },
+            { l: '5', m: '𖩥' }, { l: '6', m: '𖩦' }, { l: '7', m: '𖩧' }, { l: '8', m: '𖩨' }, { l: '9', m: '𖩩' }
+        ];
+
+        // Unique Mro to Latin for exact reverse mapping
+        const reverseDictionary = [];
+        const seenMro = new Set();
+        dictionary.forEach(item => {
+            if (!seenMro.has(item.m)) {
+                reverseDictionary.push({ m: item.m, l: item.l });
+                seenMro.add(item.m);
+            }
+        });
+
+        function transliterate() {
+            const input = box1.value;
+            if (isLatinToMro) {
+                box2.value = latinToMro(input);
+                box2.style.fontFamily = 'serif';
+            } else {
+                box2.value = mroToLatin(input);
+                box2.style.fontFamily = 'inherit';
+            }
+        }
+
+        function latinToMro(text) {
+            let result = text.toLowerCase();
+            let i = 0;
+            let output = "";
+            while (i < result.length) {
+                let match = dictionary.find(item => result.startsWith(item.l, i));
+                if (match) {
+                    output += match.m;
+                    i += match.l.length;
+                } else {
+                    output += result[i];
+                    i++;
+                }
+            }
+            return output;
+        }
+
+        function mroToLatin(text) {
+            let output = "";
+            for (let char of text) {
+                let match = reverseDictionary.find(item => item.m === char);
+                if (match) {
+                    output += match.l;
+                } else {
+                    output += char;
+                }
+            }
+            return output;
+        }
+
+        function switchMode() {
+            isLatinToMro = !isLatinToMro;
+            btnSwitch.classList.toggle('rotate');
+            
+            // Swap labels
+            const tempFrom = labelFrom.innerText;
+            labelFrom.innerText = labelTo.innerText;
+            labelTo.innerText = tempFrom;
+
+            labelFrom.classList.toggle('text-blue-600');
+            labelFrom.classList.toggle('text-slate-400');
+            labelTo.classList.toggle('text-blue-600');
+            labelTo.classList.toggle('text-slate-400');
+
+            // Update UI Labels
+            box1Label.innerText = isLatinToMro ? "Latin / Jawa" : "Aksara Mro";
+            box2Label.innerText = isLatinToMro ? "Aksara Mro" : "Latin / Jawa";
+            
+            // Swap Box Content & Styling
+            const tempVal = box1.value;
+            box1.value = box2.value;
+            box2.value = tempVal;
+            
+            box1.style.fontFamily = isLatinToMro ? 'inherit' : 'serif';
+            box2.style.fontFamily = isLatinToMro ? 'serif' : 'inherit';
+            
+            box1.placeholder = isLatinToMro ? "Ketik Latin..." : "Ketik Aksara Mro...";
+            
+            transliterate();
+            box1.focus();
+        }
+
+        box1.addEventListener('input', transliterate);
+
+        function clearText() {
+            box1.value = "";
+            box2.value = "";
+            box1.focus();
+        }
+
+        function copyText(id) {
+            const el = document.getElementById(id);
+            if (!el.value) return;
+
+            const textArea = document.createElement("textarea");
+            textArea.value = el.value;
+            document.body.appendChild(textArea);
+            textArea.select();
+            try {
+                document.execCommand('copy');
+                toastMessage.innerText = (id === 'box1') ? "Teks Input Disalin" : "Aksara Berhasil Disalin";
+                showToast();
+            } catch (err) {
+                console.error('Gagal menyalin', err);
+            }
+            document.body.removeChild(textArea);
+        }
+
+        function showToast() {
+            toast.classList.add('show');
+            setTimeout(() => {
+                toast.classList.remove('show');
+            }, 2500);
+        }
+
+        function toggleGuide() {
+            guideModal.classList.toggle('hidden');
+        }
+
+        guideModal.addEventListener('click', (e) => {
+            if (e.target === guideModal) toggleGuide();
+        });
+    </script>
+</body>
+</html>
