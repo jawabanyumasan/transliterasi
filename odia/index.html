@@ -1,0 +1,323 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Transliterasi Aksara Odia untuk Orang Jawa</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Oriya:wght@400;700&family=Inter:wght@300;400;600&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f8fafc;
+        }
+        .odia-font {
+            font-family: 'Noto Sans Oriya', sans-serif;
+        }
+        .custom-scrollbar::-webkit-scrollbar {
+            width: 6px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-track {
+            background: #f1f1f1;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+            background: #cbd5e1;
+            border-radius: 10px;
+        }
+        .btn-active {
+            background-color: #3b82f6;
+            color: white;
+        }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col items-center p-4 md:p-8">
+
+    <div class="max-w-4xl w-full bg-white rounded-2xl shadow-xl overflow-hidden border border-slate-200">
+        <!-- Header -->
+        <div class="bg-gradient-to-r from-indigo-600 to-blue-500 p-6 text-white">
+            <h1 class="text-2xl md:text-3xl font-bold mb-2 flex items-center gap-2">
+                <span>ଅକ୍ଷର</span> Transliterasi Latin ↔ Odia
+            </h1>
+            <p class="text-indigo-100 text-sm md:text-base opacity-90">
+                Alat bantu tulis aksara Odia (Oriya) dengan pemetaan logika Aksara Jawa.
+            </p>
+        </div>
+
+        <!-- Toolbar -->
+        <div class="p-4 border-b border-slate-100 flex flex-wrap gap-3 justify-between items-center bg-slate-50">
+            <div class="flex gap-2">
+                <button id="btnLatOdi" onclick="setMode('latinToOdia')" class="px-4 py-2 rounded-lg font-semibold text-sm transition-all shadow-sm btn-active">
+                    Latin ➔ Odia
+                </button>
+                <button id="btnOdiLat" onclick="setMode('odiaToLatin')" class="px-4 py-2 rounded-lg font-semibold text-sm transition-all shadow-sm bg-white text-slate-600 border border-slate-200">
+                    Odia ➔ Latin
+                </button>
+            </div>
+            <div class="flex gap-2">
+                <button onclick="showInfo()" class="p-2 text-slate-500 hover:text-blue-600 hover:bg-blue-50 rounded-full transition-colors" title="Panduan">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/></svg>
+                </button>
+                <button onclick="clearAll()" class="p-2 text-slate-500 hover:text-red-600 hover:bg-red-50 rounded-full transition-colors" title="Bersihkan">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/><line x1="10" y1="11" x2="10" y2="17"/><line x1="14" y1="11" x2="14" y2="17"/></svg>
+                </button>
+            </div>
+        </div>
+
+        <!-- Editor Area -->
+        <div class="grid md:grid-cols-2 divide-y md:divide-y-0 md:divide-x border-b border-slate-100">
+            <!-- Input -->
+            <div class="p-4">
+                <label id="inputLabel" class="block text-xs font-bold uppercase tracking-wider text-slate-400 mb-2">Input Latin</label>
+                <textarea id="inputText" class="w-full h-48 md:h-64 p-3 border-none focus:ring-0 text-lg resize-none custom-scrollbar" placeholder="Ketik di sini..."></textarea>
+            </div>
+            <!-- Output -->
+            <div class="p-4 bg-slate-50/50">
+                <label id="outputLabel" class="block text-xs font-bold uppercase tracking-wider text-slate-400 mb-2">Aksara Odia</label>
+                <div id="outputText" class="w-full h-48 md:h-64 p-3 text-2xl odia-font break-words overflow-y-auto custom-scrollbar"></div>
+            </div>
+        </div>
+
+        <!-- Footer Actions -->
+        <div class="p-4 flex justify-end">
+            <button onclick="copyResult()" class="flex items-center gap-2 bg-slate-800 hover:bg-slate-900 text-white px-6 py-2 rounded-xl font-medium transition-all shadow-lg active:scale-95">
+                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="14" height="14" x="8" y="8" rx="2" ry="2"/><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"/></svg>
+                Salin Teks
+            </button>
+        </div>
+    </div>
+
+    <!-- Notification -->
+    <div id="toast" class="fixed bottom-8 left-1/2 -translate-x-1/2 bg-slate-900 text-white px-6 py-3 rounded-full text-sm font-medium shadow-2xl opacity-0 transition-opacity pointer-events-none">
+        Aksara Berhasil Disalin
+    </div>
+
+    <!-- Modal Info -->
+    <div id="infoModal" class="fixed inset-0 bg-black/40 backdrop-blur-sm hidden z-50 flex items-center justify-center p-4">
+        <div class="bg-white rounded-2xl max-w-2xl w-full max-h-[80vh] overflow-hidden flex flex-col shadow-2xl">
+            <div class="p-6 border-b border-slate-100 flex justify-between items-center">
+                <h2 class="text-xl font-bold text-slate-800">Panduan Transliterasi</h2>
+                <button onclick="closeInfo()" class="text-slate-400 hover:text-slate-600">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+                </button>
+            </div>
+            <div class="p-6 overflow-y-auto custom-scrollbar text-sm text-slate-600 space-y-4">
+                <div>
+                    <h3 class="font-bold text-slate-800 mb-1">Vokal Mandiri & Matra</h3>
+                    <p>a(ଅ), i(ଇ), u(ଉ), e(ଏ), é(ଏ˘), ai(ଐ), o(ଓ), au(ଔ)</p>
+                    <p class="text-xs text-blue-600">Contoh: ka(କ), kā(କା), ki(କି), ku(କୁ), ke(କେ), ké(କେ˘)</p>
+                </div>
+                <div>
+                    <h3 class="font-bold text-slate-800 mb-1">Sistem Medial (Pengkal & Cakra)</h3>
+                    <p>kya (କ୍ଯ) - Pengkal | kra (କ୍ର) - Cakra</p>
+                    <p>kla (କ୍ଲ) - L-la | kwa (କ୍ୱ) - W-wa</p>
+                </div>
+                <div>
+                    <h3 class="font-bold text-slate-800 mb-1">Sistem Final (Panyigeg)</h3>
+                    <p>kang (କଂ) - Cecak | kah (କଃ) - Wignyan | arka (ଅର୍କ) - Layar (Reph)</p>
+                    <p>ak (ଅକ୍) - Pangkon/Virama</p>
+                </div>
+                <div>
+                    <h3 class="font-bold text-slate-800 mb-1">Huruf Serapan & Angka</h3>
+                    <p>f/v(ଫ଼), z(ଜ଼), kh(ଖ଼), sy(ଶ), q(କ଼)</p>
+                    <p>Angka: 0-9 ➔ ୦-୯</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Mapping Data
+        const odiaMapping = {
+            'a': 'ଅ', 'ā': 'ଆ', 'i': 'ଇ', 'ī': 'ଈ', 'u': 'ଉ', 'ū': 'ଉ', 
+            'e': 'ଏ', 'é': 'ଏ˘', 'ai': 'ଐ', 'o': 'ଓ', 'au': 'ଔ',
+            'k': 'କ', 'kh': 'ଖ', 'g': 'ଗ', 'gh': 'ଘ', 'ng': 'ଙ',
+            'c': 'ଚ', 'ch': 'ଛ', 'j': 'ଜ', 'jh': 'ଝ', 'ny': 'ଞ',
+            'ṭ': 'ଟ', 'ṭh': 'ଠ', 'ḍ': 'ଡ', 'ḍh': 'ଢ', 'ṇ': 'ଣ',
+            't': 'ତ', 'th': 'ଥ', 'd': 'ଦ', 'dh': 'ଧ', 'n': 'ନ',
+            'p': 'ପ', 'ph': 'ଫ', 'b': 'ବ', 'bh': 'ଭ', 'm': 'ମ',
+            'y': 'ଯ', 'r': 'ର', 'l': 'ଲ', 'w': 'ୱ', 'v': 'ୱ',
+            'ś': 'ଶ', 'ṣ': 'ଷ', 's': 'ସ', 'h': 'ହ',
+            'f': 'ଫ଼', 'z': 'ଜ଼', 'q': 'କ଼',
+            'ya': '୍ଯ', 'ra': '୍ର', 'la': '୍ଲ', 'wa': '୍ୱ',
+            'ng_final': 'ଂ', 'h_final': 'ଃ', 'r_reph': 'ର୍',
+            'm_ā': 'ା', 'm_i': 'ି', 'm_ī': 'ୀ', 'm_u': 'ୁ', 'm_ū': 'ୂ',
+            'm_e': 'େ', 'm_é': 'େ˘', 'm_ai': 'ୈ', 'm_o': 'ୋ', 'm_au': 'ୌ',
+            '0': '୦', '1': '୧', '2': '୨', '3': '୩', '4': '୪', 
+            '5': '୫', '6': '୬', '7': '୭', '8': '୮', '9': '୯'
+        };
+
+        let currentMode = 'latinToOdia';
+
+        function setMode(mode) {
+            currentMode = mode;
+            document.getElementById('btnLatOdi').className = mode === 'latinToOdia' ? 
+                "px-4 py-2 rounded-lg font-semibold text-sm transition-all shadow-sm btn-active" : 
+                "px-4 py-2 rounded-lg font-semibold text-sm transition-all shadow-sm bg-white text-slate-600 border border-slate-200";
+            document.getElementById('btnOdiLat').className = mode === 'odiaToLatin' ? 
+                "px-4 py-2 rounded-lg font-semibold text-sm transition-all shadow-sm btn-active" : 
+                "px-4 py-2 rounded-lg font-semibold text-sm transition-all shadow-sm bg-white text-slate-600 border border-slate-200";
+            document.getElementById('inputLabel').innerText = mode === 'latinToOdia' ? "Input Latin" : "Input Odia";
+            document.getElementById('outputLabel').innerText = mode === 'latinToOdia' ? "Aksara Odia" : "Teks Latin";
+            clearAll();
+        }
+
+        function transliterateLatinToOdia(text) {
+            if (!text) return "";
+            let lower = text.toLowerCase();
+            let result = "";
+            let i = 0;
+
+            while (i < lower.length) {
+                let chunk = lower.slice(i);
+                
+                if (/[0-9]/.test(lower[i])) {
+                    result += odiaMapping[lower[i]];
+                    i++; continue;
+                }
+
+                if (chunk.startsWith('sy')) {
+                    let next = lower.slice(i+2);
+                    let base = odiaMapping['ś'];
+                    if (next.startsWith('ah')) { result += base + odiaMapping['h_final']; i += 4; }
+                    else if (next.startsWith('ang')) { result += base + odiaMapping['ng_final']; i += 5; }
+                    else if (next.startsWith('a')) { result += base; i += 3; }
+                    else if (next.startsWith('i')) { result += base + odiaMapping['m_i']; i += 3; }
+                    else if (next.startsWith('u')) { result += base + odiaMapping['m_u']; i += 3; }
+                    else if (next.startsWith('e')) { result += base + odiaMapping['m_e']; i += 3; }
+                    else if (next.startsWith('é')) { result += base + odiaMapping['m_é']; i += 3; }
+                    else if (next.startsWith('o')) { result += base + odiaMapping['m_o']; i += 3; }
+                    else { result += base + '୍'; i += 2; }
+                    continue;
+                }
+
+                if (lower[i] === 'r' && i + 1 < lower.length && !['a','e','i','o','u','é'].includes(lower[i+1]) && lower[i+1] !== ' ') {
+                    let nextChar = lower[i+1];
+                    let nextConsonant = odiaMapping[nextChar] || nextChar;
+                    result += nextConsonant + '୍'; 
+                    i++; continue;
+                }
+
+                let digraphs = ['kh','gh','ch','jh','th','dh','ph','bh','ng','ny'];
+                let foundDigraph = false;
+                for (let dg of digraphs) {
+                    if (chunk.startsWith(dg)) {
+                        let base = odiaMapping[dg];
+                        let after = lower.slice(i+dg.length);
+                        
+                        // Handle Final Wignyan (ah) and Cecak (ang)
+                        if (after.startsWith('ah')) { result += base + odiaMapping['h_final']; i += dg.length + 2; }
+                        else if (after.startsWith('ang')) { result += base + odiaMapping['ng_final']; i += dg.length + 3; }
+                        // Medials
+                        else if (after.startsWith('ya')) { result += base + odiaMapping['ya']; i += dg.length + 2; }
+                        else if (after.startsWith('ra')) { result += base + odiaMapping['ra']; i += dg.length + 2; }
+                        else if (after.startsWith('la')) { result += base + odiaMapping['la']; i += dg.length + 2; }
+                        else if (after.startsWith('wa')) { result += base + odiaMapping['wa']; i += dg.length + 2; }
+                        // Vowels
+                        else if (after.startsWith('ai')) { result += base + odiaMapping['m_ai']; i += dg.length + 2; }
+                        else if (after.startsWith('au')) { result += base + odiaMapping['m_au']; i += dg.length + 2; }
+                        else if (after.startsWith('a')) { result += base; i += dg.length + 1; }
+                        else if (after.startsWith('ā')) { result += base + odiaMapping['m_ā']; i += dg.length + 1; }
+                        else if (after.startsWith('i')) { result += base + odiaMapping['m_i']; i += dg.length + 1; }
+                        else if (after.startsWith('u')) { result += base + odiaMapping['m_u']; i += dg.length + 1; }
+                        else if (after.startsWith('e')) { result += base + odiaMapping['m_e']; i += dg.length + 1; }
+                        else if (after.startsWith('é')) { result += base + odiaMapping['m_é']; i += dg.length + 1; }
+                        else if (after.startsWith('o')) { result += base + odiaMapping['m_o']; i += dg.length + 1; }
+                        else if (dg === 'ng' && (after === "" || after.startsWith(" "))) { result += odiaMapping['ng_final']; i += 2; }
+                        else { result += base + '୍'; i += dg.length; }
+                        foundDigraph = true;
+                        break;
+                    }
+                }
+                if (foundDigraph) continue;
+
+                if (odiaMapping[lower[i]] && !['a','i','u','e','o','é'].includes(lower[i])) {
+                    let base = odiaMapping[lower[i]];
+                    let after = lower.slice(i+1);
+                    
+                    if (after.startsWith('ah')) { result += base + odiaMapping['h_final']; i += 3; }
+                    else if (after.startsWith('ang')) { result += base + odiaMapping['ng_final']; i += 4; }
+                    else if (after.startsWith('ya')) { result += base + odiaMapping['ya']; i += 3; }
+                    else if (after.startsWith('ra')) { result += base + odiaMapping['ra']; i += 3; }
+                    else if (after.startsWith('la')) { result += base + odiaMapping['la']; i += 3; }
+                    else if (after.startsWith('wa')) { result += base + odiaMapping['wa']; i += 3; }
+                    else if (after.startsWith('ai')) { result += base + odiaMapping['m_ai']; i += 3; }
+                    else if (after.startsWith('au')) { result += base + odiaMapping['m_au']; i += 3; }
+                    else if (after.startsWith('a')) { result += base; i += 2; }
+                    else if (after.startsWith('ā')) { result += base + odiaMapping['m_ā']; i += 2; }
+                    else if (after.startsWith('i')) { result += base + odiaMapping['m_i']; i += 2; }
+                    else if (after.startsWith('u')) { result += base + odiaMapping['m_u']; i += 2; }
+                    else if (after.startsWith('e')) { result += base + odiaMapping['m_e']; i += 2; }
+                    else if (after.startsWith('é')) { result += base + odiaMapping['m_é']; i += 2; }
+                    else if (after.startsWith('o')) { result += base + odiaMapping['m_o']; i += 2; }
+                    else { result += base + '୍'; i++; }
+                    continue;
+                }
+
+                if (['a','i','u','e','o','é'].includes(lower[i])) {
+                    if (chunk.startsWith('ai')) { result += odiaMapping['ai']; i += 2; }
+                    else if (chunk.startsWith('au')) { result += odiaMapping['au']; i += 2; }
+                    else { result += odiaMapping[lower[i]] || lower[i]; i++; }
+                    continue;
+                }
+
+                result += lower[i];
+                i++;
+            }
+            return result;
+        }
+
+        function transliterateOdiaToLatin(text) {
+            const reverseMap = {};
+            for (let key in odiaMapping) {
+                if (!reverseMap[odiaMapping[key]]) reverseMap[odiaMapping[key]] = key;
+            }
+            reverseMap['ଂ'] = 'ng';
+            reverseMap['ଃ'] = 'h';
+            reverseMap['୍'] = ''; 
+            
+            let result = "";
+            for (let char of text) {
+                result += reverseMap[char] || char;
+            }
+            return result;
+        }
+
+        document.getElementById('inputText').addEventListener('input', (e) => {
+            const text = e.target.value;
+            const output = document.getElementById('outputText');
+            if (currentMode === 'latinToOdia') {
+                output.innerText = transliterateLatinToOdia(text);
+            } else {
+                output.innerText = transliterateOdiaToLatin(text);
+            }
+        });
+
+        function clearAll() {
+            document.getElementById('inputText').value = "";
+            document.getElementById('outputText').innerText = "";
+        }
+
+        function copyResult() {
+            const text = document.getElementById('outputText').innerText;
+            if (!text) return;
+            const el = document.createElement('textarea');
+            el.value = text;
+            document.body.appendChild(el);
+            el.select();
+            document.execCommand('copy');
+            document.body.removeChild(el);
+            const toast = document.getElementById('toast');
+            toast.style.opacity = '1';
+            setTimeout(() => { toast.style.opacity = '0'; }, 2000);
+        }
+
+        function showInfo() {
+            document.getElementById('infoModal').classList.remove('hidden');
+        }
+
+        function closeInfo() {
+            document.getElementById('infoModal').classList.add('hidden');
+        }
+    </script>
+</body>
+</html>
