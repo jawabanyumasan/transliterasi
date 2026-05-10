@@ -1,0 +1,326 @@
+<!DOCTYPE html>
+<html lang="si">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sinhala Script for Javanese Users</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Sinhala:wght@400;700&family=Inter:wght@300;400;600&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', 'Noto Sans Sinhala', sans-serif;
+            background-color: #f8fafc;
+        }
+        .sinhala-font {
+            font-family: 'Noto Sans Sinhala', sans-serif;
+        }
+        .glass-effect {
+            background: rgba(255, 255, 255, 0.9);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(148, 163, 184, 0.1);
+        }
+        .custom-scrollbar::-webkit-scrollbar {
+            width: 6px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+            background: #cbd5e1;
+            border-radius: 10px;
+        }
+        /* Toast Notification Styles */
+        #toast {
+            visibility: hidden;
+            opacity: 0;
+            transform: translate(-50%, 20px);
+            transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+        #toast.show {
+            visibility: visible;
+            opacity: 1;
+            transform: translate(-50%, 0);
+        }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col items-center p-4 md:p-8">
+
+    <!-- Header -->
+    <header class="w-full max-w-2xl text-center mb-8">
+        <h1 class="text-3xl font-bold text-slate-800 mb-2">සිංහල අක්ෂර මාලාව</h1>
+        <p class="text-slate-500 italic">Transliterasi Sinhala untuk Pengguna Jawa (Two-Way)</p>
+    </header>
+
+    <!-- Main Converter -->
+    <main class="w-full max-w-2xl bg-white rounded-3xl shadow-xl p-6 md:p-8 space-y-6">
+        
+        <!-- Mode Switcher -->
+        <div class="flex items-center justify-between bg-slate-100 p-1 rounded-2xl relative">
+            <button id="mode-latin-si" class="flex-1 py-3 px-4 rounded-xl font-semibold text-sm transition-all duration-300 z-10 bg-white shadow-sm text-blue-600">
+                Latin → Sinhala
+            </button>
+            <button id="mode-si-latin" class="flex-1 py-3 px-4 rounded-xl font-semibold text-sm transition-all duration-300 z-10 text-slate-600">
+                Sinhala → Latin
+            </button>
+        </div>
+
+        <!-- Input Area -->
+        <div class="space-y-4">
+            <div class="relative">
+                <label id="input-label" class="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-2 ml-1">Input Latin</label>
+                <textarea id="input-text" placeholder="Ketik di sini... (Contoh: pantai, mama, ka, kya)" class="w-full h-40 p-4 bg-slate-50 border border-slate-200 rounded-2xl focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all resize-none text-lg"></textarea>
+            </div>
+
+            <!-- Conversion Result -->
+            <div class="relative">
+                <label id="output-label" class="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-2 ml-1">Hasil Sinhala</label>
+                <div id="output-text" class="w-full min-h-[10rem] p-4 bg-blue-50 border border-blue-100 rounded-2xl text-2xl sinhala-font break-words text-blue-900"></div>
+                
+                <!-- Action Buttons -->
+                <div class="absolute bottom-3 right-3 flex gap-2">
+                    <button id="clear-btn" class="p-2 bg-white/80 hover:bg-white text-slate-500 rounded-xl shadow-sm transition-all border border-slate-100" title="Hapus Teks">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/></svg>
+                    </button>
+                    <button id="copy-btn" class="flex items-center gap-2 py-2 px-4 bg-blue-600 hover:bg-blue-700 text-white rounded-xl shadow-md transition-all font-medium" title="Salin Hasil">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="14" height="14" x="8" y="8" rx="2" ry="2"/><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"/></svg>
+                        <span>Salin</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Info Button -->
+        <button id="info-btn" class="w-full py-3 border-2 border-dashed border-slate-200 text-slate-400 hover:text-slate-600 hover:border-slate-300 rounded-2xl transition-all flex items-center justify-center gap-2">
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/></svg>
+            Panduan Aksara (Info Panel)
+        </button>
+    </main>
+
+    <!-- Info Modal -->
+    <div id="modal" class="fixed inset-0 bg-black/50 hidden z-50 flex items-center justify-center p-4">
+        <div class="bg-white w-full max-w-lg rounded-3xl p-6 overflow-hidden flex flex-col max-h-[90vh]">
+            <div class="flex justify-between items-center mb-4">
+                <h2 class="text-xl font-bold">Panduan Transliterasi</h2>
+                <button id="close-modal" class="p-1 hover:bg-slate-100 rounded-lg">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
+                </button>
+            </div>
+            <div class="overflow-y-auto pr-2 custom-scrollbar space-y-4">
+                <section>
+                    <h3 class="font-bold text-blue-600 border-b pb-1 mb-2">Vokal Mandiri (Swara)</h3>
+                    <div class="grid grid-cols-3 gap-2 text-sm">
+                        <div class="p-2 bg-slate-50 rounded">a → අ</div>
+                        <div class="p-2 bg-slate-50 rounded">i → ඉ</div>
+                        <div class="p-2 bg-slate-50 rounded">u → උ</div>
+                        <div class="p-2 bg-slate-50 rounded">e → ඒ</div>
+                        <div class="p-2 bg-slate-50 rounded">é (taling) → එ</div>
+                        <div class="p-2 bg-slate-50 rounded">o → ඕ</div>
+                        <div class="p-2 bg-slate-50 rounded">ŏ (pepet) → ඔ</div>
+                        <div class="p-2 bg-slate-50 rounded">æ → ඇ</div>
+                        <div class="p-2 bg-slate-50 rounded">ai → ඓ</div>
+                    </div>
+                </section>
+                <section>
+                    <h3 class="font-bold text-blue-600 border-b pb-1 mb-2">Medial & Final</h3>
+                    <div class="grid grid-cols-2 gap-2 text-sm">
+                        <div class="p-2 bg-slate-50 rounded">kya (Pengkal) → ක්‍ය</div>
+                        <div class="p-2 bg-slate-50 rounded">kra (Cakra) → ක්‍ර</div>
+                        <div class="p-2 bg-slate-50 rounded">kang (Cecak) → කං</div>
+                        <div class="p-2 bg-slate-50 rounded">kah (Wignyan) → කඃ</div>
+                    </div>
+                </section>
+                <section>
+                    <h3 class="font-bold text-blue-600 border-b pb-1 mb-2">Contoh Kata</h3>
+                    <div class="grid grid-cols-2 gap-2 text-sm italic text-slate-600">
+                        <div class="p-2 border rounded">pantai → පන්තෛ</div>
+                        <div class="p-2 border rounded">makan → මකන්</div>
+                        <div class="p-2 border rounded">sri lanka → ශ්‍රී ලංකා</div>
+                        <div class="p-2 border rounded">budhu → බුදු</div>
+                    </div>
+                </section>
+            </div>
+        </div>
+    </div>
+
+    <!-- Notification Toast -->
+    <div id="toast" class="fixed bottom-10 left-1/2 glass-effect px-6 py-3 rounded-2xl shadow-2xl border-blue-200 text-blue-700 font-semibold flex items-center gap-3 z-[60]">
+        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-green-500"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><path d="m9 11 3 3L22 4"/></svg>
+        Aksara Berhasil Disalin
+    </div>
+
+    <script>
+        const inputText = document.getElementById('input-text');
+        const outputText = document.getElementById('output-text');
+        const clearBtn = document.getElementById('clear-btn');
+        const copyBtn = document.getElementById('copy-btn');
+        const modeLatinSi = document.getElementById('mode-latin-si');
+        const modeSiLatin = document.getElementById('mode-si-latin');
+        const toast = document.getElementById('toast');
+        const infoBtn = document.getElementById('info-btn');
+        const modal = document.getElementById('modal');
+        const closeModal = document.getElementById('close-modal');
+
+        let currentMode = 'LATIN_TO_SINHALA';
+
+        // Mapping Data
+        const latToSiVowelsStand = { 'ai': 'ඓ', 'au': 'ඖ', 'ae': 'ඇ', 'ǣ': 'ඈ', 'æ': 'ඇ', 'a': 'අ', 'i': 'ඉ', 'u': 'උ', 'e': 'ඒ', 'é': 'එ', 'o': 'ඕ', 'ŏ': 'ඔ' };
+        const latToSiVowelsDep = { 'ai': 'ෛ', 'au': 'ෞ', 'ae': 'ැ', 'ǣ': 'ෑ', 'æ': 'ැ', 'a': '', 'i': 'ි', 'u': 'ු', 'e': 'ේ', 'é': 'ෙ', 'o': 'ෝ', 'ŏ': 'ො' };
+        const latToSiCons = { 'kh': 'ඛ', 'sy': 'ශ', 'th': 'ථ', 'dh': 'ධ', 'ng': 'ඟ', 'ny': 'ඤ', 'k': 'ක', 'g': 'ග', 'c': 'ච', 'j': 'ජ', 't': 'ත', 'd': 'ද', 'n': 'න', 'p': 'ප', 'b': 'බ', 'm': 'ම', 'y': 'ය', 'r': 'ර', 'l': 'ල', 'w': 'ව', 's': 'ස', 'h': 'හ', 'f': 'ෆ', 'v': 'ව', 'z': 'ස' };
+        const latToSiMedials = { 'y': '්‍ය', 'r': '්‍ර', 'l': '්ල', 'w': '්ව' };
+
+        // Reverse Mapping for Sinhala to Latin
+        const siToLatVowelsStand = Object.fromEntries(Object.entries(latToSiVowelsStand).map(([k, v]) => [v, k]));
+        const siToLatVowelsDep = Object.fromEntries(Object.entries(latToSiVowelsDep).map(([k, v]) => [v, k === '' ? 'a' : k]));
+        const siToLatCons = Object.fromEntries(Object.entries(latToSiCons).map(([k, v]) => [v, k]));
+        const siToLatMedials = { '්‍ය': 'y', '්‍ර': 'r', '්ල': 'l', '්ව': 'w' };
+
+        function latinToSinhala(text) {
+            let res = "";
+            let i = 0;
+            const input = text.toLowerCase();
+            
+            while (i < input.length) {
+                let found = false;
+                if (input[i] === " " || input[i] === "\n") { res += input[i]; i++; continue; }
+
+                // Check Standalone Vowels
+                const isStart = (i === 0 || input[i-1] === ' ' || input[i-1] === '\n');
+                if (isStart) {
+                    const sortedV = Object.keys(latToSiVowelsStand).sort((a,b) => b.length - a.length);
+                    for (let v of sortedV) {
+                        if (input.substr(i, v.length) === v) {
+                            res += latToSiVowelsStand[v]; i += v.length; found = true; break;
+                        }
+                    }
+                }
+                if (found) continue;
+
+                // Check Consonants
+                const sortedC = Object.keys(latToSiCons).sort((a,b) => b.length - a.length);
+                for (let c of sortedC) {
+                    if (input.substr(i, c.length) === c) {
+                        let base = latToSiCons[c];
+                        let nextIdx = i + c.length;
+                        let med = "";
+                        if (latToSiMedials[input[nextIdx]] && !['a','i','u','e','o'].includes(input[nextIdx+1])) {
+                            med = latToSiMedials[input[nextIdx]]; nextIdx++;
+                        }
+                        
+                        let vow = "්"; // Default Hal
+                        const sortedDV = Object.keys(latToSiVowelsDep).sort((a,b) => b.length - a.length);
+                        for (let v of sortedDV) {
+                            if (input.substr(nextIdx, v.length) === v) {
+                                vow = latToSiVowelsDep[v]; nextIdx += v.length; break;
+                            }
+                        }
+
+                        // Special Finals
+                        if (vow === "" && input.substr(nextIdx, 2) === "ng") { vow = "ං"; nextIdx += 2; }
+                        else if (vow === "" && input[nextIdx] === "h" && (input[nextIdx+1] === " " || !input[nextIdx+1])) { vow = "ඃ"; nextIdx += 1; }
+
+                        res += base + med + vow; i = nextIdx; found = true; break;
+                    }
+                }
+                if (!found) { res += input[i]; i++; }
+            }
+            return res.replace(/ර්([කගචජතදනපබමයරලවසෆ])/g, "ර්$1");
+        }
+
+        function sinhalaToLatin(text) {
+            let res = "";
+            let i = 0;
+            while (i < text.length) {
+                let char = text[i];
+                if (char === " " || char === "\n") { res += char; i++; continue; }
+
+                // 1. Standalone Vowels
+                if (siToLatVowelsStand[char]) {
+                    res += siToLatVowelsStand[char]; i++; continue;
+                }
+
+                // 2. Consonants
+                if (siToLatCons[char]) {
+                    let latCons = siToLatCons[char];
+                    let next = text[i+1];
+                    let medial = "";
+                    
+                    // Check for combined medial characters (like ්‍ය,්‍ර)
+                    if (next && siToLatMedials[text.substr(i+1, 2)]) {
+                        medial = siToLatMedials[text.substr(i+1, 2)];
+                        i += 2;
+                        next = text[i+1];
+                    }
+
+                    // Check for Dependent Vowel / Hal
+                    if (next === '්') { // Hal-kirima (Pangkon)
+                        res += latCons + medial; i += 2;
+                    } else if (siToLatVowelsDep[next]) {
+                        res += latCons + medial + siToLatVowelsDep[next]; i += 2;
+                    } else if (next === 'ං') {
+                        res += latCons + medial + "ang"; i += 2;
+                    } else if (next === 'ඃ') {
+                        res += latCons + medial + "ah"; i += 2;
+                    } else {
+                        // Implicit 'a' (like Aksara Jawa)
+                        res += latCons + medial + "a"; i++;
+                    }
+                    continue;
+                }
+
+                res += char; i++;
+            }
+            // Cleanup double 'a' like 'aa' -> 'a' if it's from implicit + explicit overlap logic
+            return res.replace(/aa/g, "a");
+        }
+
+        function updateConversion() {
+            const input = inputText.value;
+            if (currentMode === 'LATIN_TO_SINHALA') {
+                outputText.innerText = latinToSinhala(input);
+            } else {
+                outputText.innerText = sinhalaToLatin(input);
+            }
+        }
+
+        inputText.addEventListener('input', updateConversion);
+
+        clearBtn.addEventListener('click', () => {
+            inputText.value = ""; outputText.innerText = "";
+        });
+
+        copyBtn.addEventListener('click', () => {
+            const text = outputText.innerText;
+            if (!text) return;
+            const el = document.createElement('textarea');
+            el.value = text;
+            document.body.appendChild(el);
+            el.select();
+            document.execCommand('copy');
+            document.body.removeChild(el);
+            toast.classList.add('show');
+            setTimeout(() => toast.classList.remove('show'), 2000);
+        });
+
+        modeLatinSi.addEventListener('click', () => {
+            currentMode = 'LATIN_TO_SINHALA';
+            modeLatinSi.classList.add('bg-white', 'shadow-sm', 'text-blue-600');
+            modeSiLatin.classList.remove('bg-white', 'shadow-sm', 'text-blue-600');
+            document.getElementById('input-label').innerText = "Input Latin";
+            document.getElementById('output-label').innerText = "Hasil Sinhala";
+            inputText.placeholder = "Contoh: pantai, mama";
+            updateConversion();
+        });
+
+        modeSiLatin.addEventListener('click', () => {
+            currentMode = 'SINHALA_TO_LATIN';
+            modeSiLatin.classList.add('bg-white', 'shadow-sm', 'text-blue-600');
+            modeLatinSi.classList.remove('bg-white', 'shadow-sm', 'text-blue-600');
+            document.getElementById('input-label').innerText = "Input Sinhala";
+            document.getElementById('output-label').innerText = "Hasil Latin";
+            inputText.placeholder = "Contoh: පන්තෛ";
+            updateConversion();
+        });
+
+        infoBtn.addEventListener('click', () => modal.classList.remove('hidden'));
+        closeModal.addEventListener('click', () => modal.classList.add('hidden'));
+        window.onclick = (e) => { if (e.target == modal) modal.classList.add('hidden'); }
+    </script>
+</body>
+</html>
