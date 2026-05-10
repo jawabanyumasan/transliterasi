@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lao Script Transliteration</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+Lao:wght@400;700&family=Inter:wght@400;600&display=swap');
+        
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f1f5f9;
+        }
+        .lao-font {
+            font-family: 'Noto Sans Lao', sans-serif;
+        }
+        .glass-card {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(226, 232, 240, 0.8);
+        }
+        textarea {
+            outline: none !important;
+        }
+    </style>
+</head>
+<body class="min-h-screen py-6 px-4">
+    <div class="max-w-2xl mx-auto space-y-6">
+        <!-- Header -->
+        <header class="text-center space-y-2">
+            <h1 class="text-3xl font-bold text-indigo-900">ອັກສອນລາວ</h1>
+            <p class="text-slate-600">Lao Script for Javanese (Fix Vokal & Suku Kata)</p>
+        </header>
+
+        <!-- Main Converter Card -->
+        <div class="glass-card rounded-3xl shadow-xl overflow-hidden">
+            <!-- Latin Input -->
+            <div class="p-6 border-b border-slate-100 relative">
+                <div class="flex justify-between items-center mb-3">
+                    <label class="text-xs font-bold text-slate-400 uppercase tracking-widest">Latin / Romaji</label>
+                    <div class="flex gap-2">
+                        <button onclick="copyText('latinInput')" class="text-xs px-3 py-1 bg-slate-100 hover:bg-slate-200 text-slate-600 rounded-full transition-all active:scale-95">Copy</button>
+                        <button onclick="clearAll()" class="text-xs px-3 py-1 bg-red-50 hover:bg-red-100 text-red-500 rounded-full transition-all active:scale-95">Clear</button>
+                    </div>
+                </div>
+                <textarea id="latinInput" 
+                    class="relative z-10 w-full h-32 p-0 bg-transparent text-slate-800 text-xl resize-none placeholder:text-slate-300"
+                    placeholder="Contoh: 'kaka' -> 'ກັກະ', 'kang' -> 'ກັງ'"></textarea>
+            </div>
+
+            <!-- Lao Result -->
+            <div class="p-6 bg-white relative">
+                <div class="flex justify-between items-center mb-3">
+                    <label class="text-xs font-bold text-indigo-400 uppercase tracking-widest">Aksara Lao</label>
+                    <button onclick="copyText('laoInput')" class="flex items-center gap-1 text-xs px-4 py-1.5 bg-indigo-600 hover:bg-indigo-700 text-white rounded-full transition-all shadow-md active:scale-95">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="14" height="14" x="8" y="8" rx="2" ry="2"/><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"/></svg>
+                        Salin Aksara
+                    </button>
+                </div>
+                <textarea id="laoInput" 
+                    class="lao-font relative z-10 w-full h-32 p-0 bg-transparent text-indigo-900 text-3xl resize-none placeholder:text-indigo-100"
+                    placeholder="Hasil otomatis muncul di sini..."></textarea>
+            </div>
+        </div>
+
+        <!-- Notification Toast -->
+        <div id="toast" class="fixed bottom-10 left-1/2 -translate-x-1/2 px-6 py-3 bg-slate-900 text-white rounded-full text-sm font-medium opacity-0 translate-y-4 transition-all duration-300 pointer-events-none z-50">
+            Aksara Berhasil Disalin
+        </div>
+
+        <!-- Info Button -->
+        <div class="flex justify-center">
+            <button onclick="toggleGuide()" class="text-indigo-600 font-medium flex items-center gap-2 hover:bg-indigo-50 px-4 py-2 rounded-full transition-colors">
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/></svg>
+                Panduan Aturan Vokal
+            </button>
+        </div>
+
+        <!-- Guide Modal -->
+        <div id="guideModal" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm">
+            <div class="bg-white rounded-3xl w-full max-w-lg max-h-[85vh] overflow-y-auto shadow-2xl">
+                <div class="sticky top-0 bg-white p-6 border-b flex justify-between items-center">
+                    <h2 class="text-xl font-bold text-slate-800">Sistem Penulisan</h2>
+                    <button onclick="toggleGuide()" class="p-2 hover:bg-slate-100 rounded-full transition-colors">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
+                    </button>
+                </div>
+                <div class="p-6 space-y-6">
+                    <section>
+                        <h3 class="font-bold text-indigo-700 mb-3 flex items-center gap-2">
+                            <span class="w-2 h-2 bg-indigo-500 rounded-full"></span> Aturan Vokal (Jawa-Lao)
+                        </h3>
+                        <div class="space-y-1 text-sm text-slate-700">
+                            <p><strong>kaka</strong> → ກັກະ (a tengah + a akhir)</p>
+                            <p><strong>kang</strong> → ກັງ (a tengah + ng)</p>
+                            <p><strong>kra</strong> → ກຣະ (Cakra)</p>
+                            <p><strong>arka</strong> → ອັຣກະ (Layar)</p>
+                            <p><strong>é</strong> (akhir: ເ◌ະ | tengah: ເ◌ັ◌)</p>
+                            <p><strong>è</strong> (akhir: ແ◌ະ | tengah: ແ◌ັ◌)</p>
+                            <p><strong>ô</strong> (akhir: ໂ◌ະ | tengah: ◌ົ◌)</p>
+                            <p><strong>o</strong> (akhir: ເ◌າະ | tengah: ◌ັອ◌)</p>
+                        </div>
+                    </section>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const latinInput = document.getElementById('latinInput');
+        const laoInput = document.getElementById('laoInput');
+        const toast = document.getElementById('toast');
+        const guideModal = document.getElementById('guideModal');
+
+        const consonants = {
+            'kh': 'ຂ', 'ng': 'ງ', 'sy': 'ສ', 'ny': 'ຍ', 'th': 'ທ', 'dh': 'ດ',
+            'f': 'ຝ', 'v': 'ວ', 'w': 'ວ', 'q': 'ກ', 'k': 'ກ', 'z': 'ຊ',
+            's': 'ສ', 'c': 'ຈ', 'd': 'ດ', 't': 'ຕ', 'n': 'ນ', 'b': 'ບ',
+            'p': 'ປ', 'm': 'ມ', 'y': 'ຢ', 'r': 'ຣ', 'l': 'ລ', 'h': 'ຫ',
+            'j': 'ຈ', 'g': 'ກ'
+        };
+
+        const numbers = {
+            '0': '໐', '1': '໑', '2': '໒', '3': '໓', '4': '໔', '5': '໕',
+            '6': '໖', '7': '໗', '8': '໘', '9': '໙'
+        };
+
+        const vowelChars = 'aeiouāīūǣéô';
+
+        function showToast() {
+            toast.classList.remove('opacity-0', 'translate-y-4');
+            toast.classList.add('opacity-100', 'translate-y-0');
+            setTimeout(() => {
+                toast.classList.add('opacity-0', 'translate-y-4');
+                toast.classList.remove('opacity-100', 'translate-y-0');
+            }, 2000);
+        }
+
+        function toggleGuide() { guideModal.classList.toggle('hidden'); }
+        function clearAll() { latinInput.value = ''; laoInput.value = ''; }
+
+        function copyText(id) {
+            const el = document.getElementById(id);
+            if (!el.value) return;
+            el.select();
+            document.execCommand('copy');
+            showToast();
+            window.getSelection().removeAllRanges();
+        }
+
+        function isVowel(c) { return vowelChars.includes(c); }
+
+        function latToLao(text) {
+            let result = '';
+            let raw = text.toLowerCase().replace(/wa/g, 'va');
+            let words = raw.split(/(\s+)/);
+
+            words.forEach(word => {
+                if (/\s+/.test(word)) { result += word; return; }
+
+                let i = 0;
+                while (i < word.length) {
+                    let char = word[i];
+
+                    // Numbers
+                    if (numbers[char]) { result += numbers[char]; i++; continue; }
+
+                    // 1. Konsonan (C)
+                    let c = '', laoC = '';
+                    if (consonants[word.substr(i, 2)]) { c = word.substr(i, 2); i += 2; }
+                    else if (consonants[char]) { c = char; i++; }
+                    else if (isVowel(char)) { laoC = 'ອ'; }
+                    else { i++; continue; }
+
+                    if (c) laoC = consonants[c];
+
+                    // 2. Medial (M) - Javanese Pengkal/Cakra logic
+                    let laoM = '';
+                    if (i < word.length && ['y', 'r', 'l', 'v', 'w'].includes(word[i])) {
+                        if (isVowel(word[i+1])) { // Medial jika diikuti vokal
+                            laoM = consonants[word[i]];
+                            i++;
+                        }
+                    }
+
+                    // 3. Vokal (V)
+                    let v = '';
+                    if (isVowel(word.substr(i, 2))) { v = word.substr(i, 2); i += 2; }
+                    else if (isVowel(word[i])) { v = word[i]; i++; }
+
+                    // 4. Final (F) - Cecak/Layar logic
+                    let f = '', laoF = '';
+                    if (i < word.length && !isVowel(word[i])) {
+                        // Konsonan ini final jika:
+                        // - Berada di ujung kata
+                        // - ATAU diikuti konsonan lain (bukan vokal)
+                        if (i + 1 >= word.length || !isVowel(word[i+1])) {
+                            if (consonants[word.substr(i, 2)]) { f = word.substr(i, 2); i += 2; }
+                            else if (consonants[word[i]]) { f = word[i]; i++; }
+                            laoF = consonants[f] || '';
+                        }
+                    }
+
+                    // 5. Penentuan Akhir Kata (untuk Vokal Akhir vs Tengah)
+                    let isAkhir = (f === '' && i >= word.length);
+
+                    // ASSEMBLE (Menggabungkan)
+                    if (v === 'a') {
+                        if (isAkhir) result += (laoC + laoM + 'ະ');
+                        else result += (laoC + laoM + 'ັ' + laoF);
+                    } else if (v === 'e' || v === 'é') {
+                        if (isAkhir) result += ('ເ' + laoC + laoM + 'ະ');
+                        else result += ('ເ' + laoC + laoM + 'ັ' + laoF);
+                    } else if (v === 'ǣ' || v === 'è') {
+                        if (isAkhir) result += ('ແ' + laoC + laoM + 'ະ');
+                        else result += ('ແ' + laoC + laoM + 'ັ' + laoF);
+                    } else if (v === 'ô') {
+                        if (isAkhir) result += ('ໂ' + laoC + laoM + 'ະ');
+                        else result += (laoC + laoM + 'ົ' + laoF);
+                    } else if (v === 'o') {
+                        if (isAkhir) result += ('ເ' + laoC + laoM + 'າະ');
+                        else result += (laoC + laoM + 'ັອ' + laoF);
+                    } else if (v === 'ai') {
+                        result += ('ໄ' + laoC + laoM + laoF);
+                    } else if (v === 'au') {
+                        result += ('ເ' + laoC + laoM + 'ົາ' + laoF);
+                    } else if (v === 'i') {
+                        result += (laoC + laoM + 'ິ' + laoF);
+                    } else if (v === 'u') {
+                        result += (laoC + laoM + 'ຸ' + laoF);
+                    } else if (v === 'ī') {
+                        result += (laoC + laoM + 'ີ' + laoF);
+                    } else if (v === 'ū') {
+                        result += (laoC + laoM + 'ູ' + laoF);
+                    } else if (v === 'ā') {
+                        result += (laoC + laoM + 'າ' + laoF);
+                    } else {
+                        // Jika tidak ada vokal (Konsonan saja)
+                        result += (laoC + laoM + laoF);
+                    }
+                }
+            });
+            return result;
+        }
+
+        latinInput.addEventListener('input', () => {
+            laoInput.value = latToLao(latinInput.value);
+        });
+    </script>
+</body>
+</html>
